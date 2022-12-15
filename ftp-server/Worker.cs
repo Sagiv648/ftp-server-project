@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Net.Sockets;
+using System.IO;
 
 namespace ftp_server
 {
@@ -12,7 +13,7 @@ namespace ftp_server
     {
         Thread t;
         WorkerInput input;
-
+       
         
         public static Mutex ManagerOverseerMutex = new Mutex();
 
@@ -23,6 +24,7 @@ namespace ftp_server
         {
             t = new Thread(workingMethod);
             this.input = input;
+            
             
 
         }
@@ -38,9 +40,21 @@ namespace ftp_server
         public static void WorkerMethod(object obj)
         {
             WorkerInput input = (WorkerInput)obj;
-            
-            Console.WriteLine($"Hello from {Thread.CurrentThread.ManagedThreadId}");
-            input.SetWorkFinishedStatus(true);
+
+            while (true)
+            {
+                input.SetWorkFinishedStatus(true);
+                input.SetWorkFinishedStatus(!input.GetSignal().WaitOne());
+
+                StreamReader r = new StreamReader(input.GetStream());
+
+                //Read the bytes from the client's stream and parse the packets accordingly
+                
+                
+            }
+
+
+
         }
 
         public static void UpdateWorkers(List<Worker> oldWorkers, List<Worker> newWorkers)
@@ -50,16 +64,29 @@ namespace ftp_server
                 while (!item.GetWorkerInput().IsWorkFinished()) ; //Spinning lock
             }
             
-            oldWorkers.ForEach(x => x.GetThread().Abort());
+            for(int i = 0; i < oldWorkers.Count; i++)
+            {
+
+                oldWorkers[i].GetWorkerInput().GetSignal().Dispose();
+                oldWorkers[i].GetThread().Abort();
+                
+            }
+            oldWorkers.Clear();
             int newWorkersLen = newWorkers.Capacity;
             for(int i = 0; i < newWorkersLen; i++)
             {
                 newWorkers.Add(new Worker(WorkerMethod, new WorkerInput()));
+                newWorkers[i].t.Start(newWorkers[i].GetWorkerInput());
                 
                 
             }
             workers = newWorkers;
 
+        }
+
+        public override string ToString()
+        {
+            return $"Worker - {t.ManagedThreadId}, " + string.Format("{0}", input.IsWorkFinished() ? "Offline" : "Online");
         }
 
     }

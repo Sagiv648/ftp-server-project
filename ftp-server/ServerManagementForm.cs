@@ -8,29 +8,30 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.Runtime.CompilerServices;
+
 namespace ftp_server
 {
     public partial class ServerManagementForm : Form
     {
 
         List<Worker> workers;
-
+       
         public ServerManagementForm(List<Worker> workers)
         {
             InitializeComponent();
             this.workers = workers;
-            Console.WriteLine($"On mng form - {workers.Count}");
+            
             workerAmountTxtBox.Text = workers.Count.ToString();
 
+            workersLst.DataSource = workers;
             
         }
-
+        
         private void workersAmountEditBtn_Click(object sender, EventArgs e)
         {
-
-
-
-
+            
+            
             int test;
             if(!int.TryParse(workerAmountTxtBox.Text, out test))
             {
@@ -41,11 +42,17 @@ namespace ftp_server
             
             
             Worker.ManagerOverseerMutex.WaitOne(); //Stops the manager thread from working
-            Console.WriteLine("Acquired");
+            processinglastreqlbl.Visible = true;
             Worker.UpdateWorkers(workers, newList);
             workers = newList;
             Worker.ManagerOverseerMutex.ReleaseMutex(); // At this point the manager thread will take the lead and assign the jobs to the workers himself
+            workersLst.DataSource = workers;
+            processinglastreqlbl.Visible = false;
             
+        }
+
+        private void ServerManagementForm_Load(object sender, EventArgs e)
+        {
 
         }
     }

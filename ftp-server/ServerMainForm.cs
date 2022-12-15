@@ -19,11 +19,17 @@ namespace ftp_server
         //List<Worker> workers = new List<Worker>();
 
         public static Thread manager = new Thread(new ThreadStart(ManagerMethod));
-        public static Thread listenerThread = new Thread(new ThreadStart(ListenerMethod));
+        public static Thread listenerThread = new Thread(new ParameterizedThreadStart(ListenerMethod));
+
+        public static AutoResetEvent listenerManagerCommunication = new AutoResetEvent(false);
+        
+
         public int workersNum = 10;
         int backlog = 50;
         public static Queue<TcpClient> clientsQueue = new Queue<TcpClient>();
         TcpListener serverListener;
+
+        
 
         ServerManagementForm mangForm = null;
         Dictionary<IntPtr, Control> controls = new Dictionary<IntPtr,Control>();
@@ -39,22 +45,76 @@ namespace ftp_server
             for (int i = 0; i < workersNum; i++)
             {
                 Worker.workers.Add(new Worker(Worker.WorkerMethod, new WorkerInput()));
-                //workers[workers.Count - 1].GetThread().Start(workers[workers.Count - 1].GetWorkerInput());
+                Worker.workers[i].GetWorkerInput().SetWorkFinishedStatus(true);
+                Worker.workers[i].GetThread().Start(Worker.workers[i].GetWorkerInput());
+                
             }
+                
+                
+            
             
                 
 
         }
 
          // Management threads methods
-         public static void ListenerMethod()
+         public static void ListenerMethod(object obj)
          {
-            Console.WriteLine($"This is the listener {Thread.CurrentThread.ManagedThreadId}");
+            while (true)
+            {
+                TcpListener listener = (TcpListener)obj;
+                TcpClient cl = listener.AcceptTcpClient();
+                clientsQueue.Enqueue(cl);
+            }
+            
+            
          }
 
          public static void ManagerMethod()
          {
-            Console.WriteLine($"This is the manager {Thread.CurrentThread.ManagedThreadId}");
+            
+
+
+            
+            while (true)
+            {
+                while (clientsQueue.Count == 0)
+                {
+                    Thread.Sleep(5000);
+                }
+                
+                Worker.ManagerOverseerMutex.WaitOne();
+                int i = 0;
+                for(i = 0; i < Worker.workers.Count; i++)
+                {
+                    if (Worker.workers[i].GetWorkerInput().IsWorkFinished())
+                    {
+                        Worker.workers[i].GetWorkerInput().SetClient(clientsQueue.Dequeue());
+                        Worker.workers[i].GetWorkerInput().SetWorkFinishedStatus(false);
+
+                        Worker.workers[i].GetWorkerInput().GetSignal().Set();
+
+                       
+                        break;
+                    }
+                }
+                Worker.ManagerOverseerMutex.ReleaseMutex();
+                if (i == Worker.workers.Count)
+                    Thread.Sleep(1000);
+
+
+                
+                
+
+            }
+            
+
+            
+                
+            
+
+
+            
          }
  
 
@@ -103,6 +163,8 @@ namespace ftp_server
         {
             if (e.KeyChar == (char)Keys.Enter && InitServer())
             {
+                listenerThread.Start(serverListener);
+                manager.Start();
                 mangForm = new ServerManagementForm(Worker.workers);
                 List<Control> ctrls = controls.Values.ToList();
                 ctrls.FindAll(x => x.Visible == true).ForEach(x => x.Visible = false);
@@ -110,6 +172,7 @@ namespace ftp_server
                 serverRunnerBtn.Text = "Manage";
                 serverRunnerBtn.Visible = true;
                 mangForm.ShowDialog();
+                //mangForm.Show();
                 
             }
             
@@ -124,6 +187,8 @@ namespace ftp_server
             mangForm = new ServerManagementForm(Worker.workers);
             if (((Control)sender).Text == "Run" && InitServer())
             {
+                listenerThread.Start(serverListener);
+                manager.Start();
                 List<Control> ctrls = controls.Values.ToList();
                 ctrls.FindAll(x => x.Visible == true).ForEach(x => x.Visible = false);
                 controls[runningLoopLbl.Handle].Visible = true;

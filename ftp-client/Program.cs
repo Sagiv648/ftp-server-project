@@ -6,7 +6,8 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using EasyEncryption;
-using System.Security.Cryptography;
+using System.IO;
+using System.Text;
 
 namespace ftp_client
 {
@@ -81,13 +82,22 @@ namespace ftp_client
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        /// 
+
+        public static TcpClient cl = new TcpClient();
+        public static readonly string serverIP = "192.168.1.18";
+        public static readonly int port = 20;
         [STAThread]
         static void Main()
         {
-            string hashedPass = EasyEncryption.MD5.ComputeMD5Hash("12345");
-            Console.WriteLine("MD5: {0}", EasyEncryption.MD5.ComputeMD5Hash("12345"));
-            Console.WriteLine("SHA1: {0}", EasyEncryption.SHA.ComputeSHA1Hash("12345"));
-            Console.WriteLine("SHA256: {0}", EasyEncryption.SHA.ComputeSHA256Hash("vxhnvakhvhtfzueav123456bfui1234567890-+13919mmm"));
+
+            cl.Connect(new IPEndPoint(IPAddress.Parse(serverIP), port));
+            StreamWriter r = new StreamWriter(cl.GetStream(), Encoding.ASCII);
+            string msg = "Code:10\0\r\nUserName:[]\0\r\nUserEmail:[]\0\r\nHashedPassword:[]\0\r\n";
+            
+            r.WriteLine(msg);
+            r.Flush();
+
             
             //TODO: Conditionally run the inital form depends on the response the client get from the server about whether the session is valid or not.
             //Session valid ? => straight to the application.

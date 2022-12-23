@@ -40,17 +40,80 @@ namespace ftp_server
         public static void WorkerMethod(object obj)
         {
             WorkerInput input = (WorkerInput)obj;
+            //DirectoryInfo directoy = null;
+            Queue<string> localBuffer = new Queue<string>();
+            ;
+            int bufferSize = (int)Math.Pow(2, 10) * 64;
+
+            StreamReader reader = null;
+            StreamWriter writer = null;
 
             while (true)
             {
+                reader = null;
+                writer = null;
+                //directoy = null;
+                
+                localBuffer.Clear();
+
                 input.SetWorkFinishedStatus(true);
                 input.SetWorkFinishedStatus(!input.GetSignal().WaitOne());
 
-                StreamReader r = new StreamReader(input.GetStream());
+                reader = new StreamReader(input.GetStream(),Encoding.ASCII);
+       
+                writer = new StreamWriter(input.GetStream(), Encoding.ASCII ,bufferSize);
+                
+                
+                Console.WriteLine("Am I here?");
+                string localStr;
+                
+                while( (localStr = reader.ReadLine()).Length != 0)
+                   localBuffer.Enqueue(localStr);
+                // At this point, I have the header/userInfo packet
+
+                switch (Packet.RecieveUserInfo(localBuffer,input.GetClient()))
+                {
+                    case (int)Packet.Code.Session_Trying:
+                        Console.WriteLine("session valid");
+                        //Handle the case where the session is valid
+                        break;
+                    case (int)Packet.Code.Sign_Up:
+                        Console.WriteLine("sign up good");
+                        //Handle the case where the user successfully signed up
+                        break;
+
+                    case (int)Packet.Code.Sign_In:
+                        Console.WriteLine("user exists");
+                        //Handle the case where the user successfully signed in
+                        break;
+
+                    case (int)Packet.Code.Sign_Out:
+                        Console.WriteLine("sign out successful");
+                        //Handle the case where the user successfully signed out
+                        break;
+
+                    case (int)Packet.Code.Action_Denied:
+                        Console.WriteLine("denied");
+                        //Handle the case where the packet is valid but the action is denied
+                        break;
+
+                    default:
+                        Console.WriteLine("not a userInfo packet");
+                        //Handle the case where the packet is invalid as a userInfo packet AND may be a header packet
+                        //Packets are sent in Header->Data, never the opposite
+                        break;
+                }
+
+
+                
+                
+                //1. Read from the stream.
+                //2. Parse the bytes.
+
 
                 //Read the bytes from the client's stream and parse the packets accordingly
-                
-                
+
+
             }
 
 

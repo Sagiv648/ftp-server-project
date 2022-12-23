@@ -36,7 +36,14 @@ namespace ftp_server
         public ServerMainForm()
         {
             InitializeComponent();
+            string message;
+            if(!Database.InitTables(out message))
+            {
+                //TODO: Display error message in the admin panel
+                Console.WriteLine(message);
+            }
             
+
             foreach (Control item in Controls)
             {
                 controls.Add(item.Handle, item);
@@ -90,7 +97,7 @@ namespace ftp_server
                     if (Worker.workers[i].GetWorkerInput().IsWorkFinished())
                     {
                         Worker.workers[i].GetWorkerInput().SetClient(clientsQueue.Dequeue());
-                        Worker.workers[i].GetWorkerInput().SetWorkFinishedStatus(false);
+                        //Worker.workers[i].GetWorkerInput().SetWorkFinishedStatus(false);
 
                         Worker.workers[i].GetWorkerInput().GetSignal().Set();
 
@@ -146,6 +153,10 @@ namespace ftp_server
             try
             {
                 serverListener = new TcpListener(endPoint);
+                serverListener.Server.ReceiveBufferSize = (int)Math.Pow(2, 10) * 64;
+                serverListener.Server.SendBufferSize = (int)Math.Pow(2, 10) * 64;
+                //serverListener.Server.ReceiveBufferSize = 50;
+                //serverListener.Server.SendBufferSize = 50;
                 serverListener.Start(backlog);
                 
             }
@@ -166,6 +177,7 @@ namespace ftp_server
                 listenerThread.Start(serverListener);
                 manager.Start();
                 mangForm = new ServerManagementForm(Worker.workers);
+                
                 List<Control> ctrls = controls.Values.ToList();
                 ctrls.FindAll(x => x.Visible == true).ForEach(x => x.Visible = false);
                 controls[runningLoopLbl.Handle].Visible = true;

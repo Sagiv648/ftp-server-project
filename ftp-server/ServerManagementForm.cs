@@ -15,16 +15,18 @@ namespace ftp_server
     public partial class ServerManagementForm : Form
     {
 
-        List<Worker> workers;
-       
+        public static List<Worker> workers;
+        public static ListBox workersLstBoxGlobal = null;
         public ServerManagementForm(List<Worker> workers)
         {
             InitializeComponent();
-            this.workers = workers;
+            ServerManagementForm.workers = workers;
             
             workerAmountTxtBox.Text = workers.Count.ToString();
 
             workersLst.DataSource = workers;
+            workersLstBoxGlobal = workersLst;
+            
             
         }
         

@@ -97,7 +97,7 @@ namespace ftp_client
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
            
-            Application.Run(new MainMenu());
+            Application.Run(new MainMenuForm());
             
         }
     }

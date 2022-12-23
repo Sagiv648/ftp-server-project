@@ -13,13 +13,13 @@ using System.IO;
 
 namespace ftp_client
 {
-    public partial class MainMenu : Form
+    public partial class LoginForm : Form
     {
         TcpClient cl = new TcpClient();
         static readonly string serverIP = "192.168.1.18";
         static readonly int port = 7777;
 
-        public MainMenu()
+        public LoginForm()
         {
             InitializeComponent();
             

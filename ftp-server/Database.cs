@@ -7,6 +7,7 @@ using System.Threading;
 using System.Data.SqlClient;
 using System.Net.Sockets;
 using System.Net;
+using EasyEncryption;
 
 namespace ftp_server
 {

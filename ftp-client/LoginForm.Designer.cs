@@ -1,6 +1,6 @@
 ﻿namespace ftp_client
 {
-    partial class MainMenu
+    partial class LoginForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LoginForm));
             this.label1 = new System.Windows.Forms.Label();
             this.userEmailLbl = new System.Windows.Forms.Label();
             this.userPasswordLbl = new System.Windows.Forms.Label();
@@ -35,11 +36,13 @@
             this.userPasswordTextbox = new System.Windows.Forms.TextBox();
             this.loginBtn = new System.Windows.Forms.Button();
             this.RegisterBtn = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Miriam", 20.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(44, 46);
             this.label1.Name = "label1";
@@ -51,6 +54,7 @@
             // userEmailLbl
             // 
             this.userEmailLbl.AutoSize = true;
+            this.userEmailLbl.BackColor = System.Drawing.Color.Transparent;
             this.userEmailLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.userEmailLbl.Location = new System.Drawing.Point(35, 128);
             this.userEmailLbl.Name = "userEmailLbl";
@@ -61,6 +65,7 @@
             // userPasswordLbl
             // 
             this.userPasswordLbl.AutoSize = true;
+            this.userPasswordLbl.BackColor = System.Drawing.Color.Transparent;
             this.userPasswordLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.userPasswordLbl.Location = new System.Drawing.Point(35, 182);
             this.userPasswordLbl.Name = "userPasswordLbl";
@@ -71,6 +76,7 @@
             // userEmailTextBox
             // 
             this.userEmailTextBox.Location = new System.Drawing.Point(92, 128);
+            this.userEmailTextBox.MaxLength = 31;
             this.userEmailTextBox.Name = "userEmailTextBox";
             this.userEmailTextBox.Size = new System.Drawing.Size(232, 20);
             this.userEmailTextBox.TabIndex = 3;
@@ -78,12 +84,15 @@
             // userPasswordTextbox
             // 
             this.userPasswordTextbox.Location = new System.Drawing.Point(119, 184);
+            this.userPasswordTextbox.MaxLength = 31;
             this.userPasswordTextbox.Name = "userPasswordTextbox";
             this.userPasswordTextbox.Size = new System.Drawing.Size(232, 20);
             this.userPasswordTextbox.TabIndex = 4;
+            this.userPasswordTextbox.UseSystemPasswordChar = true;
             // 
             // loginBtn
             // 
+            this.loginBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.loginBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.loginBtn.Location = new System.Drawing.Point(119, 235);
             this.loginBtn.Name = "loginBtn";
@@ -94,6 +103,7 @@
             // 
             // RegisterBtn
             // 
+            this.RegisterBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.RegisterBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.RegisterBtn.Location = new System.Drawing.Point(92, 344);
             this.RegisterBtn.Name = "RegisterBtn";
@@ -102,11 +112,24 @@
             this.RegisterBtn.Text = "Sign up";
             this.RegisterBtn.UseVisualStyleBackColor = true;
             // 
-            // MainMenu
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.Transparent;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(4, 308);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(347, 20);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "if you don\'t have an account, you should register";
+            // 
+            // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.ClientSize = new System.Drawing.Size(374, 450);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.RegisterBtn);
             this.Controls.Add(this.loginBtn);
             this.Controls.Add(this.userPasswordTextbox);
@@ -114,7 +137,8 @@
             this.Controls.Add(this.userPasswordLbl);
             this.Controls.Add(this.userEmailLbl);
             this.Controls.Add(this.label1);
-            this.Name = "MainMenu";
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "LoginForm";
             this.Text = "FTP Client";
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -130,6 +154,7 @@
         private System.Windows.Forms.TextBox userPasswordTextbox;
         private System.Windows.Forms.Button loginBtn;
         private System.Windows.Forms.Button RegisterBtn;
+        private System.Windows.Forms.Label label2;
     }
 }
 

@@ -15,20 +15,11 @@ namespace ftp_client
 {
     public partial class LoginForm : Form
     {
-        TcpClient cl = new TcpClient();
-        static readonly string serverIP = "192.168.1.18";
-        static readonly int port = 7777;
-
         public LoginForm()
         {
             InitializeComponent();
             
-            cl.Connect(new IPEndPoint(IPAddress.Parse(serverIP), port));
-            StreamWriter r = new StreamWriter(cl.GetStream(), Encoding.ASCII);
-            string msg = "Code:10\0\r\nUserName:[]\0\r\nUserEmail:[]\0\r\nHashedPassword:[]\0\r\n";
-            //Console.WriteLine(msg);
-            r.WriteLine(msg);
-            r.Flush();
+            
         }
     }
 }

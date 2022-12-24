@@ -126,27 +126,10 @@ namespace ftp_server
  
 
          bool InitServer()
-        {
-            int portTest;
-            IPAddress addrTest;
-
+         {
+           
             IPEndPoint endPoint;
-            if( !int.TryParse(portTextBox.Text, out portTest))
-            {
-                MessageBox.Show($"Invalid port number {portTextBox.Text}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            if(ipAddrTextBox.Text.Length == 0)
-            {
-                addrTest = IPAddress.Any;
-
-            }
-            else if(!IPAddress.TryParse(ipAddrTextBox.Text, out addrTest))
-            {
-                MessageBox.Show($"Invalid IP address {ipAddrTextBox.Text}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            endPoint = new IPEndPoint(addrTest, portTest);
+            endPoint = new IPEndPoint(IPAddress.Any, 20);
 
             MessageBox.Show($"Server is running on socket: {endPoint}", "Running", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -168,7 +151,7 @@ namespace ftp_server
             }
             return true;
             
-        }
+         }
 
         private void enterPressed(object sender, KeyPressEventArgs e)
         {

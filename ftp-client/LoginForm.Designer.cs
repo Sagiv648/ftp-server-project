@@ -93,6 +93,7 @@
             // loginBtn
             // 
             this.loginBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.loginBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.loginBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.loginBtn.Location = new System.Drawing.Point(119, 235);
             this.loginBtn.Name = "loginBtn";
@@ -104,6 +105,7 @@
             // RegisterBtn
             // 
             this.RegisterBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.RegisterBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.RegisterBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.RegisterBtn.Location = new System.Drawing.Point(92, 344);
             this.RegisterBtn.Name = "RegisterBtn";
@@ -111,6 +113,7 @@
             this.RegisterBtn.TabIndex = 6;
             this.RegisterBtn.Text = "Sign up";
             this.RegisterBtn.UseVisualStyleBackColor = true;
+            this.RegisterBtn.Click += new System.EventHandler(this.RegisterBtn_Click);
             // 
             // label2
             // 

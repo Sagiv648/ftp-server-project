@@ -39,6 +39,8 @@
             this.confirmPasswordLbl = new System.Windows.Forms.Label();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.backBtn = new System.Windows.Forms.Button();
+            this.emailVerificationNav = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // userNameLbl
@@ -93,6 +95,7 @@
             this.registerBtn.TabIndex = 6;
             this.registerBtn.Text = "Register";
             this.registerBtn.UseVisualStyleBackColor = false;
+            this.registerBtn.Click += new System.EventHandler(this.registerBtn_Click);
             // 
             // emailLbl
             // 
@@ -147,6 +150,40 @@
             this.label1.TabIndex = 11;
             this.label1.Text = "Register";
             // 
+            // backBtn
+            // 
+            this.backBtn.BackColor = System.Drawing.Color.Transparent;
+            this.backBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.backBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.backBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.backBtn.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            this.backBtn.FlatAppearance.BorderSize = 0;
+            this.backBtn.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.backBtn.Location = new System.Drawing.Point(308, 374);
+            this.backBtn.Name = "backBtn";
+            this.backBtn.Size = new System.Drawing.Size(118, 45);
+            this.backBtn.TabIndex = 12;
+            this.backBtn.Text = "Back";
+            this.backBtn.UseVisualStyleBackColor = false;
+            this.backBtn.Click += new System.EventHandler(this.backBtn_Click);
+            // 
+            // emailVerificationNav
+            // 
+            this.emailVerificationNav.BackColor = System.Drawing.Color.Transparent;
+            this.emailVerificationNav.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.emailVerificationNav.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.emailVerificationNav.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.emailVerificationNav.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            this.emailVerificationNav.FlatAppearance.BorderSize = 0;
+            this.emailVerificationNav.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.emailVerificationNav.Location = new System.Drawing.Point(12, 374);
+            this.emailVerificationNav.Name = "emailVerificationNav";
+            this.emailVerificationNav.Size = new System.Drawing.Size(118, 53);
+            this.emailVerificationNav.TabIndex = 13;
+            this.emailVerificationNav.Text = "Email Verification";
+            this.emailVerificationNav.UseVisualStyleBackColor = false;
+            this.emailVerificationNav.Click += new System.EventHandler(this.emailVerificationNav_Click);
+            // 
             // RegisterForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -154,6 +191,8 @@
             this.AutoSize = true;
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.ClientSize = new System.Drawing.Size(455, 450);
+            this.Controls.Add(this.emailVerificationNav);
+            this.Controls.Add(this.backBtn);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.confirmPasswordLbl);
             this.Controls.Add(this.textBox4);
@@ -184,5 +223,7 @@
         private System.Windows.Forms.Label confirmPasswordLbl;
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button backBtn;
+        private System.Windows.Forms.Button emailVerificationNav;
     }
 }

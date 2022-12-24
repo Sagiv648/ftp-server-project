@@ -6,28 +6,24 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net.Sockets;
 using System.Windows.Forms;
-using System.Net;
-using System.IO;
 
 namespace ftp_client
 {
-    public partial class LoginForm : Form
+    public partial class EmailVerificationForm : Form
     {
-        public LoginForm(List<object> opaqueObjects)
+        public EmailVerificationForm(List<object> opaqueObjects)
         {
             InitializeComponent();
             FormClosing += Program.CloseForm;
-
-
         }
 
-        private void RegisterBtn_Click(object sender, EventArgs e)
+        private void emailVerificationBackBtn_Click(object sender, EventArgs e)
         {
             Program.navigatedForm = "RegisterForm";
             Hide();
             Dispose();
         }
+
     }
 }

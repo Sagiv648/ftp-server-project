@@ -1,0 +1,133 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Net;
+using System.Net.Mail;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ftp_client
+{
+    public static class Connection
+    {
+        static TcpClient client = new TcpClient();
+        static SmtpClient mailClient = new SmtpClient("smtp.gmail.com", 587);
+        
+        public static readonly string serverIP = "192.168.1.18";
+        public static readonly int port = 20;
+        //Header Packet should look like this
+        /* UserName:[]\r\n
+         * UserEmail:[]\r\n
+         * Code:[]\r\n
+         * Directory:[][Directory]\r\n
+         * FileName:[]\r\n
+         * FileSize:[]\r\n
+         * AccessModifier:[]
+         * 
+         * 
+         * 
+         * 
+         */
+        
+        static readonly string headerRequest = "Code:1%\r\n" +
+            "UserId:2%\r\n" +
+            "UserName:3%\r\n" +
+            "FileName:4%\r\n" +
+            "FileSize:5%\r\n" +
+            "Access:6%\r\n" +
+            "END\r\n";
+
+
+        static readonly string userInfoRequest = "Code:1%\r\n" +
+            "UserName:%2\r\n" +
+            "UserEmail:%3\r\n" +
+            "HashedPassword:%4\r\n" +
+            "END\r\n";
+
+        public enum Code
+        {
+
+            Sign_Up = 0,
+            Sign_In = 1,
+            Sign_Out = 2,
+            File_Upload = 3,
+            File_Download = 4,
+            File_Delete = 5,
+            File_Rename = 6,
+            Session_Trying = 10,
+            Action_Confirm = 200,
+            Action_Denied = 400,
+            User_Already_Exists = 500
+
+
+        }
+
+
+        static StringBuilder packetBuilder = new StringBuilder();
+        
+        
+        public static bool InitEmailClient()
+        {
+            try
+            {
+                mailClient.Credentials = new NetworkCredential("lsrpacc9@gmail.com", "rcabxcabfdxervev");
+                mailClient.EnableSsl = true;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}\n{ex.Source}");
+
+                return false;
+            }
+
+            return true;
+        }
+
+
+        /// <summary>
+        /// Will send a userInfo request to the server to try for a session.
+        /// </summary>
+        /// <returns><b>Dictionary with fields and their values</b> if the session is valid and <b>null</b> if the session is invalid.</returns>
+        public static Dictionary<string,string> TrySession()
+        {
+            
+            return null;
+        }
+        
+        /// <summary>
+        /// Will send a userInfo request to the server to login to the server.
+        /// </summary>
+        /// <param name="userEmail"></param>
+        /// <param name="userPassword"></param>
+        /// <returns><b>Dictionary with the fields and their values</b> if the user managed to login successfully and <b>null</b> if the login didn't manage to login successfully.</returns>
+        public static Dictionary<string,string> SendLoginRequest(string userEmail, string userPassword)
+        {
+
+            return null;
+        }
+
+        /// <summary>
+        /// Will send a userInfo request to the server to register an account to the server.
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="userEmail"></param>
+        /// <param name="userPassword"></param>
+        /// <returns><b>Dictionary with the fields and their values</b> if the user managed to login successfully and <b>null</b> if the login didn't manage to login successfully.</returns>
+        public static Dictionary<string,string> SendRegisterRequest(string userName, string userEmail, string userPassword)
+        {
+
+            return null;
+        }
+
+        /// <summary>
+        /// Will send a userInfo request to the server to destroy the current session.
+        /// </summary>
+        public static void SendLogoutRequest()
+        {
+
+        }
+    }
+}

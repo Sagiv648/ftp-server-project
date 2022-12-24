@@ -14,10 +14,11 @@ namespace ftp_client
     {
         OpenFileDialog fileDloag;
         string userFile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        public MainMenuForm()
+        public MainMenuForm(List<object> opaqueObjects)
         {
             InitializeComponent();
-            fileDloag= new OpenFileDialog();
+            FormClosing += Program.CloseForm;
+            fileDloag = new OpenFileDialog();
             fileDloag.Filter = "All files (*.*)|*.*";
             fileDloag.InitialDirectory = userFile != "" ? userFile : Environment.GetLogicalDrives()[0];
 

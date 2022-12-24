@@ -12,9 +12,33 @@ namespace ftp_client
 {
     public partial class RegisterForm : Form
     {
-        public RegisterForm()
+        public RegisterForm(List<object> opaqueObjects)
         {
             InitializeComponent();
+            FormClosing += Program.CloseForm;
+            
+        }
+
+        
+        private void backBtn_Click(object sender, EventArgs e)
+        {
+            Program.navigatedForm = "LoginForm";
+            Hide();
+            Dispose();
+        }
+
+        private void registerBtn_Click(object sender, EventArgs e)
+        {
+            Program.navigatedForm = "EmailVerificationForm";
+            Hide();
+            Dispose();
+        }
+
+        private void emailVerificationNav_Click(object sender, EventArgs e)
+        {
+            Program.navigatedForm = "EmailVerificationForm";
+            Hide();
+            Dispose();
         }
     }
 }

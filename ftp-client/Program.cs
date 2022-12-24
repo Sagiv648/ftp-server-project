@@ -9,6 +9,7 @@ using EasyEncryption;
 using System.IO;
 using System.Text;
 
+
 namespace ftp_client
 {
     public static class Program
@@ -90,14 +91,35 @@ namespace ftp_client
         [STAThread]
         static void Main()
         {
+            string pass = "12345";
+            string hashed = SHA.ComputeSHA256Hash(pass);
+            Console.WriteLine(hashed);
+            string enteredPass = SHA.ComputeSHA256Hash("12345");
+            Console.WriteLine(enteredPass);
+            Console.WriteLine($"{hashed.Equals(enteredPass)}");
+
+
+
 
             cl.Connect(new IPEndPoint(IPAddress.Parse(serverIP), port));
             StreamWriter r = new StreamWriter(cl.GetStream(), Encoding.ASCII);
-            string msg = "Code:10\0\r\nUserName:[]\0\r\nUserEmail:[]\0\r\nHashedPassword:[]\0\r\n";
-            
+            string msg = "Code:10\r\nUserName:%1\r\nUserEmail:%2\r\nHashedPassword:%3\r\nEND\r\n";
             r.WriteLine(msg);
             r.Flush();
+            StreamReader reader = new StreamReader(cl.GetStream(), Encoding.ASCII);
+            string response = "";
+           
 
+            int codeTest;
+            Dictionary<string,string> fieldValueMapping = new Dictionary<string,string>();
+            
+            while ( (response = reader.ReadLine()) != "END")
+            {
+                string[] tempArr = response.Split(':');
+                fieldValueMapping.Add(tempArr[0], tempArr[1]);
+                
+            }
+            codeTest = int.Parse(fieldValueMapping["Code"]);
             
             //TODO: Conditionally run the inital form depends on the response the client get from the server about whether the session is valid or not.
             //Session valid ? => straight to the application.
@@ -106,9 +128,27 @@ namespace ftp_client
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-           
-            Application.Run(new MainMenuForm());
-            
+
+            Console.WriteLine("Response packet is:");
+            foreach (var item in fieldValueMapping)
+            {
+                    Console.WriteLine($"{item.Key}:{item.Value}");
+            }
+            if (codeTest == (int)Code.Action_Confirm)
+            {
+                
+                
+                Application.Run(new MainMenuForm());
+
+            }
+
+            else
+            {
+                Application.Run(new LoginForm());
+
+            }
+                
+
         }
     }
 }

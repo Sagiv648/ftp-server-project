@@ -41,8 +41,7 @@ namespace ftp_server
         {
             WorkerInput input = (WorkerInput)obj;
             //DirectoryInfo directoy = null;
-            Queue<string> localBuffer = new Queue<string>();
-            ;
+            Dictionary<string, string> fields = new Dictionary<string, string>();
             int bufferSize = (int)Math.Pow(2, 10) * 64;
 
             StreamReader reader = null;
@@ -54,7 +53,7 @@ namespace ftp_server
                 writer = null;
                 //directoy = null;
                 
-                localBuffer.Clear();
+                fields.Clear();
 
                 input.SetWorkFinishedStatus(true);
                 input.SetWorkFinishedStatus(!input.GetSignal().WaitOne());
@@ -67,35 +66,72 @@ namespace ftp_server
                 Console.WriteLine("Am I here?");
                 string localStr;
                 
-                while( (localStr = reader.ReadLine()).Length != 0)
-                   localBuffer.Enqueue(localStr);
+                while( (localStr = reader.ReadLine()) != "END")
+                {
+                    string[] tempArr = localStr.Split(':');
+                    fields.Add(tempArr[0], tempArr[1].Trim('\0'));
+                }
+                foreach (var item in fields)
+                {
+                    Console.WriteLine(item.Key + " " + item.Value);
+                }
+                   
                 // At this point, I have the header/userInfo packet
-
-                switch (Packet.RecieveUserInfo(localBuffer,input.GetClient()))
+                string responsePacket = "";
+                string response = "";
+                switch (Packet.RecieveUserInfo(fields,input.GetClient(), out responsePacket))
                 {
                     case (int)Packet.Code.Session_Trying:
-                        Console.WriteLine("session valid");
                         //Handle the case where the session is valid
-                        break;
+
+                        response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket);
+                        writer.Write(response);
+                        writer.Flush();
+                        Console.WriteLine("session valid");
+                        
+                        continue;
+
                     case (int)Packet.Code.Sign_Up:
-                        Console.WriteLine("sign up good");
                         //Handle the case where the user successfully signed up
-                        break;
+
+                        response = Packet.BuildUserInfoPacket(input.GetClient(),responsePacket);
+                        writer.Write(response);
+                        writer.Flush();
+                        Console.WriteLine("sign up good");
+                        
+                        continue;
 
                     case (int)Packet.Code.Sign_In:
-                        Console.WriteLine("user exists");
                         //Handle the case where the user successfully signed in
-                        break;
+
+                        response = Packet.BuildUserInfoPacket(input.GetClient(),responsePacket);
+                        writer.Write(response);
+                        writer.Flush();
+                        Console.WriteLine("user exists");
+                        
+                        continue;
 
                     case (int)Packet.Code.Sign_Out:
-                        Console.WriteLine("sign out successful");
                         //Handle the case where the user successfully signed out
-                        break;
+
+                        response = Packet.BuildUserInfoPacket(input.GetClient(),responsePacket);
+                        writer.Write(response);
+                        writer.Flush();
+                        Console.WriteLine("sign out successful");
+                        
+                        continue;
 
                     case (int)Packet.Code.Action_Denied:
-                        Console.WriteLine("denied");
                         //Handle the case where the packet is valid but the action is denied
-                        break;
+
+                        response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket);
+                        Console.WriteLine(response);
+                        //responsePacket = $"Code:{(int)Packet.Code.Action_Denied}";
+                        writer.Write(response);
+                        writer.Flush();
+                        Console.WriteLine("denied");
+                        
+                        continue;
 
                     default:
                         Console.WriteLine("not a userInfo packet");

@@ -95,7 +95,7 @@ namespace ftp_server
                     {
                         case (int)Packet.Code.Session_Trying:
                             //Handle the case where the session is valid
-
+                            Console.WriteLine(responsePacket);
                             response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket);
                             writer.Write(response);
                             writer.Flush();

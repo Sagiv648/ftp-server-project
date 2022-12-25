@@ -91,7 +91,7 @@ namespace ftp_client
    
         [STAThread]
         static void Main()
-        {
+        {Console.WriteLine(SHA.ComputeSHA256Hash("12345"));
 
             if (!File.Exists(".log"))
             {
@@ -108,8 +108,15 @@ namespace ftp_client
             Dictionary<string,string> response = Connection.TrySession();
             
             if (int.Parse(response["Code"]) == (int)Connection.Code.Action_Confirm)
+            {
                 navigatedForm = "MainMenuForm";
+                formsParams.Add(response);
+            }
+                
 
+
+
+            
             Connection.InitEmailClient();
             // Very basic debugging network functionality
 

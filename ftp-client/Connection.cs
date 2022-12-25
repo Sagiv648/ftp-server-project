@@ -47,9 +47,9 @@ namespace ftp_client
 
 
         static readonly string userInfoRequest = "Code:1%\r\n" +
-            "UserName:%2\r\n" +
-            "UserEmail:%3\r\n" +
-            "HashedPassword:%4\r\n" +
+            "UserName:2%\r\n" +
+            "UserEmail:3%\r\n" +
+            "HashedPassword:4%\r\n" +
             "END\r\n";
 
         public enum Code
@@ -140,10 +140,10 @@ namespace ftp_client
                 packetBuilder = packetBuilder.Clear();
                 return null;
             }
-            //foreach (var item in output)
-            //{
-            //    Console.WriteLine($"{item.Key}: {item.Value}");
-            //}
+            foreach (var item in output)
+            {
+                Console.WriteLine($"{item.Key}: {item.Value}");
+            }
             client.Close();
             packetBuilder = packetBuilder.Clear();
             
@@ -159,11 +159,14 @@ namespace ftp_client
         public static Dictionary<string,string> SendLoginRequest(string userEmail, string userPassword)
         {
             string hashedPassword = SHA.ComputeSHA256Hash(userPassword);
-
+            Console.WriteLine(userEmail);
+            Console.WriteLine(userPassword);
             packetBuilder.Append(userInfoRequest);
             packetBuilder = packetBuilder.Replace("1%", ((int)Code.Sign_In).ToString());
             packetBuilder = packetBuilder.Replace("3%", userEmail);
             packetBuilder = packetBuilder.Replace("4%", hashedPassword);
+
+            Console.WriteLine("The packet I sent is \n{0}", packetBuilder);
             StreamReader reader;
             StreamWriter writer;
             Dictionary<string, string> output = null;

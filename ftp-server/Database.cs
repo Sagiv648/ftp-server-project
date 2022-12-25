@@ -25,6 +25,8 @@ namespace ftp_server
         private static SqlConnection conn = new SqlConnection(connectionString);
         private static SqlCommand sqlCmd = new SqlCommand("", conn);
         private static SqlDataReader reader = null;
+
+        public static readonly string diskPath = "Files-space";
         public static bool InitTables(out string msg)
         {
             Dictionary<string, string> tablesCreationCommandMapping = new Dictionary<string, string>
@@ -136,14 +138,15 @@ namespace ftp_server
                 while (reader.Read())
                 {
                     //output.Add($"Id:{reader["Id"]}");
-                    userName = $"UserName:{reader["User_name"]}";
+                    userName = reader["User_name"].ToString();
                     userId = int.Parse(reader["User_id"].ToString());
 
 
                 }
 
-
+                Console.WriteLine("Session working?");
                 reader.Close();
+                Console.WriteLine("Reader is closed");
 
             }
             catch (Exception ex)
@@ -250,13 +253,16 @@ namespace ftp_server
                 while (reader.Read())
                 {
                     output += reader["File_name"].ToString() + '|';
+                    
                 }
+                if(output != "")
                 output = output.Substring(0,output.Length - 1);
                 reader.Close();
             }
             catch (Exception ex)
             {
                 msg = ex.Message;
+                
                 Console.WriteLine(msg + "{0}", ex.Source);
                 if (!reader.IsClosed)
                     reader.Close();
@@ -385,21 +391,21 @@ namespace ftp_server
                     userName = reader["User_name"].ToString();
                     hashedPassword = reader["Password"].ToString();
                 }
+                
+
                 reader.Close();
-
-                if(id == -1)
+                if (id == -1)
                 {
                     conn.Close();
                     dbAccess.ReleaseMutex();
                     return "Invalid credentials";
                 }
-                else if (!hashedPassword.Equals(fieldValueMapping["Password"]))
+                else if (!hashedPassword.Equals(fieldValueMapping["HashedPassword"]))
                 {
                     conn.Close();
                     dbAccess.ReleaseMutex();
                     return "Invalid credentials";
                 }
-
                 CreateSession(userName, clIp, id);
                 
             }

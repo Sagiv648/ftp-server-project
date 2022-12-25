@@ -37,7 +37,6 @@
             this.uploadFileBtn = new System.Windows.Forms.Button();
             this.downloadFileBtn = new System.Windows.Forms.Button();
             this.userDataUserNameLbl = new System.Windows.Forms.Label();
-            this.userDataEmailLbl = new System.Windows.Forms.Label();
             this.downloadUploadProgressBar = new System.Windows.Forms.ProgressBar();
             this.deleteFileBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -129,22 +128,11 @@
             this.userDataUserNameLbl.AutoSize = true;
             this.userDataUserNameLbl.BackColor = System.Drawing.Color.Transparent;
             this.userDataUserNameLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.userDataUserNameLbl.Location = new System.Drawing.Point(8, 48);
+            this.userDataUserNameLbl.Location = new System.Drawing.Point(8, 72);
             this.userDataUserNameLbl.Name = "userDataUserNameLbl";
             this.userDataUserNameLbl.Size = new System.Drawing.Size(122, 24);
             this.userDataUserNameLbl.TabIndex = 7;
             this.userDataUserNameLbl.Text = "Username: %";
-            // 
-            // userDataEmailLbl
-            // 
-            this.userDataEmailLbl.AutoSize = true;
-            this.userDataEmailLbl.BackColor = System.Drawing.Color.Transparent;
-            this.userDataEmailLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.userDataEmailLbl.Location = new System.Drawing.Point(8, 99);
-            this.userDataEmailLbl.Name = "userDataEmailLbl";
-            this.userDataEmailLbl.Size = new System.Drawing.Size(82, 24);
-            this.userDataEmailLbl.TabIndex = 8;
-            this.userDataEmailLbl.Text = "Email: %";
             // 
             // downloadUploadProgressBar
             // 
@@ -176,7 +164,6 @@
             this.ClientSize = new System.Drawing.Size(1010, 552);
             this.Controls.Add(this.deleteFileBtn);
             this.Controls.Add(this.downloadUploadProgressBar);
-            this.Controls.Add(this.userDataEmailLbl);
             this.Controls.Add(this.userDataUserNameLbl);
             this.Controls.Add(this.downloadFileBtn);
             this.Controls.Add(this.uploadFileBtn);
@@ -203,7 +190,6 @@
         private System.Windows.Forms.Button uploadFileBtn;
         private System.Windows.Forms.Button downloadFileBtn;
         private System.Windows.Forms.Label userDataUserNameLbl;
-        private System.Windows.Forms.Label userDataEmailLbl;
         private System.Windows.Forms.ProgressBar downloadUploadProgressBar;
         private System.Windows.Forms.Button deleteFileBtn;
     }

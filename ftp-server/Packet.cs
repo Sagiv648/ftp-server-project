@@ -133,35 +133,34 @@ namespace ftp_server
             string errMsg = "";
             
             int userId = Database.GetUserIdByIp(out errMsg,clIp);
-            
+            Console.WriteLine("userId by IP is {0}", userId);
             if (userId == -1)
                 return null;
-            
+            Console.WriteLine("The problem is probably here right?");
             string directory = Database.GetUserDirectoryById(out errMsg, userId);
-            if(directory != "")
+            string fileNames = "%";
+
+            DirectoryInfo clientDirectory = new DirectoryInfo($"{Database.diskPath}/{directory}");
+            List<FileInfo> clientFiles = clientDirectory.GetFiles().ToList();
+            Console.WriteLine("count of client files is {0}",clientFiles.Count);
+            int i = 0;
+            fileNames = "";
+            for (i = 0; i < clientFiles.Count; i++)
             {
-                DirectoryInfo clientDirectory = new DirectoryInfo(directory);
-                List<FileInfo> clientFiles = clientDirectory.GetFiles().ToList();
-                Console.WriteLine(clientFiles.Count);
-                int i = 0;
-                string fileNames = "";
-                for (i = 0; i < clientFiles.Count; i++)
+
+                if (i == clientFiles.Count - 1)
                 {
-
-                    if (i == clientFiles.Count - 1)
-                    {
-                        fileNames += clientFiles[i].Name;
-                    }
-                    else
-                    {
-                        fileNames += clientFiles[i].Name + '|';
-                    }
+                    fileNames += clientFiles[i].Name;
                 }
-                packetOut = packetOut.Substring(0, packetOut.IndexOf('%')) + fileNames + packetOut.Substring(packetOut.IndexOf('%') + 1);
-
-                packetOut = packetOut.Substring(0, packetOut.Length - 1) + Database.GetAllPublicFiles(out errMsg);
+                else
+                {
+                    fileNames += clientFiles[i].Name + '|';
+                }
             }
-
+            Console.WriteLine("is the mslib after or before this");
+            packetOut = packetOut.Replace("1%", fileNames); 
+            packetOut = packetOut.Replace("2%", Database.GetAllPublicFiles(out errMsg));
+            Console.WriteLine("Packet out is\n{0}", packetOut);
 
 
             //Once I have the User's directory name, I can find out what files he has on the server's disk.

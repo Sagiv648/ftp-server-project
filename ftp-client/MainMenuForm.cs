@@ -17,13 +17,19 @@ namespace ftp_client
         public MainMenuForm(List<object> opaqueObjects)
         {
             InitializeComponent();
+            Dictionary<string, string> response = null;
+            if(opaqueObjects.Count != 0)
+            {
+                response = (Dictionary<string,string>)opaqueObjects.Find(x => x is Dictionary<string, string>);
+            }
+
             FormClosing += Program.CloseForm;
             fileDloag = new OpenFileDialog();
             fileDloag.Filter = "All files (*.*)|*.*";
             fileDloag.InitialDirectory = userFile != "" ? userFile : Environment.GetLogicalDrives()[0];
 
-            userDataUserNameLbl.Text = userDataUserNameLbl.Text.Replace("%", $"");
-            userDataEmailLbl.Text = userDataEmailLbl.Text.Replace("%", $"");
+            userDataUserNameLbl.Text = userDataUserNameLbl.Text.Replace("%", $"{(response == null ? "" : response["UserName"])}");
+            
 
             
         }

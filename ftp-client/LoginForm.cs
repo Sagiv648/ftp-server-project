@@ -104,6 +104,7 @@ namespace ftp_client
 
 
                 Cursor = Cursors.WaitCursor;
+                
                 response = Connection.SendLoginRequest(userEmailTextBox.Text, userPasswordTextbox.Text);
                 userEmailTextBox.Text = null;
                 userPasswordTextbox.Text = null;
@@ -124,6 +125,7 @@ namespace ftp_client
                 }
                 else
                 {
+                    
                     Program.navigatedForm = "MainMenuForm";
                     Hide();
                     Dispose();

@@ -1,10 +1,13 @@
-﻿using System;
+﻿using EasyEncryption;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,11 +15,14 @@ namespace ftp_client
 {
     public static class Connection
     {
-        static TcpClient client = new TcpClient();
-        static SmtpClient mailClient = new SmtpClient("smtp.gmail.com", 587);
+        static TcpClient client = null;
+        public static SmtpClient mailClient = new SmtpClient("smtp.gmail.com", 587);
+
+
         
-        public static readonly string serverIP = "192.168.1.18";
-        public static readonly int port = 20;
+         static readonly string serverIP = "192.168.1.18";
+         static readonly int port = 20;
+        static IPEndPoint server = new IPEndPoint(IPAddress.Parse(serverIP), port);
         //Header Packet should look like this
         /* UserName:[]\r\n
          * UserEmail:[]\r\n
@@ -93,8 +99,55 @@ namespace ftp_client
         /// <returns><b>Dictionary with fields and their values</b> if the session is valid and <b>null</b> if the session is invalid.</returns>
         public static Dictionary<string,string> TrySession()
         {
+
+            packetBuilder.Append(userInfoRequest);
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.Session_Trying).ToString());
             
-            return null;
+            //Console.WriteLine(packetBuilder);
+            StreamReader reader;
+            StreamWriter writer;
+            Dictionary<string, string> output = null;
+            
+            try
+            {
+                client = new TcpClient();
+                client.Connect(server);
+                string temp = "";
+
+                reader = new StreamReader(client.GetStream(), Encoding.ASCII);
+                writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
+                writer.Write(packetBuilder.ToString());
+                writer.Flush();
+                output = new Dictionary<string, string>();
+                while( (temp = reader.ReadLine()) != "END")
+                {
+                    string[] tempArr = temp.Split(':');
+                    output.Add(tempArr[0], tempArr[1]);
+                }
+            }
+            catch (Exception exception)
+            {
+                client.Close();
+                if(exception is SocketException)
+                {
+                    Console.WriteLine("Network error");
+                }
+                else if(exception is ObjectDisposedException)
+                {
+                    Console.WriteLine("Connection closed");
+                }
+                Console.WriteLine($"{exception.Message}\n{exception.Source}");
+                packetBuilder = packetBuilder.Clear();
+                return null;
+            }
+            //foreach (var item in output)
+            //{
+            //    Console.WriteLine($"{item.Key}: {item.Value}");
+            //}
+            client.Close();
+            packetBuilder = packetBuilder.Clear();
+            
+            return output;
         }
         
         /// <summary>
@@ -105,8 +158,56 @@ namespace ftp_client
         /// <returns><b>Dictionary with the fields and their values</b> if the user managed to login successfully and <b>null</b> if the login didn't manage to login successfully.</returns>
         public static Dictionary<string,string> SendLoginRequest(string userEmail, string userPassword)
         {
+            string hashedPassword = SHA.ComputeSHA256Hash(userPassword);
 
-            return null;
+            packetBuilder.Append(userInfoRequest);
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.Sign_In).ToString());
+            packetBuilder = packetBuilder.Replace("3%", userEmail);
+            packetBuilder = packetBuilder.Replace("4%", hashedPassword);
+            StreamReader reader;
+            StreamWriter writer;
+            Dictionary<string, string> output = null;
+            string temp = "";
+            try
+            {
+                client = new TcpClient();
+                client.Connect(server);
+                reader = new StreamReader(client.GetStream(), Encoding.ASCII);
+                writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
+                writer.Write(packetBuilder.ToString());
+                writer.Flush();
+                output = new Dictionary<string, string>();
+                while( (temp = reader.ReadLine()) != "END")
+                {
+                    string[] tempArr = temp.Split(':');
+                    output.Add(tempArr[0], tempArr[1]);
+                    
+                }
+
+            }
+            catch (Exception exception)
+            {
+
+                client.Close();
+                if (exception is SocketException)
+                {
+                    Console.WriteLine("Network error");
+                }
+                else if (exception is ObjectDisposedException)
+                {
+                    Console.WriteLine("Connection closed");
+                }
+                Console.WriteLine($"{exception.Message}\n{exception.Source}");
+                packetBuilder = packetBuilder.Clear();
+                return null;
+            }
+            foreach (var item in output)
+            {
+                Console.WriteLine($"{item.Key}: {item.Value}");
+            }
+            client.Close();
+            packetBuilder = packetBuilder.Clear();
+            return output;
         }
 
         /// <summary>

@@ -39,6 +39,7 @@
             this.userDataUserNameLbl = new System.Windows.Forms.Label();
             this.userDataEmailLbl = new System.Windows.Forms.Label();
             this.downloadUploadProgressBar = new System.Windows.Forms.ProgressBar();
+            this.deleteFileBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // publicFilesDisplayer
@@ -54,6 +55,7 @@
             // 
             this.refreshListBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.refreshListBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.refreshListBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.refreshListBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.refreshListBtn.Location = new System.Drawing.Point(12, 483);
             this.refreshListBtn.Name = "refreshListBtn";
@@ -98,6 +100,7 @@
             // 
             this.uploadFileBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.uploadFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.uploadFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.uploadFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.uploadFileBtn.Location = new System.Drawing.Point(808, 386);
             this.uploadFileBtn.Name = "uploadFileBtn";
@@ -111,6 +114,7 @@
             // 
             this.downloadFileBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.downloadFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.downloadFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.downloadFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.downloadFileBtn.Location = new System.Drawing.Point(333, 483);
             this.downloadFileBtn.Name = "downloadFileBtn";
@@ -151,12 +155,26 @@
             this.downloadUploadProgressBar.TabIndex = 9;
             this.downloadUploadProgressBar.Visible = false;
             // 
+            // deleteFileBtn
+            // 
+            this.deleteFileBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.deleteFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.deleteFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.deleteFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.deleteFileBtn.Location = new System.Drawing.Point(808, 444);
+            this.deleteFileBtn.Name = "deleteFileBtn";
+            this.deleteFileBtn.Size = new System.Drawing.Size(118, 42);
+            this.deleteFileBtn.TabIndex = 10;
+            this.deleteFileBtn.Text = "Delete File";
+            this.deleteFileBtn.UseVisualStyleBackColor = true;
+            // 
             // MainMenuForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.ClientSize = new System.Drawing.Size(1010, 552);
+            this.Controls.Add(this.deleteFileBtn);
             this.Controls.Add(this.downloadUploadProgressBar);
             this.Controls.Add(this.userDataEmailLbl);
             this.Controls.Add(this.userDataUserNameLbl);
@@ -187,5 +205,6 @@
         private System.Windows.Forms.Label userDataUserNameLbl;
         private System.Windows.Forms.Label userDataEmailLbl;
         private System.Windows.Forms.ProgressBar downloadUploadProgressBar;
+        private System.Windows.Forms.Button deleteFileBtn;
     }
 }

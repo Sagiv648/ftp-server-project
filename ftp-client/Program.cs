@@ -9,6 +9,7 @@ using EasyEncryption;
 using System.IO;
 using System.Text;
 using System.Reflection;
+using System.Net.Mail;
 
 namespace ftp_client
 {
@@ -104,6 +105,11 @@ namespace ftp_client
                //Implement logging functionality
 
             }
+            Dictionary<string,string> response = Connection.TrySession();
+            
+            if (int.Parse(response["Code"]) == (int)Connection.Code.Action_Confirm)
+                navigatedForm = "MainMenuForm";
+
             Connection.InitEmailClient();
             // Very basic debugging network functionality
 
@@ -114,9 +120,13 @@ namespace ftp_client
             //Console.WriteLine(enteredPass);
             //Console.WriteLine($"{hashed.Equals(enteredPass)}");
 
+            //Connection.mailClient.Send("lsrpacc9@gmail.com", "sagivalia11@gmail.com", "My email", "Test test test");
 
-
-
+            MailMessage m = new MailMessage("lsrpacc9@gmail.com", "sagivalia11@gmail.com");
+            m.IsBodyHtml = true;
+            m.Subject = "THIS IS A TEST EMAIL WITH HTML!";
+            m.Body = "<h1>Hello!!!!<h1>";
+            //Connection.mailClient.Send(m);
             //cl.Connect(new IPEndPoint(IPAddress.Parse(serverIP), port));
             //StreamWriter r = new StreamWriter(cl.GetStream(), Encoding.ASCII);
             //string msg = "Code:10\r\nUserName:%1\r\nUserEmail:%2\r\nHashedPassword:%3\r\nEND\r\n";
@@ -142,7 +152,7 @@ namespace ftp_client
             //Session invalid ? => straight to the login screen.
 
 
-            Application.EnableVisualStyles();
+            //Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             allForms = new Dictionary<string, Form> {

@@ -29,27 +29,27 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LoginForm));
-            this.label1 = new System.Windows.Forms.Label();
+            this.welcomeLbl = new System.Windows.Forms.Label();
             this.userEmailLbl = new System.Windows.Forms.Label();
             this.userPasswordLbl = new System.Windows.Forms.Label();
             this.userEmailTextBox = new System.Windows.Forms.TextBox();
             this.userPasswordTextbox = new System.Windows.Forms.TextBox();
             this.loginBtn = new System.Windows.Forms.Button();
             this.RegisterBtn = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
+            this.registerPromptLbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // label1
+            // welcomeLbl
             // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Font = new System.Drawing.Font("Miriam", 20.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(44, 46);
-            this.label1.Name = "label1";
-            this.label1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.label1.Size = new System.Drawing.Size(280, 27);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Welcome to the client.";
+            this.welcomeLbl.AutoSize = true;
+            this.welcomeLbl.BackColor = System.Drawing.Color.Transparent;
+            this.welcomeLbl.Font = new System.Drawing.Font("Miriam", 20.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.welcomeLbl.Location = new System.Drawing.Point(44, 46);
+            this.welcomeLbl.Name = "welcomeLbl";
+            this.welcomeLbl.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.welcomeLbl.Size = new System.Drawing.Size(280, 27);
+            this.welcomeLbl.TabIndex = 0;
+            this.welcomeLbl.Text = "Welcome to the client.";
             // 
             // userEmailLbl
             // 
@@ -101,6 +101,7 @@
             this.loginBtn.TabIndex = 5;
             this.loginBtn.Text = "Sign in";
             this.loginBtn.UseVisualStyleBackColor = true;
+            this.loginBtn.Click += new System.EventHandler(this.loginBtn_Click);
             // 
             // RegisterBtn
             // 
@@ -115,16 +116,16 @@
             this.RegisterBtn.UseVisualStyleBackColor = true;
             this.RegisterBtn.Click += new System.EventHandler(this.RegisterBtn_Click);
             // 
-            // label2
+            // registerPromptLbl
             // 
-            this.label2.AutoSize = true;
-            this.label2.BackColor = System.Drawing.Color.Transparent;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(4, 308);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(347, 20);
-            this.label2.TabIndex = 7;
-            this.label2.Text = "if you don\'t have an account, you should register";
+            this.registerPromptLbl.AutoSize = true;
+            this.registerPromptLbl.BackColor = System.Drawing.Color.Transparent;
+            this.registerPromptLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.registerPromptLbl.Location = new System.Drawing.Point(4, 308);
+            this.registerPromptLbl.Name = "registerPromptLbl";
+            this.registerPromptLbl.Size = new System.Drawing.Size(347, 20);
+            this.registerPromptLbl.TabIndex = 7;
+            this.registerPromptLbl.Text = "if you don\'t have an account, you should register";
             // 
             // LoginForm
             // 
@@ -132,14 +133,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.ClientSize = new System.Drawing.Size(374, 450);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.registerPromptLbl);
             this.Controls.Add(this.RegisterBtn);
             this.Controls.Add(this.loginBtn);
             this.Controls.Add(this.userPasswordTextbox);
             this.Controls.Add(this.userEmailTextBox);
             this.Controls.Add(this.userPasswordLbl);
             this.Controls.Add(this.userEmailLbl);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.welcomeLbl);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "LoginForm";
             this.Text = "FTP Client";
@@ -150,14 +151,14 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label welcomeLbl;
         private System.Windows.Forms.Label userEmailLbl;
         private System.Windows.Forms.Label userPasswordLbl;
         private System.Windows.Forms.TextBox userEmailTextBox;
         private System.Windows.Forms.TextBox userPasswordTextbox;
         private System.Windows.Forms.Button loginBtn;
         private System.Windows.Forms.Button RegisterBtn;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label registerPromptLbl;
     }
 }
 

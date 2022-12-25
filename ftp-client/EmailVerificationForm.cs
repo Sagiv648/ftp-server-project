@@ -12,7 +12,7 @@ namespace ftp_client
 {
     public partial class EmailVerificationForm : Form
     {
-        public EmailVerificationForm(List<object> opaqueObjects)
+        public EmailVerificationForm()
         {
             InitializeComponent();
             FormClosing += Program.CloseForm;

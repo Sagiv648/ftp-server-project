@@ -18,10 +18,13 @@ namespace ftp_client
 
         Dictionary<string, string> response = null;
 
-        public LoginForm(List<object> opaqueObjects)
+        public LoginForm()
         {
             InitializeComponent();
             FormClosing += Program.CloseForm;
+
+            if (Program.formsParams.FindIndex(x => x is Dictionary<Form, Dictionary<string, string>>) != -1)
+                registerPromptLbl.Text = "You can log in now.";
 
 
         }

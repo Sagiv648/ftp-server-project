@@ -208,16 +208,16 @@ namespace ftp_client
                 switch (navigatedForm)
                 {
                     case "LoginForm":
-                        allForms[navigatedForm] = new LoginForm(formsParams);
+                        allForms[navigatedForm] = new LoginForm();
                         break;
                     case "RegisterForm":
-                        allForms[navigatedForm] = new RegisterForm(formsParams);
+                        allForms[navigatedForm] = new RegisterForm();
                         break;
-                    case "EmailVerificationForm":
-                        allForms[navigatedForm] = new EmailVerificationForm(formsParams);
-                        break;
+                    //case "EmailVerificationForm":
+                    //    allForms[navigatedForm] = new EmailVerificationForm();
+                    //    break;
                     case "MainMenuForm":
-                        allForms[navigatedForm] = new MainMenuForm(formsParams);
+                        allForms[navigatedForm] = new MainMenuForm();
                         break;
 
 

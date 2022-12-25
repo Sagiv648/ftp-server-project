@@ -14,13 +14,14 @@ namespace ftp_client
     {
         OpenFileDialog fileDloag;
         string userFile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        public MainMenuForm(List<object> opaqueObjects)
+        public MainMenuForm()
         {
             InitializeComponent();
             Dictionary<string, string> response = null;
-            if(opaqueObjects.Count != 0)
+           
+            if(Program.formsParams.Count != 0)
             {
-                response = (Dictionary<string,string>)opaqueObjects.Find(x => x is Dictionary<string, string>);
+                response = (Dictionary<string,string>) Program.formsParams.Find(x => x is Dictionary<string, string>);
             }
 
             FormClosing += Program.CloseForm;

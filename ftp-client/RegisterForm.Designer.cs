@@ -30,17 +30,22 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RegisterForm));
             this.userNameLbl = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.userNameTextbox = new System.Windows.Forms.TextBox();
+            this.emailTextbox = new System.Windows.Forms.TextBox();
+            this.passwordTextbox = new System.Windows.Forms.TextBox();
             this.registerBtn = new System.Windows.Forms.Button();
             this.emailLbl = new System.Windows.Forms.Label();
             this.passwordLbl = new System.Windows.Forms.Label();
             this.confirmPasswordLbl = new System.Windows.Forms.Label();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.confirmPasswordTextbox = new System.Windows.Forms.TextBox();
+            this.registerLbl = new System.Windows.Forms.Label();
             this.backBtn = new System.Windows.Forms.Button();
             this.emailVerificationNav = new System.Windows.Forms.Button();
+            this.errorLbl = new System.Windows.Forms.Label();
+            this.emptyUsername = new System.Windows.Forms.Label();
+            this.emptyEmail = new System.Windows.Forms.Label();
+            this.emptyPassword = new System.Windows.Forms.Label();
+            this.emptyConfirmPassword = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // userNameLbl
@@ -55,30 +60,30 @@
             this.userNameLbl.TabIndex = 0;
             this.userNameLbl.Text = "Username:";
             // 
-            // textBox1
+            // userNameTextbox
             // 
-            this.textBox1.Location = new System.Drawing.Point(118, 112);
-            this.textBox1.MaxLength = 31;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(188, 20);
-            this.textBox1.TabIndex = 1;
+            this.userNameTextbox.Location = new System.Drawing.Point(118, 112);
+            this.userNameTextbox.MaxLength = 31;
+            this.userNameTextbox.Name = "userNameTextbox";
+            this.userNameTextbox.Size = new System.Drawing.Size(188, 20);
+            this.userNameTextbox.TabIndex = 1;
             // 
-            // textBox2
+            // emailTextbox
             // 
-            this.textBox2.Location = new System.Drawing.Point(118, 155);
-            this.textBox2.MaxLength = 31;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(188, 20);
-            this.textBox2.TabIndex = 3;
+            this.emailTextbox.Location = new System.Drawing.Point(118, 155);
+            this.emailTextbox.MaxLength = 31;
+            this.emailTextbox.Name = "emailTextbox";
+            this.emailTextbox.Size = new System.Drawing.Size(188, 20);
+            this.emailTextbox.TabIndex = 3;
             // 
-            // textBox3
+            // passwordTextbox
             // 
-            this.textBox3.Location = new System.Drawing.Point(118, 203);
-            this.textBox3.MaxLength = 31;
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(188, 20);
-            this.textBox3.TabIndex = 5;
-            this.textBox3.UseSystemPasswordChar = true;
+            this.passwordTextbox.Location = new System.Drawing.Point(118, 203);
+            this.passwordTextbox.MaxLength = 31;
+            this.passwordTextbox.Name = "passwordTextbox";
+            this.passwordTextbox.Size = new System.Drawing.Size(188, 20);
+            this.passwordTextbox.TabIndex = 5;
+            this.passwordTextbox.UseSystemPasswordChar = true;
             // 
             // registerBtn
             // 
@@ -130,25 +135,25 @@
             this.confirmPasswordLbl.TabIndex = 10;
             this.confirmPasswordLbl.Text = "Confirm Password:";
             // 
-            // textBox4
+            // confirmPasswordTextbox
             // 
-            this.textBox4.Location = new System.Drawing.Point(194, 252);
-            this.textBox4.MaxLength = 31;
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(188, 20);
-            this.textBox4.TabIndex = 9;
-            this.textBox4.UseSystemPasswordChar = true;
+            this.confirmPasswordTextbox.Location = new System.Drawing.Point(194, 252);
+            this.confirmPasswordTextbox.MaxLength = 31;
+            this.confirmPasswordTextbox.Name = "confirmPasswordTextbox";
+            this.confirmPasswordTextbox.Size = new System.Drawing.Size(188, 20);
+            this.confirmPasswordTextbox.TabIndex = 9;
+            this.confirmPasswordTextbox.UseSystemPasswordChar = true;
             // 
-            // label1
+            // registerLbl
             // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Font = new System.Drawing.Font("Miriam CLM", 24F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.label1.Location = new System.Drawing.Point(112, 38);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(124, 35);
-            this.label1.TabIndex = 11;
-            this.label1.Text = "Register";
+            this.registerLbl.AutoSize = true;
+            this.registerLbl.BackColor = System.Drawing.Color.Transparent;
+            this.registerLbl.Font = new System.Drawing.Font("Miriam CLM", 24F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.registerLbl.Location = new System.Drawing.Point(112, 38);
+            this.registerLbl.Name = "registerLbl";
+            this.registerLbl.Size = new System.Drawing.Size(124, 35);
+            this.registerLbl.TabIndex = 11;
+            this.registerLbl.Text = "Register";
             // 
             // backBtn
             // 
@@ -182,7 +187,73 @@
             this.emailVerificationNav.TabIndex = 13;
             this.emailVerificationNav.Text = "Email Verification";
             this.emailVerificationNav.UseVisualStyleBackColor = false;
+            this.emailVerificationNav.Visible = false;
             this.emailVerificationNav.Click += new System.EventHandler(this.emailVerificationNav_Click);
+            // 
+            // errorLbl
+            // 
+            this.errorLbl.AutoSize = true;
+            this.errorLbl.BackColor = System.Drawing.Color.Transparent;
+            this.errorLbl.Font = new System.Drawing.Font("Miriam CLM", 15.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.errorLbl.ForeColor = System.Drawing.Color.Red;
+            this.errorLbl.Location = new System.Drawing.Point(88, 291);
+            this.errorLbl.Name = "errorLbl";
+            this.errorLbl.Size = new System.Drawing.Size(188, 23);
+            this.errorLbl.TabIndex = 14;
+            this.errorLbl.Text = "All fields are required";
+            this.errorLbl.Visible = false;
+            // 
+            // emptyUsername
+            // 
+            this.emptyUsername.AutoSize = true;
+            this.emptyUsername.BackColor = System.Drawing.Color.Transparent;
+            this.emptyUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.emptyUsername.ForeColor = System.Drawing.Color.Red;
+            this.emptyUsername.Location = new System.Drawing.Point(312, 112);
+            this.emptyUsername.Name = "emptyUsername";
+            this.emptyUsername.Size = new System.Drawing.Size(25, 31);
+            this.emptyUsername.TabIndex = 15;
+            this.emptyUsername.Text = "*";
+            this.emptyUsername.Visible = false;
+            // 
+            // emptyEmail
+            // 
+            this.emptyEmail.AutoSize = true;
+            this.emptyEmail.BackColor = System.Drawing.Color.Transparent;
+            this.emptyEmail.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.emptyEmail.ForeColor = System.Drawing.Color.Red;
+            this.emptyEmail.Location = new System.Drawing.Point(312, 155);
+            this.emptyEmail.Name = "emptyEmail";
+            this.emptyEmail.Size = new System.Drawing.Size(25, 31);
+            this.emptyEmail.TabIndex = 16;
+            this.emptyEmail.Text = "*";
+            this.emptyEmail.Visible = false;
+            // 
+            // emptyPassword
+            // 
+            this.emptyPassword.AutoSize = true;
+            this.emptyPassword.BackColor = System.Drawing.Color.Transparent;
+            this.emptyPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.emptyPassword.ForeColor = System.Drawing.Color.Red;
+            this.emptyPassword.Location = new System.Drawing.Point(312, 203);
+            this.emptyPassword.Name = "emptyPassword";
+            this.emptyPassword.Size = new System.Drawing.Size(25, 31);
+            this.emptyPassword.TabIndex = 17;
+            this.emptyPassword.Text = "*";
+            this.emptyPassword.Visible = false;
+            // 
+            // emptyConfirmPassword
+            // 
+            this.emptyConfirmPassword.AutoSize = true;
+            this.emptyConfirmPassword.BackColor = System.Drawing.Color.Transparent;
+            this.emptyConfirmPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.emptyConfirmPassword.ForeColor = System.Drawing.Color.Red;
+            this.emptyConfirmPassword.Location = new System.Drawing.Point(388, 252);
+            this.emptyConfirmPassword.Name = "emptyConfirmPassword";
+            this.emptyConfirmPassword.Size = new System.Drawing.Size(25, 31);
+            this.emptyConfirmPassword.TabIndex = 18;
+            this.emptyConfirmPassword.Text = "*";
+            this.emptyConfirmPassword.Visible = false;
             // 
             // RegisterForm
             // 
@@ -191,17 +262,22 @@
             this.AutoSize = true;
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.ClientSize = new System.Drawing.Size(455, 450);
+            this.Controls.Add(this.emptyConfirmPassword);
+            this.Controls.Add(this.emptyPassword);
+            this.Controls.Add(this.emptyEmail);
+            this.Controls.Add(this.emptyUsername);
+            this.Controls.Add(this.errorLbl);
             this.Controls.Add(this.emailVerificationNav);
             this.Controls.Add(this.backBtn);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.registerLbl);
             this.Controls.Add(this.confirmPasswordLbl);
-            this.Controls.Add(this.textBox4);
+            this.Controls.Add(this.confirmPasswordTextbox);
             this.Controls.Add(this.passwordLbl);
             this.Controls.Add(this.emailLbl);
             this.Controls.Add(this.registerBtn);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.passwordTextbox);
+            this.Controls.Add(this.emailTextbox);
+            this.Controls.Add(this.userNameTextbox);
             this.Controls.Add(this.userNameLbl);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "RegisterForm";
@@ -214,16 +290,21 @@
         #endregion
 
         private System.Windows.Forms.Label userNameLbl;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox userNameTextbox;
+        private System.Windows.Forms.TextBox emailTextbox;
+        private System.Windows.Forms.TextBox passwordTextbox;
         private System.Windows.Forms.Button registerBtn;
         private System.Windows.Forms.Label emailLbl;
         private System.Windows.Forms.Label passwordLbl;
         private System.Windows.Forms.Label confirmPasswordLbl;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox confirmPasswordTextbox;
+        private System.Windows.Forms.Label registerLbl;
         private System.Windows.Forms.Button backBtn;
         private System.Windows.Forms.Button emailVerificationNav;
+        private System.Windows.Forms.Label errorLbl;
+        private System.Windows.Forms.Label emptyUsername;
+        private System.Windows.Forms.Label emptyEmail;
+        private System.Windows.Forms.Label emptyPassword;
+        private System.Windows.Forms.Label emptyConfirmPassword;
     }
 }

@@ -96,7 +96,7 @@ namespace ftp_server
                         case (int)Packet.Code.Session_Trying:
                             //Handle the case where the session is valid
                             Console.WriteLine(responsePacket);
-                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket);
+                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket, (int)Packet.Code.Session_Trying);
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("session valid");
@@ -106,7 +106,7 @@ namespace ftp_server
                         case (int)Packet.Code.Sign_Up:
                             //Handle the case where the user successfully signed up
 
-                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket);
+                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket, (int)Packet.Code.Sign_Up);
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("sign up good");
@@ -116,7 +116,7 @@ namespace ftp_server
                         case (int)Packet.Code.Sign_In:
                             //Handle the case where the user successfully signed in
 
-                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket);
+                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket, (int)Packet.Code.Sign_In);
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("user exists");
@@ -126,7 +126,7 @@ namespace ftp_server
                         case (int)Packet.Code.Sign_Out:
                             //Handle the case where the user successfully signed out
 
-                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket);
+                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket, (int)Packet.Code.Sign_Out);
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("sign out successful");
@@ -136,7 +136,7 @@ namespace ftp_server
                         case (int)Packet.Code.Action_Denied:
                             //Handle the case where the packet is valid but the action is denied
 
-                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket);
+                            response = Packet.BuildUserInfoPacket(input.GetClient(), responsePacket, (int)Packet.Code.Action_Denied);
                             Console.WriteLine(response);
                             //responsePacket = $"Code:{(int)Packet.Code.Action_Denied}";
                             writer.Write(response);

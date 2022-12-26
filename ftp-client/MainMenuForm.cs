@@ -21,7 +21,7 @@ namespace ftp_client
            
             if(Program.formsParams.Count != 0)
             {
-                response = (Dictionary<string,string>) Program.formsParams.Find(x => x is Dictionary<string, string>);
+                response = ((Dictionary<string,string>)Program.formsParams.Find(x => x is Dictionary<string, string>));
             }
 
             FormClosing += Program.CloseForm;
@@ -29,7 +29,14 @@ namespace ftp_client
             fileDloag.Filter = "All files (*.*)|*.*";
             fileDloag.InitialDirectory = userFile != "" ? userFile : Environment.GetLogicalDrives()[0];
 
-            userDataUserNameLbl.Text = userDataUserNameLbl.Text.Replace("%", $"{(response == null ? "" : response["UserName"])}");
+            if(response == null)
+                MessageBox.Show("Network issues occured, try again later", "Response not recieved", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+            else
+            {
+                userDataUserNameLbl.Text = userDataUserNameLbl.Text.Replace("%", $"{response["UserName"]}");
+                myFilesDisplayer.DataSource = response["Your_Files"].Split('|');
+            }
+                
             
 
             

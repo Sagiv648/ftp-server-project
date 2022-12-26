@@ -222,8 +222,56 @@ namespace ftp_client
         /// <returns><b>Dictionary with the fields and their values</b> if the user managed to login successfully and <b>null</b> if the login didn't manage to login successfully.</returns>
         public static Dictionary<string,string> SendRegisterRequest(string userName, string userEmail, string userPassword)
         {
+            packetBuilder = packetBuilder.Append(userInfoRequest);
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.Sign_Up).ToString());
+            packetBuilder = packetBuilder.Replace("2%", userName);
+            packetBuilder = packetBuilder.Replace("3%", userEmail);
+            packetBuilder = packetBuilder.Replace("4%", SHA.ComputeSHA256Hash(userPassword));
+            Dictionary<string, string> response = null;
+            StreamReader reader = null;
+            StreamWriter writer = null;
+            string temp = "";
+            try
+            {
+                client = new TcpClient();
+                client.Connect(server);
+                reader = new StreamReader(client.GetStream(), Encoding.ASCII);
+                writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
+                writer.Write(packetBuilder.ToString());
+                writer.Flush();
+                response = new Dictionary<string, string>();
+                while((temp = reader.ReadLine()) != "END") 
+                {
+                    string[] tempArr = temp.Split(':');
+                    response.Add(tempArr[0], tempArr[1]);
+                }
+                   
+            }
+            catch (Exception exception)
+            {
+                client.Close();
+                if (exception is SocketException)
+                {
+                    Console.WriteLine("Network error");
+                }
+                else if (exception is ObjectDisposedException)
+                {
+                    Console.WriteLine("Connection closed");
+                }
+                Console.WriteLine($"{exception.Message}\n{exception.Source}");
+                packetBuilder = packetBuilder.Clear();
+                return null;
 
-            return null;
+            }
+
+            foreach (var item in response)
+            {
+                Console.WriteLine($"{item.Key}: {item.Value}");
+            }
+            client.Close();
+            packetBuilder = packetBuilder.Clear();
+            return response;
+
         }
 
         /// <summary>

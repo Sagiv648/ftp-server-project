@@ -113,7 +113,7 @@ namespace ftp_server
          * 
          * 
          */
-        public static string BuildUserInfoPacket(TcpClient cl, string response)
+        public static string BuildUserInfoPacket(TcpClient cl, string response, int initialCode)
         {
             IPAddress clIp = IPAddress.Parse(((IPEndPoint)cl.Client.RemoteEndPoint).Address.ToString());
 
@@ -121,28 +121,34 @@ namespace ftp_server
 
 
             string packetOut = $"Code:{(isActionConfirm ?  (int)Code.Action_Confirm :(int)Code.Action_Denied )}" +
-                $"\r\n{(isActionConfirm ? response + "\r\nYour_Files:%1\r\nPublicFiles:%2" : "Error:" + response) }\r\nEND\r\n";
+                $"\r\n{(isActionConfirm ? response + "\r\nYour_Files:1%\r\nPublicFiles:2%" : "Error:" + response) }\r\nEND\r\n";
             Console.WriteLine(packetOut);
-            if (!isActionConfirm)
+            if (!isActionConfirm || initialCode == (int)Code.Sign_Out)
                 return packetOut;
             //Console.WriteLine(packetOut);
             //Perform a Sql query to get user files based on the session, since if the client successfully registered, a session will be created for him.
             //If the client successfully logged in, a session will be created for him.
             //If the client's session still stands, he will have access.
             
+
+
             string errMsg = "";
-            
-            int userId = Database.GetUserIdByIp(out errMsg,clIp);
-            Console.WriteLine("userId by IP is {0}", userId);
+
+            int userId = -1;
+            if (initialCode == (int)Code.Session_Trying)
+                userId = Database.GetUserIdByIp(out errMsg, clIp, initialCode);
+            else
+                userId = int.Parse(response.Split('\r', '\n').ToList().Find(x => x.Contains("UserId")).TrimEnd(new char[] { '\r', '\n' }).Split(':')[1]);
+            Console.WriteLine("userId is {0} and code was {1}", userId, initialCode);
             if (userId == -1)
                 return null;
-            Console.WriteLine("The problem is probably here right?");
+            //Console.WriteLine("The problem is probably here right?");
             string directory = Database.GetUserDirectoryById(out errMsg, userId);
-            string fileNames = "%";
+            string fileNames = "";
 
             DirectoryInfo clientDirectory = new DirectoryInfo($"{Database.diskPath}/{directory}");
             List<FileInfo> clientFiles = clientDirectory.GetFiles().ToList();
-            Console.WriteLine("count of client files is {0}",clientFiles.Count);
+            //Console.WriteLine("count of client files is {0}",clientFiles.Count);
             int i = 0;
             fileNames = "";
             for (i = 0; i < clientFiles.Count; i++)
@@ -157,7 +163,7 @@ namespace ftp_server
                     fileNames += clientFiles[i].Name + '|';
                 }
             }
-            Console.WriteLine("is the mslib after or before this");
+            //Console.WriteLine("is the mslib after or before this");
             packetOut = packetOut.Replace("1%", fileNames); 
             packetOut = packetOut.Replace("2%", Database.GetAllPublicFiles(out errMsg));
             Console.WriteLine("Packet out is\n{0}", packetOut);

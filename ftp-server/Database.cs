@@ -172,7 +172,7 @@ namespace ftp_server
             return $"UserName:{userName}\r\nUserId:{userId}";
         }
 
-        public static int GetUserIdByIp(out string msg,IPAddress clientIp)
+        public static int GetUserIdByIp(out string msg,IPAddress clientIp, int initalCode)
         {
             msg = "";
             dbAccess.WaitOne();
@@ -181,14 +181,17 @@ namespace ftp_server
             {
                 conn.Open();
                 Console.WriteLine(clientIp);
-                sqlCmd.CommandText = $"use {dbName} select User_id from Sessions where User_Ip = \'{clientIp}\'";
+                if (initalCode == (int)Packet.Code.Session_Trying || initalCode == (int)Packet.Code.Sign_In)
+                    sqlCmd.CommandText = $"use {dbName} select User_id from Sessions where User_Ip = \'{clientIp}\'";
+                else
+                    sqlCmd.CommandText = $"use {dbName} select Id from Users where Id = SCOPE_IDENTITY()";
                 //Console.WriteLine(sqlCmd.CommandText);
                 reader = sqlCmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    userId = int.Parse(reader["User_id"].ToString());
+                    userId = int.Parse(reader[initalCode == (int)Packet.Code.Sign_Up ? "Id" :  "User_id"].ToString());
                 }
-                Console.WriteLine(userId);
+                Console.WriteLine("Code : {0} -> id: {1}",initalCode  ,userId);
                 reader.Close();
             }
             catch (Exception ex)
@@ -323,8 +326,8 @@ namespace ftp_server
                     return "User exists";
                 }
                 
-                sqlCmd.CommandText = $"use {dbName} insert into Users (\'{fieldValueMapping["User_name"]}\'" +
-                    $",\'{fieldValueMapping["User_email"]}\', \'{fieldValueMapping["Password"]}\', \'\' ')";
+                sqlCmd.CommandText = $"use {dbName} insert into Users values (\'{fieldValueMapping["UserName"]}\'" +
+                    $",\'{fieldValueMapping["UserEmail"]}\', \'{fieldValueMapping["HashedPassword"]}\', \'\')";
 
                 sqlCmd.ExecuteNonQuery();
                 sqlCmd.CommandText = $"use {dbName} select User_name, Id from Users where Id = SCOPE_IDENTITY()";
@@ -341,8 +344,8 @@ namespace ftp_server
                 sqlCmd.CommandText = $"use {dbName} update Users set Directory = \'{userFile}\' where Id = {id}";
                 sqlCmd.ExecuteNonQuery();
 
-                CreateSession(userName, clIp,id);
 
+                //CreateSession(userName, clIp, id);
 
 
             }

@@ -126,9 +126,23 @@ namespace ftp_client
                         Visible = true,
                     });
                 }
+                else if(response == null)
+                {
+                    Controls.Add(new Label()
+                    {
+                        Text = "Potentially network problems.",
+                        Name = "emptyInvalidCredentials",
+                        BackColor = Color.Transparent,
+                        Location = new Point(loginBtn.Location.X, loginBtn.Location.Y - 20),
+                        Size = new Size(welcomeLbl.Size.Width + 10, welcomeLbl.Height + 20),
+                        Font = new Font(registerPromptLbl.Font, registerPromptLbl.Font.Style),
+                        ForeColor = Color.Red,
+                        Visible = true,
+                    });
+                }
                 else
                 {
-                    
+                    Program.formsParams.Add(response);
                     Program.navigatedForm = "MainMenuForm";
                     Hide();
                     Dispose();

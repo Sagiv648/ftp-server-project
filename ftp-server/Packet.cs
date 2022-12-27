@@ -69,11 +69,11 @@ namespace ftp_server
             
         }
 
-        public static Queue<string> BuildHeaderPacket()
+        public static string BuildHeaderPacket()
         {
-            Queue<string> output = new Queue<string>();
+            
 
-            return output;
+            return null;
         }
         public static Queue<string> BuildDataPacket()
         {
@@ -116,9 +116,12 @@ namespace ftp_server
         public static string BuildUserInfoPacket(TcpClient cl, string response, int initialCode)
         {
             IPAddress clIp = IPAddress.Parse(((IPEndPoint)cl.Client.RemoteEndPoint).Address.ToString());
+            bool isActionConfirm = true;
 
-            bool isActionConfirm = response.Contains("UserName") && response.Contains("UserId");
-
+            if(initialCode != (int)Code.Sign_Out)
+                isActionConfirm = response.Contains("UserName") && response.Contains("UserId");
+            else
+                response = "Action:Signout";
 
             string packetOut = $"Code:{(isActionConfirm ?  (int)Code.Action_Confirm :(int)Code.Action_Denied )}" +
                 $"\r\n{(isActionConfirm ? response + "\r\nYour_Files:1%\r\nPublicFiles:2%" : "Error:" + response) }\r\nEND\r\n";
@@ -177,12 +180,12 @@ namespace ftp_server
             return packetOut;
         }
 
-        public static bool RecieveHeaderPacket(Queue<byte[]> buffer)
+        public static int RecieveHeaderPacket(Dictionary<string,string> buffer,out string responsePacket)
         {
-            
+            responsePacket = "";
 
 
-            return true;
+            return -1;
         }
         public static bool RecieveDataPacket(Queue<byte[]> buffer)
         {

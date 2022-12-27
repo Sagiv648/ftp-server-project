@@ -91,7 +91,15 @@ namespace ftp_client
    
         [STAThread]
         static void Main()
-        {Console.WriteLine(SHA.ComputeSHA256Hash("12345"));
+        {
+
+
+
+            //Console.WriteLine(SHA.ComputeSHA256Hash("12345"));
+
+            //Connection.SendFileUpload($@"C:\Users\sagiv\Projects\1.College-work-directory\win-forms-project\Untitled\ftp-client\bin\Debug\t.exe", "", "", "");
+
+
 
             if (!File.Exists(".log"))
             {
@@ -106,58 +114,16 @@ namespace ftp_client
 
             }
             Dictionary<string,string> response = Connection.TrySession();
-            
-            if (int.Parse(response["Code"]) == (int)Connection.Code.Action_Confirm)
+            if(response == null)
+            {
+                MessageBox.Show("Couldn't get response from the server.", "Network error", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+            }
+            else if (int.Parse(response["Code"]) == (int)Connection.Code.Action_Confirm)
             {
                 navigatedForm = "MainMenuForm";
                 formsParams.Add(response);
             }
                 
-
-
-
-            
-            Connection.InitEmailClient();
-            // Very basic debugging network functionality
-
-            //string pass = "12345";
-            //string hashed = SHA.ComputeSHA256Hash(pass);
-            //Console.WriteLine(hashed);
-            //string enteredPass = SHA.ComputeSHA256Hash("12345");
-            //Console.WriteLine(enteredPass);
-            //Console.WriteLine($"{hashed.Equals(enteredPass)}");
-
-            //Connection.mailClient.Send("lsrpacc9@gmail.com", "sagivalia11@gmail.com", "My email", "Test test test");
-
-            MailMessage m = new MailMessage("lsrpacc9@gmail.com", "sagivalia11@gmail.com");
-            m.IsBodyHtml = true;
-            m.Subject = "THIS IS A TEST EMAIL WITH HTML!";
-            m.Body = "<h1>Hello!!!!<h1>";
-            //Connection.mailClient.Send(m);
-            //cl.Connect(new IPEndPoint(IPAddress.Parse(serverIP), port));
-            //StreamWriter r = new StreamWriter(cl.GetStream(), Encoding.ASCII);
-            //string msg = "Code:10\r\nUserName:%1\r\nUserEmail:%2\r\nHashedPassword:%3\r\nEND\r\n";
-            //r.WriteLine(msg);
-            //r.Flush();
-            //StreamReader reader = new StreamReader(cl.GetStream(), Encoding.ASCII);
-            //string response = "";
-           
-
-            //int codeTest;
-            //Dictionary<string,string> fieldValueMapping = new Dictionary<string,string>();
-            
-            //while ( (response = reader.ReadLine()) != "END")
-            //{
-            //    string[] tempArr = response.Split(':');
-            //    fieldValueMapping.Add(tempArr[0], tempArr[1]);
-                
-            //}
-            //codeTest = int.Parse(fieldValueMapping["Code"]);
-            
-            //TODO: Conditionally run the inital form depends on the response the client get from the server about whether the session is valid or not.
-            //Session valid ? => straight to the application.
-            //Session invalid ? => straight to the login screen.
-
 
             //Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -168,40 +134,6 @@ namespace ftp_client
                 { "EmailVerificationForm", null},
                 { "MainMenuForm", null}
             };
-
-            //registerForm = new RegisterForm();
-            //loginForm= new LoginForm();
-
-
-
-            //Console.WriteLine("Response packet is:");
-            //foreach (var item in fieldValueMapping)
-            //{
-            //        Console.WriteLine($"{item.Key}:{item.Value}");
-            //}
-            //if (codeTest == (int)Code.Action_Confirm)
-            //{
-            //    Application.Run(new MainMenuForm());
-
-            //}
-
-            //else
-            //{
-            //    while (true)
-            //    {
-            //        Application.Run(new LoginForm());
-            //        if (noLoopBetweenRegisterLogin)
-            //            break;
-            //        Application.Run(new RegisterForm());
-            //        if (noLoopBetweenRegisterLogin)
-            //            break;
-            //    }
-            //    if (entryGranted)
-            //        Application.Run(new MainMenuForm());
-                
-
-            //}
-
 
             while (navigatedForm != "quitting")
             {

@@ -39,6 +39,7 @@
             this.userDataUserNameLbl = new System.Windows.Forms.Label();
             this.downloadUploadProgressBar = new System.Windows.Forms.ProgressBar();
             this.deleteFileBtn = new System.Windows.Forms.Button();
+            this.logoutBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // publicFilesDisplayer
@@ -139,7 +140,6 @@
             this.downloadUploadProgressBar.Location = new System.Drawing.Point(535, 444);
             this.downloadUploadProgressBar.Name = "downloadUploadProgressBar";
             this.downloadUploadProgressBar.Size = new System.Drawing.Size(249, 23);
-            this.downloadUploadProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.downloadUploadProgressBar.TabIndex = 9;
             this.downloadUploadProgressBar.Visible = false;
             // 
@@ -156,12 +156,27 @@
             this.deleteFileBtn.Text = "Delete File";
             this.deleteFileBtn.UseVisualStyleBackColor = true;
             // 
+            // logoutBtn
+            // 
+            this.logoutBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.logoutBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.logoutBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.logoutBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.logoutBtn.Location = new System.Drawing.Point(615, 490);
+            this.logoutBtn.Name = "logoutBtn";
+            this.logoutBtn.Size = new System.Drawing.Size(118, 42);
+            this.logoutBtn.TabIndex = 11;
+            this.logoutBtn.Text = "Logout";
+            this.logoutBtn.UseVisualStyleBackColor = true;
+            this.logoutBtn.Click += new System.EventHandler(this.logoutBtn_Click);
+            // 
             // MainMenuForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.ClientSize = new System.Drawing.Size(1010, 552);
+            this.Controls.Add(this.logoutBtn);
             this.Controls.Add(this.deleteFileBtn);
             this.Controls.Add(this.downloadUploadProgressBar);
             this.Controls.Add(this.userDataUserNameLbl);
@@ -192,5 +207,6 @@
         private System.Windows.Forms.Label userDataUserNameLbl;
         private System.Windows.Forms.ProgressBar downloadUploadProgressBar;
         private System.Windows.Forms.Button deleteFileBtn;
+        private System.Windows.Forms.Button logoutBtn;
     }
 }

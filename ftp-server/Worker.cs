@@ -150,7 +150,43 @@ namespace ftp_server
                             //Handle the case where the packet is invalid as a userInfo packet AND may be a header packet
                             //Packets are sent in Header->Data, never the opposite
                             break;
+                    } 
+                    
+                    
+                    
+                    //If it reaches here, the packet is not a userInfo packet, therefore here there would be a header packet
+                    switch(Packet.RecieveHeaderPacket(fields,out responsePacket))
+                    {
+                        case (int)Packet.Code.File_Upload:
+                            //Collect the relevant data, like the uploaded file size, name and access modifier and use them to listen for the client's data packet
+
+                            break;
+
+
+                        case (int)Packet.Code.File_Download:
+                            //Collect the relevant data, like the file name.
+                            //Transmit a header packet to the client and then straight after transmit the file's data packet.
+
+                            break;
+
+
+                        case (int)Packet.Code.File_Delete:
+                            //Collect the relevant data, like the file name
+                            //Perform the operation and send a header packet with the renewed files' list
+                            break;
+
+
+                        case (int)Packet.Code.File_Rename:
+                            //Collect the relevant data, like the file name
+                            //Perform the rename, both on disk and db and then send a header packet with the renewed files list
+                            break;
+
+
+                        default:
+                            //Not a userInfo packet and not a header packet, therefore a wild packet, will not be accepted and will be discarded
+                            break;
                     }
+
 
                 }
                 catch (Exception ex)
@@ -159,8 +195,10 @@ namespace ftp_server
 
                     continue;
                 }
-                //If it reaches here, the packet is not a userInfo packet, therefore here there would be a header packet
+               
                 
+
+
                 
                 //1. Read from the stream.
                 //2. Parse the bytes.

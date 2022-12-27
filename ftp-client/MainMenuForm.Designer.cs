@@ -37,8 +37,9 @@
             this.uploadFileBtn = new System.Windows.Forms.Button();
             this.downloadFileBtn = new System.Windows.Forms.Button();
             this.userDataUserNameLbl = new System.Windows.Forms.Label();
-            this.userDataEmailLbl = new System.Windows.Forms.Label();
             this.downloadUploadProgressBar = new System.Windows.Forms.ProgressBar();
+            this.deleteFileBtn = new System.Windows.Forms.Button();
+            this.logoutBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // publicFilesDisplayer
@@ -54,6 +55,7 @@
             // 
             this.refreshListBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.refreshListBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.refreshListBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.refreshListBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.refreshListBtn.Location = new System.Drawing.Point(12, 483);
             this.refreshListBtn.Name = "refreshListBtn";
@@ -98,6 +100,7 @@
             // 
             this.uploadFileBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.uploadFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.uploadFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.uploadFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.uploadFileBtn.Location = new System.Drawing.Point(808, 386);
             this.uploadFileBtn.Name = "uploadFileBtn";
@@ -111,6 +114,7 @@
             // 
             this.downloadFileBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.downloadFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.downloadFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.downloadFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.downloadFileBtn.Location = new System.Drawing.Point(333, 483);
             this.downloadFileBtn.Name = "downloadFileBtn";
@@ -125,31 +129,46 @@
             this.userDataUserNameLbl.AutoSize = true;
             this.userDataUserNameLbl.BackColor = System.Drawing.Color.Transparent;
             this.userDataUserNameLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.userDataUserNameLbl.Location = new System.Drawing.Point(8, 48);
+            this.userDataUserNameLbl.Location = new System.Drawing.Point(8, 72);
             this.userDataUserNameLbl.Name = "userDataUserNameLbl";
             this.userDataUserNameLbl.Size = new System.Drawing.Size(122, 24);
             this.userDataUserNameLbl.TabIndex = 7;
             this.userDataUserNameLbl.Text = "Username: %";
-            // 
-            // userDataEmailLbl
-            // 
-            this.userDataEmailLbl.AutoSize = true;
-            this.userDataEmailLbl.BackColor = System.Drawing.Color.Transparent;
-            this.userDataEmailLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.userDataEmailLbl.Location = new System.Drawing.Point(8, 99);
-            this.userDataEmailLbl.Name = "userDataEmailLbl";
-            this.userDataEmailLbl.Size = new System.Drawing.Size(82, 24);
-            this.userDataEmailLbl.TabIndex = 8;
-            this.userDataEmailLbl.Text = "Email: %";
             // 
             // downloadUploadProgressBar
             // 
             this.downloadUploadProgressBar.Location = new System.Drawing.Point(535, 444);
             this.downloadUploadProgressBar.Name = "downloadUploadProgressBar";
             this.downloadUploadProgressBar.Size = new System.Drawing.Size(249, 23);
-            this.downloadUploadProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.downloadUploadProgressBar.TabIndex = 9;
             this.downloadUploadProgressBar.Visible = false;
+            // 
+            // deleteFileBtn
+            // 
+            this.deleteFileBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.deleteFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.deleteFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.deleteFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.deleteFileBtn.Location = new System.Drawing.Point(808, 444);
+            this.deleteFileBtn.Name = "deleteFileBtn";
+            this.deleteFileBtn.Size = new System.Drawing.Size(118, 42);
+            this.deleteFileBtn.TabIndex = 10;
+            this.deleteFileBtn.Text = "Delete File";
+            this.deleteFileBtn.UseVisualStyleBackColor = true;
+            // 
+            // logoutBtn
+            // 
+            this.logoutBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.logoutBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.logoutBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.logoutBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.logoutBtn.Location = new System.Drawing.Point(615, 490);
+            this.logoutBtn.Name = "logoutBtn";
+            this.logoutBtn.Size = new System.Drawing.Size(118, 42);
+            this.logoutBtn.TabIndex = 11;
+            this.logoutBtn.Text = "Logout";
+            this.logoutBtn.UseVisualStyleBackColor = true;
+            this.logoutBtn.Click += new System.EventHandler(this.logoutBtn_Click);
             // 
             // MainMenuForm
             // 
@@ -157,8 +176,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.ClientSize = new System.Drawing.Size(1010, 552);
+            this.Controls.Add(this.logoutBtn);
+            this.Controls.Add(this.deleteFileBtn);
             this.Controls.Add(this.downloadUploadProgressBar);
-            this.Controls.Add(this.userDataEmailLbl);
             this.Controls.Add(this.userDataUserNameLbl);
             this.Controls.Add(this.downloadFileBtn);
             this.Controls.Add(this.uploadFileBtn);
@@ -185,7 +205,8 @@
         private System.Windows.Forms.Button uploadFileBtn;
         private System.Windows.Forms.Button downloadFileBtn;
         private System.Windows.Forms.Label userDataUserNameLbl;
-        private System.Windows.Forms.Label userDataEmailLbl;
         private System.Windows.Forms.ProgressBar downloadUploadProgressBar;
+        private System.Windows.Forms.Button deleteFileBtn;
+        private System.Windows.Forms.Button logoutBtn;
     }
 }

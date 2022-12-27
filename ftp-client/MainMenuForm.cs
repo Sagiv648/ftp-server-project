@@ -12,17 +12,42 @@ namespace ftp_client
 {
     public partial class MainMenuForm : Form
     {
-        OpenFileDialog fileDloag;
+        OpenFileDialog fileDialog;
         string userFile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        Dictionary<string, string> response = null;
         public MainMenuForm()
         {
             InitializeComponent();
-            fileDloag= new OpenFileDialog();
-            fileDloag.Filter = "All files (*.*)|*.*";
-            fileDloag.InitialDirectory = userFile != "" ? userFile : Environment.GetLogicalDrives()[0];
+            
+           
+            if(Program.formsParams.Count != 0)
+            {
+                response = ((Dictionary<string,string>)Program.formsParams.Find(x => x is Dictionary<string, string>));
+            }
 
-            userDataUserNameLbl.Text = userDataUserNameLbl.Text.Replace("%", $"");
-            userDataEmailLbl.Text = userDataEmailLbl.Text.Replace("%", $"");
+            FormClosing += Program.CloseForm;
+            fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "All files (*.*)|*.*";
+            fileDialog.InitialDirectory = userFile != "" ? userFile : Environment.GetLogicalDrives()[0];
+
+            
+
+            if (response == null)
+                MessageBox.Show("Network issues occured, try again later", "Response not recieved", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+            else
+            {
+                userDataUserNameLbl.Text = userDataUserNameLbl.Text.Replace("%", $"{response["UserName"]}");
+                string[] files = response["Your_Files"].Split('|');
+                if(files.Length > 0 && files[0] != "")
+                    myFilesDisplayer.DataSource = response["Your_Files"].Split('|');
+
+                foreach (var item in response)
+                {
+                    Console.WriteLine($"{item.Key}: {item.Value}");
+                }
+            }
+
+            
 
             
         }
@@ -40,10 +65,35 @@ namespace ftp_client
 
         private void uploadFileBtn_Click(object sender, EventArgs e)
         {
-            if(fileDloag.ShowDialog() == DialogResult.OK)
+            if(fileDialog.ShowDialog() == DialogResult.OK)
             {
-                Console.WriteLine(fileDloag.FileName);
+                int access = 0;
+                string[] path = fileDialog.FileName.Split('\\');
+                if (MessageBox.Show($"Would you like to make {path[path.Length-1]} public?", "Access modifier", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    access = 1;
+                }
+                
+                if(!Connection.SendFileUpload(fileDialog.FileName, response["UserName"], response["UserId"], access.ToString(), downloadUploadProgressBar) )
+                Console.WriteLine(fileDialog.FileName);
             }
+        }
+
+        private void logoutBtn_Click(object sender, EventArgs e)
+        {
+            response = Connection.SendLogoutRequest(response["UserId"]);
+            if(response == null)
+            {
+                MessageBox.Show("Couldn't get the response from the server.", "Network error", MessageBoxButtons.OK, MessageBoxIcon.Error );
+            }
+            else if(int.Parse(response["Code"]) == (int)Connection.Code.Action_Confirm)
+            {
+                Program.navigatedForm = "LoginForm";
+                Hide();
+                Dispose();
+                
+            }
+
         }
     }
 }

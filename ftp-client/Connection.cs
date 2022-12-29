@@ -25,19 +25,7 @@ namespace ftp_client
          static readonly string serverIP = "192.168.1.18";
          static readonly int port = 20;
         static IPEndPoint server = new IPEndPoint(IPAddress.Parse(serverIP), port);
-        //Header Packet should look like this
-        /* UserName:[]\r\n
-         * UserEmail:[]\r\n
-         * Code:[]\r\n
-         * Directory:[][Directory]\r\n
-         * FileName:[]\r\n
-         * FileSize:[]\r\n
-         * AccessModifier:[]
-         * 
-         * 
-         * 
-         * 
-         */
+        
         
         static readonly string headerRequest = "Code:1%\r\n" +
             "UserId:2%\r\n" +
@@ -324,8 +312,12 @@ namespace ftp_client
             return response;
         }
 
-        public static bool SendFileUpload(string localPath, string userId, string userName, string Access, ProgressBar bar)
+        public static bool SendFileUpload(string localPath, string userId, string userName, string Access )
         {
+
+
+
+
             //static readonly string headerRequest = "Code:1%\r\n" +
             //"UserId:2%\r\n" +
             //"UserName:3%\r\n" +
@@ -334,46 +326,44 @@ namespace ftp_client
             //"Access:6%\r\n" +
             //"END\r\n";
 
-            packetBuilder.Append(headerRequest);
-            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Upload).ToString());
-            packetBuilder = packetBuilder.Replace("2%", userId);
-            packetBuilder = packetBuilder.Replace("3%", userName);
-            FileInfo file = new FileInfo(localPath);
-            long fSz = file.Length;
-            packetBuilder = packetBuilder.Replace("4%", file.Name);
-            packetBuilder = packetBuilder.Replace("5%", file.Length.ToString());
-            packetBuilder = packetBuilder.Replace("6%", Access);
+            //packetBuilder.Append(headerRequest);
+            //packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Upload).ToString());
+            //packetBuilder = packetBuilder.Replace("2%", userId);
+            //packetBuilder = packetBuilder.Replace("3%", userName);
+            //FileInfo file = new FileInfo(localPath);
+            //long fSz = file.Length;
+            //packetBuilder = packetBuilder.Replace("4%", file.Name);
+            //packetBuilder = packetBuilder.Replace("5%", file.Length.ToString());
+            //packetBuilder = packetBuilder.Replace("6%", Access);
 
-            Queue<List<byte>> buffer = new Queue<List<byte>>();
-            bar.Visible = true;
-            bar.Maximum = 100;
-            bar.Minimum = 0;
-            FileStream f = file.Open(FileMode.Open, FileAccess.Read);
-            byte[] localBuffer = new byte[4096];
-            bar.Step = 1;
-            long totalLenRead = 0;
-                int read = 0;
-            FileStream s = File.Create($"C:\\Users\\sagiv\\Projects\\1.College-work-directory\\{file.Name}");
-            Console.WriteLine($"START {s.Name}");
-            while( true)
-            {
-                if (totalLenRead >= fSz)
-                    break;
-                read = f.Read(localBuffer,0, localBuffer.Length);
-                if (read < localBuffer.Length)
-                    Array.Resize(ref localBuffer, read);
-                totalLenRead += read;
-                s.Write(localBuffer, 0, localBuffer.Length);
-                s.Seek(totalLenRead, SeekOrigin.Begin);
-                Console.WriteLine($"COMMIT {totalLenRead}");
-                    bar.PerformStep();
+            //Queue<List<byte>> buffer = new Queue<List<byte>>();
+            
+            //FileStream f = file.Open(FileMode.Open, FileAccess.Read);
+            //byte[] localBuffer = new byte[4096];
+            
+            //long totalLenRead = 0;
+            //    int read = 0;
+            //FileStream s = File.Create($"C:\\Users\\sagiv\\Projects\\1.College-work-directory\\{file.Name}");
+            //Console.WriteLine($"START {s.Name}");
+            //while( true)
+            //{
+            //    if (totalLenRead >= fSz)
+            //        break;
+            //    read = f.Read(localBuffer,0, localBuffer.Length);
+            //    if (read < localBuffer.Length)
+            //        Array.Resize(ref localBuffer, read);
+            //    totalLenRead += read;
+            //    s.Write(localBuffer, 0, localBuffer.Length);
+            //    s.Seek(totalLenRead, SeekOrigin.Begin);
+            //    Console.WriteLine($"COMMIT {totalLenRead}");
+                    
                 
-            }
+            //}
 
-            Console.WriteLine($"END {s.Name}");
+            //Console.WriteLine($"END {s.Name}");
 
-            f.Close();
-            s.Close();
+            //f.Close();
+            //s.Close();
 
             //char[] block = new char[1024];
             ////int index = 0;

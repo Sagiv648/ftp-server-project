@@ -83,36 +83,7 @@ namespace ftp_server
         }
 
 
-        //UserInfo Packet request should look like this
-        /* Code:[]\r\n
-         * UserName:[]\r\n
-         * UserEmail:[]\r\n
-         * HashedPassword:[]\r\n
-         * 
-         * 
-         * 
-         */
-        //UserInfo Packet response should look like this
-        /* Code:[]\r\n
-         * AccessGranted:[]\r\n
-         * Your_Files:[]\r\n
-         * PublicFiles:[]|[]|[]|[]...|[]\r\n
-         * 
-         * 
-         * 
-         * 
-         */
-
-
-        //UserInfo Packet response should look like this
-        /* Code:[]\r\n
-         * Your_Files:[]\r\n
-         * PublicFiles:[]|[]|[]|[]...|[]\r\n
-         * 
-         * 
-         * 
-         * 
-         */
+      
         public static string BuildUserInfoPacket(TcpClient cl, string response, int initialCode)
         {
             IPAddress clIp = IPAddress.Parse(((IPEndPoint)cl.Client.RemoteEndPoint).Address.ToString());

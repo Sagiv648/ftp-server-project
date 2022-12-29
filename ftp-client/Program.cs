@@ -30,57 +30,7 @@ namespace ftp_client
 
         public static Dictionary<string,Form> allForms= null;
 
-       
-
-        
-
-        //Header packets that should always be followed with data packets are (from client to server and the opposite):
-        //1. Header packets with File_Upload code
-        //2. Header packets with File_Download code
-
-
-
-        //Header Packet should look like this
-        /* UserName:[]\r\n
-         * UserEmail:[]\r\n
-         * Code:[]\r\n
-         * Directory:[][Directory]\r\n
-         * FileName:[]\r\n
-         * FileSize:[]\r\n
-         * AccessModifier:[]
-         * 
-         * 
-         * 
-         * 
-         */
-
-        //------------------------------------------
-
-        //Data Packet should look like this
-        /*
-         * File bytes...
-         */
-
-        //UserInfo Packet request should look like this
-        /* Code:[]\r\n
-         * UserName:[]\r\n
-         * UserEmail:[]\r\n
-         * HashedPassword:[]
-         * 
-         * 
-         * 
-         */
-        //UserInfo Packet response should look like this
-        /* Code:[]\r\n
-         * AccessGranted:[]\r\n
-         * Your_Files:[]\r\n
-         * PublicFiles:[]|[]|[]|[]...|[]
-         * 
-         * 
-         * 
-         * 
-         */
-
+      
 
         /// <summary>
         /// The main entry point for the application.
@@ -163,7 +113,8 @@ namespace ftp_client
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"{ex.Message}\n{ex.Source}");
+
+                    DisplayTestWindow(ex.Message, ex.Source, 1);
                     
                 }
                 Application.Exit();
@@ -182,6 +133,11 @@ namespace ftp_client
             else
                 navigatedForm = "quitting";
 
+        }
+
+        public static void DisplayTestWindow(string msg, string source, int numTrack)
+        {
+            MessageBox.Show($"Tracking: {numTrack}\nMessage: {msg}", $"Source: {source}", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

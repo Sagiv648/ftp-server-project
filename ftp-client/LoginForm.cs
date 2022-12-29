@@ -32,7 +32,8 @@ namespace ftp_client
         private void RegisterBtn_Click(object sender, EventArgs e)
         {
             Program.navigatedForm = "RegisterForm";
-            Hide();
+            
+            response = null;
             Dispose();
         }
 
@@ -144,7 +145,7 @@ namespace ftp_client
                 {
                     Program.formsParams.Add(response);
                     Program.navigatedForm = "MainMenuForm";
-                    Hide();
+                    
                     Dispose();
                 }
             }

@@ -27,9 +27,10 @@ namespace ftp_client
         
         private void backBtn_Click(object sender, EventArgs e)
         {
-            Program.navigatedForm = "LoginForm";
-            Hide();
+            Program.navigatedForm = "LoginForm"; 
             Dispose();
+            //Hide();
+           
         }
 
 
@@ -152,7 +153,7 @@ namespace ftp_client
                 {this, response }
             });
             Program.navigatedForm = "LoginForm";
-            Hide();
+            //Hide();
             Dispose();
          
             
@@ -161,7 +162,7 @@ namespace ftp_client
         private void emailVerificationNav_Click(object sender, EventArgs e)
         {
             Program.navigatedForm = "EmailVerificationForm";
-            Hide();
+            //Hide();
             Dispose();
         }
     }

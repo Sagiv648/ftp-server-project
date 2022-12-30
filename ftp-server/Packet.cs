@@ -187,32 +187,116 @@ namespace ftp_server
         //TODO: Write the logic of writing it on the server's disk AND appending it to the DB
         public static string WriteFiles(Dictionary<string, List<string>> filesMapping, Dictionary<string,string> bufferInput ,TcpClient client)
         {
-            string response = "";
+            StringBuilder response = new StringBuilder();
+            string filePath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User) + $"\\{bufferInput["UserId"]}_{bufferInput["UserName"]}".Trim();
 
-            foreach(var item in bufferInput)
-            {
-                Console.WriteLine($"{item.Key}:{item.Value}");
-            }
-            Console.WriteLine("-----");
-            foreach(var item in filesMapping)
-            {
-                foreach (var item2 in item.Value)
-                {
-                    Console.WriteLine(item2);
-                }
-            }
+            //foreach (var item in filesMapping["Path"])
+            //{
+            //    string[] pathComps = item.Split('\\');
+            //    string concatPaths = "";
+            //    for(int i = 0; i < pathComps.Length-1; i++)
+            //    {
+            //        concatPaths = $"\\{pathComps[i]}";
+            //        if (!Directory.Exists($"{filePath + concatPaths}"))
+            //        {
+            //            Directory.CreateDirectory(filePath + concatPaths);
+            //        }
+                    
+            //    }
+            //}
 
 
             try
             {
+                
+                if (!filesMapping.ContainsKey("Path") || !filesMapping.ContainsKey("Size") || !filesMapping.ContainsKey("Access"))
+                    return "";
+                int depth = filesMapping["Path"].Count;
+                
+                MemoryStream mem = new MemoryStream();
+                for(int i = 0; i < depth; i++)
+                {
+                    long size = long.Parse(filesMapping["Size"][i]);
+                    Console.WriteLine($"{filePath + "\\" + filesMapping["Path"][i]}: {filesMapping["Size"][i]}: {filesMapping["Access"][i]}");
+                    byte[] buffer = new byte[4096];
+                    int read = 0;
+                    long totalRead = 0;
+                    FileInfo F = new FileInfo($"{filePath + "\\" + filesMapping["Path"][i]}");
+                    StreamWriter writer = new StreamWriter(client.GetStream());
+                    StreamReader reader = new StreamReader(client.GetStream());
+                    FileStream f = File.Create($"{filePath + "\\" + filesMapping["Path"][i]}");
+                    
+                    
+                    char[] buf = new char[4096];
+                    //TODO: IMPORTANT! File transfering
+                    //while (true)
+                    //{
+                    //    Console.WriteLine(totalRead);
+                    //    if (totalRead >= size)
+                    //    {
+                    //        Console.WriteLine($"At the end totalread is {totalRead}");
+                    //        f.Close();
+                    //        break;
+                    //    }
+                    //    read = reader.ReadBlock(buf, 0, buf.Length);
+                    //    Console.WriteLine(read);
+                    //    if (read < buf.Length)
+                    //    {
+                    //        Array.Resize(ref buf, read);
+                    //        Array.Resize(ref buffer, read);
+                    //    }
+                        
+                    //    Console.WriteLine($"read -> {read}");
+                    //    totalRead += read;
+                    //    for(int k  = 0; k < buf.Length; k++)
+                    //    {
+                    //        buffer[k] = (byte)buf[k];
+                    //        //Console.WriteLine(buffer[k]);
+                    //    }
+                    //    f.Write(buffer, 0, buffer.Length);
+                    //    f.Seek(totalRead,SeekOrigin.Begin);
+
+                    //}
+                    //while (true)
+                    //{
+                    //    
+
+
+                    //    
+
+                    //    if(read < buffer.Length)
+                    //    {
+                    //        Array.Resize(ref buffer, read);
+                    //    }
+                    //    totalRead += read;
+                    //    f.Write(buffer, 0, buffer.Length);
+                    //    f.Seek(totalRead,SeekOrigin.Begin);
+
+                    //}
+                    Console.WriteLine("End of loop");
+
+
+                    //Console.WriteLine(mem.GetBuffer().Length);
+
+                    
+                    //writer.WriteLine("Next");
+                    //writer.Flush();
+                   
+                    f.Close();
+                    
+                }
+                
+
+
 
             }
             catch (Exception exception)
             {
+                Console.WriteLine($"{exception.Message}\n{exception.Source}");
 
                 return "";
             }
-            return response;
+            return response.ToString();
         }
         public static bool RecieveDataPacket(Queue<byte[]> buffer)
         {

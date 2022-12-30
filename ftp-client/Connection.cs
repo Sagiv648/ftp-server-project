@@ -363,47 +363,64 @@ namespace ftp_client
                     long fSz = f.Length;
                     int read = 0;
                     long totalRead = 0;
-                    byte[] buffer = new byte[4096];
-
+                    char[] buffer = new char[4096];
+                    byte[] buf = new byte[4096];
                     // TODO: Logging system - START filename
 
                     Console.WriteLine($"START {f.Name}");
-                    while (true)
-                    {
-                        if (totalRead >= fSz)
-                            break; 
-                        read = fs.Read(buffer, 0, buffer.Length);
 
-                        if(read < buffer.Length)
-                        {
-                            Array.Resize(ref buffer, read);
-                        }
-                        totalRead += read;
-                        mem.Write(buffer, 0, buffer.Length);
-                        //stream.Write(buffer, 0, buffer.Length);
-                        
-                        //stream.Seek(totalRead, SeekOrigin.Begin);
+                    //TODO: IMPORTANT! File transfering
+                    //while (true)
+                    //{
+                    //    if (totalRead >= fSz)
+                    //        break; 
+                    //    read = fs.Read(buf, 0, buf.Length);
+                    //    for(int k = 0; k < buffer.Length; k++)
+                    //    {
+                    //        buffer[k] = (char)buf[k];
+                    //    }
+                    //    if(read < buf.Length)
+                    //    {
+                    //        Array.Resize(ref buf, read);
+                    //        Array.Resize(ref buffer, read);
+                    //    }
+                    //    totalRead += read;
 
-                        // TODO: Logging system - COMMIT filename - {uploaded}\{totalSize}
-                        Console.WriteLine($"COMMIT {f.Name} - {totalRead}\\{fSz}");
+                    //    writer.Write(buffer, 0, buffer.Length);
+                    //    writer.Flush();
+                    //    //mem.Write(buffer, 0, buffer.Length);
+                    //    //mem.CopyTo(stream);
+                    //    //mem.Seek(totalRead, SeekOrigin.Begin);
+                    //    //stream.Write(buffer, 0, buffer.Length);
                         
-                    }
-                    mem.CopyTo(stream);
-                    stream.Flush();
-                    
+                    //    //stream.Seek(totalRead, SeekOrigin.Begin);
+
+                    //    // TODO: Logging system - COMMIT filename - {uploaded}\{totalSize}
+                    //    Console.WriteLine($"COMMIT {f.Name} - {totalRead}\\{fSz}");
+                        
+                    //}
+                    //mem.Seek(0,SeekOrigin.Begin);
+                    //mem.Position = 0;
+                    //mem.CopyTo(writer);
+                    //writer.Flush();
+                    //string str = reader.ReadLine();
+                    //if(str != "Next")
+                    //{
+                    //    Console.WriteLine("It's not next, smth going on");
+                    //}
                     // TODO: Logging system - END filename
                     Console.WriteLine($"END {f.Name}");
                 }
                 // TODO: Logging system - END Batch
 
                 response = new Dictionary<string, string>();
-                string tmp = "";
-                while((tmp = reader.ReadLine()) != "END")
-                {
-                    string[] tempArr = tmp.Split(':');
-                    response.Add(tempArr[0], tempArr[1]);
-                }
-                client.Close();
+                //string tmp = "";
+                //while((tmp = reader.ReadLine()) != "END")
+                //{
+                //    string[] tempArr = tmp.Split(':');
+                //    response.Add(tempArr[0], tempArr[1]);
+                //}
+                //client.Close();
             }
             catch (Exception exception)
             {

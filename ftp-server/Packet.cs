@@ -75,15 +75,7 @@ namespace ftp_server
 
             return null;
         }
-        public static Queue<string> BuildDataPacket()
-        {
-            Queue<string> output = new Queue<string>();
 
-            return output;
-        }
-
-
-      
         public static string BuildUserInfoPacket(TcpClient cl, string response, int initialCode)
         {
             IPAddress clIp = IPAddress.Parse(((IPEndPoint)cl.Client.RemoteEndPoint).Address.ToString());
@@ -151,12 +143,76 @@ namespace ftp_server
             return packetOut;
         }
 
-        public static int RecieveHeaderPacket(Dictionary<string,string> buffer,out string responsePacket)
+        public static int RecieveHeaderPacket(Dictionary<string,string> buffer, Dictionary<string, List<string>> fileMapping, TcpClient client,out string responsePacket)
         {
             responsePacket = "";
 
+            if (buffer.ContainsKey("Code"))
+            {
+                int codeTest = 0;
+                if (!int.TryParse(buffer["Code"], out codeTest))
+                    return -1;
+
+                switch (codeTest)
+                {
+                    case (int)Code.File_Upload:
+                        responsePacket = WriteFiles(fileMapping, buffer, client);
+                        return (int)Code.File_Upload;
+
+                    case (int)Code.File_Download:
+
+                        return (int)Code.File_Download;
+
+                    case (int)Code.File_Rename:
+
+
+                        return (int)Code.File_Rename;
+
+                    case (int)Code.File_Delete:
+
+                        return (int)Code.File_Delete;
+                        
+
+
+
+                    default:
+                        return -1;
+                        
+                }
+            }
+
 
             return -1;
+        }
+        //TODO: Write the logic of writing it on the server's disk AND appending it to the DB
+        public static string WriteFiles(Dictionary<string, List<string>> filesMapping, Dictionary<string,string> bufferInput ,TcpClient client)
+        {
+            string response = "";
+
+            foreach(var item in bufferInput)
+            {
+                Console.WriteLine($"{item.Key}:{item.Value}");
+            }
+            Console.WriteLine("-----");
+            foreach(var item in filesMapping)
+            {
+                foreach (var item2 in item.Value)
+                {
+                    Console.WriteLine(item2);
+                }
+            }
+
+
+            try
+            {
+
+            }
+            catch (Exception exception)
+            {
+
+                return "";
+            }
+            return response;
         }
         public static bool RecieveDataPacket(Queue<byte[]> buffer)
         {

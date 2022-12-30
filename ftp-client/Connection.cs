@@ -33,7 +33,7 @@ namespace ftp_client
             "RootDirectoryName:4%\r\n" +
             "%" +
             "END\r\n";
-        static readonly string headerRequestFileFormat = "%path:%sz:%access";
+        
 
         static readonly string userInfoRequest = "Code:1%\r\n" +
             "UserName:2%\r\n" +
@@ -311,7 +311,7 @@ namespace ftp_client
             return response;
         }
 
-        public static bool SendUploadRequest(List<string> privatePaths, List<string> publicPaths ,string rootPath, string newRootPath,string userId, string userName )
+        public static Dictionary<string,string> SendUploadRequest(List<string> privatePaths, List<string> publicPaths ,string rootPath, string newRootPath,string userId, string userName )
         {
             //static readonly string headerRequest = "Code:1%\r\n" +
             //"UserId:2%\r\n" +
@@ -342,6 +342,86 @@ namespace ftp_client
             packetBuilder = packetBuilder.Replace("%", files);
             Console.WriteLine("output packet is\n");
             Console.WriteLine(packetBuilder.ToString());
+            Dictionary<string, string> response = null;
+            try
+            {
+                client = new TcpClient();
+                client.Connect(server);
+                StreamWriter writer = new StreamWriter(client.GetStream());
+                StreamReader reader = new StreamReader(client.GetStream(), Encoding.ASCII);
+                NetworkStream stream = client.GetStream();
+                writer.Write(packetBuilder.ToString());
+                writer.Flush();
+                MemoryStream mem = new MemoryStream();
+
+
+                // TODO: Logging system - START batch
+                for(int i = 0; i < privatePaths.Count; i++)
+                {
+                    FileInfo f = new FileInfo(privatePaths[i].Remove(0, newRootPath.Length).Insert(0, rootPath));
+                    FileStream fs = f.Open(FileMode.Open,FileAccess.Read);
+                    long fSz = f.Length;
+                    int read = 0;
+                    long totalRead = 0;
+                    byte[] buffer = new byte[4096];
+
+                    // TODO: Logging system - START filename
+
+                    Console.WriteLine($"START {f.Name}");
+                    while (true)
+                    {
+                        if (totalRead >= fSz)
+                            break; 
+                        read = fs.Read(buffer, 0, buffer.Length);
+
+                        if(read < buffer.Length)
+                        {
+                            Array.Resize(ref buffer, read);
+                        }
+                        totalRead += read;
+                        mem.Write(buffer, 0, buffer.Length);
+                        //stream.Write(buffer, 0, buffer.Length);
+                        
+                        //stream.Seek(totalRead, SeekOrigin.Begin);
+
+                        // TODO: Logging system - COMMIT filename - {uploaded}\{totalSize}
+                        Console.WriteLine($"COMMIT {f.Name} - {totalRead}\\{fSz}");
+                        
+                    }
+                    mem.CopyTo(stream);
+                    stream.Flush();
+                    
+                    // TODO: Logging system - END filename
+                    Console.WriteLine($"END {f.Name}");
+                }
+                // TODO: Logging system - END Batch
+
+                response = new Dictionary<string, string>();
+                string tmp = "";
+                while((tmp = reader.ReadLine()) != "END")
+                {
+                    string[] tempArr = tmp.Split(':');
+                    response.Add(tempArr[0], tempArr[1]);
+                }
+                client.Close();
+            }
+            catch (Exception exception)
+            {
+
+                client.Close();
+                if (exception is SocketException)
+                {
+                    Console.WriteLine("Network error");
+                }
+                else if (exception is ObjectDisposedException)
+                {
+                    Console.WriteLine("Connection closed");
+                }
+                Console.WriteLine($"{exception.Message}\n{exception.Source}");
+                packetBuilder = packetBuilder.Clear();
+                return null;
+            }
+            return response;
             //packetBuilder.Append(headerRequest);
             //packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Upload).ToString());
 
@@ -414,7 +494,7 @@ namespace ftp_client
             //    if (totalIndex >= fz)
             //        break;
             //}
-            return true;
+            
         }
     }
 }

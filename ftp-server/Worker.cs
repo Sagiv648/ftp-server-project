@@ -54,9 +54,15 @@ namespace ftp_server
                 //directoy = null;
                 
                 fields.Clear();
-
+                
                 input.SetWorkFinishedStatus(true);
                 input.SetWorkFinishedStatus(!input.GetSignal().WaitOne());
+                Dictionary<string, List<string>> filesMapping = new Dictionary<string, List<string>>()
+                    {
+                        {"Path", new List<string>() },
+                        {"Size", new List<string>() },
+                        {"Access", new List<string>() }
+                    };
                 try
                 {
                     reader = new StreamReader(input.GetStream(), Encoding.ASCII);
@@ -66,12 +72,28 @@ namespace ftp_server
 
 
                     string localStr;
-
+                    
                     while ((localStr = reader.ReadLine()) != "END")
                     {
                         string[] tempArr = localStr.Split(':');
+                        if(tempArr.Length == 3)
+                        {
+                            filesMapping["Path"].Add(tempArr[0]);
+                            filesMapping["Size"].Add(tempArr[1]);
+                            filesMapping["Access"].Add(tempArr[2]);
+                        }
+                        else
                         fields.Add(tempArr[0], tempArr[1].Trim('\0'));
                     }
+
+                    //foreach (var item in filesMapping)
+                    //{
+                    //    Console.WriteLine(item.Key);
+                    //    foreach (var item2 in item.Value)
+                    //    {
+                    //        Console.WriteLine(item2);
+                    //    }
+                    //}
                 }
                 catch (Exception ex)
                 {
@@ -155,34 +177,47 @@ namespace ftp_server
                     
                     
                     //If it reaches here, the packet is not a userInfo packet, therefore here there would be a header packet
-                    switch(Packet.RecieveHeaderPacket(fields,out responsePacket))
+                    switch(Packet.RecieveHeaderPacket(fields, filesMapping, input.GetClient(),out responsePacket))
                     {
                         case (int)Packet.Code.File_Upload:
+                            Console.WriteLine("upload");
                             //Collect the relevant data, like the uploaded file size, name and access modifier and use them to listen for the client's data packet
-
+                            writer.Write(responsePacket);
+                            writer.Flush();
                             break;
 
 
                         case (int)Packet.Code.File_Download:
+                            Console.WriteLine("download");
                             //Collect the relevant data, like the file name.
                             //Transmit a header packet to the client and then straight after transmit the file's data packet.
-
+                            writer.Write(responsePacket);
+                            writer.Flush();
                             break;
 
 
                         case (int)Packet.Code.File_Delete:
+                            Console.WriteLine("delete");
                             //Collect the relevant data, like the file name
                             //Perform the operation and send a header packet with the renewed files' list
+                            writer.Write(responsePacket);
+                            writer.Flush();
                             break;
 
 
                         case (int)Packet.Code.File_Rename:
+                            Console.WriteLine("rename");
                             //Collect the relevant data, like the file name
                             //Perform the rename, both on disk and db and then send a header packet with the renewed files list
+                            writer.Write(responsePacket);
+                            writer.Flush();
                             break;
 
 
                         default:
+                            Console.WriteLine("wild one");
+                            writer.Write(responsePacket);
+                            writer.Flush();
                             //Not a userInfo packet and not a header packet, therefore a wild packet, will not be accepted and will be discarded
                             break;
                     }
@@ -195,17 +230,17 @@ namespace ftp_server
 
                     continue;
                 }
-               
-                
 
 
-                
+
+
+
                 //1. Read from the stream.
                 //2. Parse the bytes.
 
 
                 //Read the bytes from the client's stream and parse the packets accordingly
-
+                filesMapping.Clear();
 
             }
 

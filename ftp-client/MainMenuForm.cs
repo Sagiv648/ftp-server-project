@@ -273,8 +273,17 @@ namespace ftp_client
                     return;
                 }
             }
-            Connection.SendUploadRequest(paths, publicFilesContainer, fb.SelectedPath,searchUploadedTxtbox.Text, response["UserId"], response["UserName"]);
-            MessageBox.Show("Uploading...");
+
+            Dictionary<string, string> uploadResponse = Connection.SendUploadRequest(paths, publicFilesContainer, fb.SelectedPath, searchUploadedTxtbox.Text, response["UserId"], response["UserName"]);
+            if (uploadResponse != null)
+            {
+                MessageBox.Show("All uploaded.");
+            }
+            else
+            {
+                MessageBox.Show("Error occured.");
+            }
+            
 
         }
     }

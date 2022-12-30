@@ -30,11 +30,10 @@ namespace ftp_client
         static readonly string headerRequest = "Code:1%\r\n" +
             "UserId:2%\r\n" +
             "UserName:3%\r\n" +
-            "FileName:4%\r\n" +
-            "FileSize:5%\r\n" +
-            "Access:6%\r\n" +
+            "RootDirectoryName:4%\r\n" +
+            "%" +
             "END\r\n";
-
+        static readonly string headerRequestFileFormat = "%path:%sz:%access";
 
         static readonly string userInfoRequest = "Code:1%\r\n" +
             "UserName:2%\r\n" +
@@ -312,24 +311,40 @@ namespace ftp_client
             return response;
         }
 
-        public static bool SendFileUpload(string localPath, string userId, string userName, string Access )
+        public static bool SendUploadRequest(List<string> privatePaths, List<string> publicPaths ,string rootPath, string newRootPath,string userId, string userName )
         {
-
-
-
-
             //static readonly string headerRequest = "Code:1%\r\n" +
             //"UserId:2%\r\n" +
             //"UserName:3%\r\n" +
-            //"FileName:4%\r\n" +
-            //"FileSize:5%\r\n" +
-            //"Access:6%\r\n" +
+            //"RootDirectoryName:4%\r\n" +
+            //"%path:%sz:%access\r\n" +
             //"END\r\n";
-
+            packetBuilder = packetBuilder.Append(headerRequest);
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Upload).ToString());
+            packetBuilder = packetBuilder.Replace("2%", userId);
+            packetBuilder = packetBuilder.Replace("3%", userName);
+            packetBuilder = packetBuilder.Replace("4%", newRootPath);
+            string files = "";
+            foreach (string path in privatePaths)
+            {
+                FileInfo f = new FileInfo(path.Remove(0, newRootPath.Length).Insert(0, rootPath));
+                files += $"{path}:{f.Length}:{0}\r\n";
+                
+                Console.WriteLine(path.Remove(0,newRootPath.Length).Insert(0,rootPath));
+            }
+            Console.WriteLine("Public files");
+            foreach (string path in publicPaths)
+            {
+                FileInfo f = new FileInfo(path.Remove(0, newRootPath.Length).Insert(0, rootPath));
+                files += $"{path}:{f.Length}:{1}\r\n";
+                Console.WriteLine(path.Remove(0, newRootPath.Length).Insert(0, rootPath));
+            }
+            packetBuilder = packetBuilder.Replace("%", files);
+            Console.WriteLine("output packet is\n");
+            Console.WriteLine(packetBuilder.ToString());
             //packetBuilder.Append(headerRequest);
             //packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Upload).ToString());
-            //packetBuilder = packetBuilder.Replace("2%", userId);
-            //packetBuilder = packetBuilder.Replace("3%", userName);
+
             //FileInfo file = new FileInfo(localPath);
             //long fSz = file.Length;
             //packetBuilder = packetBuilder.Replace("4%", file.Name);
@@ -337,10 +352,10 @@ namespace ftp_client
             //packetBuilder = packetBuilder.Replace("6%", Access);
 
             //Queue<List<byte>> buffer = new Queue<List<byte>>();
-            
+
             //FileStream f = file.Open(FileMode.Open, FileAccess.Read);
             //byte[] localBuffer = new byte[4096];
-            
+
             //long totalLenRead = 0;
             //    int read = 0;
             //FileStream s = File.Create($"C:\\Users\\sagiv\\Projects\\1.College-work-directory\\{file.Name}");
@@ -356,8 +371,8 @@ namespace ftp_client
             //    s.Write(localBuffer, 0, localBuffer.Length);
             //    s.Seek(totalLenRead, SeekOrigin.Begin);
             //    Console.WriteLine($"COMMIT {totalLenRead}");
-                    
-                
+
+
             //}
 
             //Console.WriteLine($"END {s.Name}");
@@ -384,8 +399,8 @@ namespace ftp_client
             //output.Write(arr,0,arr.Length);
             //output.Close();
             //writer.Close();
-            
-            
+
+
 
 
             //Console.WriteLine(t);

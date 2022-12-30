@@ -39,14 +39,14 @@
             this.userDataUserNameLbl = new System.Windows.Forms.Label();
             this.deleteFileBtn = new System.Windows.Forms.Button();
             this.logoutBtn = new System.Windows.Forms.Button();
-            this.finalizeUploadBtn = new System.Windows.Forms.Button();
-            this.removeSelectedBtn = new System.Windows.Forms.Button();
-            this.finalizeUploadedFiles = new System.Windows.Forms.CheckedListBox();
             this.uploadedFilesPanel = new System.Windows.Forms.Panel();
+            this.setPrivateBtn = new System.Windows.Forms.Button();
+            this.publicFiles = new System.Windows.Forms.ListBox();
+            this.setPublicBtn = new System.Windows.Forms.Button();
+            this.directoyNameLbl = new System.Windows.Forms.Label();
+            this.selectedFiles = new System.Windows.Forms.ListBox();
             this.searchUploadedTxtbox = new System.Windows.Forms.TextBox();
-            this.publicFilesToUpload = new System.Windows.Forms.CheckedListBox();
-            this.setPublic = new System.Windows.Forms.Button();
-            this.removePublic = new System.Windows.Forms.Button();
+            this.beginUploadBtn = new System.Windows.Forms.Button();
             this.uploadedFilesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,7 +71,6 @@
             this.refreshListBtn.TabIndex = 1;
             this.refreshListBtn.Text = "Refresh List";
             this.refreshListBtn.UseVisualStyleBackColor = true;
-            this.refreshListBtn.Click += new System.EventHandler(this.refreshListBtn_Click);
             // 
             // publicFilesLbl
             // 
@@ -114,7 +113,7 @@
             this.uploadFileBtn.Name = "uploadFileBtn";
             this.uploadFileBtn.Size = new System.Drawing.Size(118, 42);
             this.uploadFileBtn.TabIndex = 5;
-            this.uploadFileBtn.Text = "Upload File";
+            this.uploadFileBtn.Text = "Upload Files";
             this.uploadFileBtn.UseVisualStyleBackColor = true;
             this.uploadFileBtn.Click += new System.EventHandler(this.uploadFileBtn_Click);
             // 
@@ -128,7 +127,7 @@
             this.downloadFileBtn.Name = "downloadFileBtn";
             this.downloadFileBtn.Size = new System.Drawing.Size(118, 57);
             this.downloadFileBtn.TabIndex = 6;
-            this.downloadFileBtn.Text = "Download File";
+            this.downloadFileBtn.Text = "Download Files";
             this.downloadFileBtn.UseVisualStyleBackColor = true;
             this.downloadFileBtn.Click += new System.EventHandler(this.downloadFileBtn_Click);
             // 
@@ -153,7 +152,7 @@
             this.deleteFileBtn.Name = "deleteFileBtn";
             this.deleteFileBtn.Size = new System.Drawing.Size(118, 42);
             this.deleteFileBtn.TabIndex = 10;
-            this.deleteFileBtn.Text = "Delete File";
+            this.deleteFileBtn.Text = "Delete Files";
             this.deleteFileBtn.UseVisualStyleBackColor = true;
             // 
             // logoutBtn
@@ -170,101 +169,100 @@
             this.logoutBtn.UseVisualStyleBackColor = true;
             this.logoutBtn.Click += new System.EventHandler(this.logoutBtn_Click);
             // 
-            // finalizeUploadBtn
-            // 
-            this.finalizeUploadBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
-            this.finalizeUploadBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.finalizeUploadBtn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.finalizeUploadBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.finalizeUploadBtn.Location = new System.Drawing.Point(381, 8);
-            this.finalizeUploadBtn.Name = "finalizeUploadBtn";
-            this.finalizeUploadBtn.Size = new System.Drawing.Size(118, 42);
-            this.finalizeUploadBtn.TabIndex = 13;
-            this.finalizeUploadBtn.Text = "Upload";
-            this.finalizeUploadBtn.UseVisualStyleBackColor = true;
-            this.finalizeUploadBtn.Click += new System.EventHandler(this.finalizeUploadBtn_Click);
-            // 
-            // removeSelectedBtn
-            // 
-            this.removeSelectedBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
-            this.removeSelectedBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.removeSelectedBtn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.removeSelectedBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.removeSelectedBtn.Location = new System.Drawing.Point(36, 171);
-            this.removeSelectedBtn.Name = "removeSelectedBtn";
-            this.removeSelectedBtn.Size = new System.Drawing.Size(118, 42);
-            this.removeSelectedBtn.TabIndex = 14;
-            this.removeSelectedBtn.Text = "Remove";
-            this.removeSelectedBtn.UseVisualStyleBackColor = true;
-            this.removeSelectedBtn.Click += new System.EventHandler(this.removeSelectedBtn_Click);
-            // 
-            // finalizeUploadedFiles
-            // 
-            this.finalizeUploadedFiles.FormattingEnabled = true;
-            this.finalizeUploadedFiles.Location = new System.Drawing.Point(3, 56);
-            this.finalizeUploadedFiles.Name = "finalizeUploadedFiles";
-            this.finalizeUploadedFiles.Size = new System.Drawing.Size(327, 109);
-            this.finalizeUploadedFiles.TabIndex = 15;
-            // 
             // uploadedFilesPanel
             // 
             this.uploadedFilesPanel.BackColor = System.Drawing.Color.Transparent;
-            this.uploadedFilesPanel.Controls.Add(this.removePublic);
-            this.uploadedFilesPanel.Controls.Add(this.setPublic);
-            this.uploadedFilesPanel.Controls.Add(this.publicFilesToUpload);
+            this.uploadedFilesPanel.Controls.Add(this.setPrivateBtn);
+            this.uploadedFilesPanel.Controls.Add(this.publicFiles);
+            this.uploadedFilesPanel.Controls.Add(this.setPublicBtn);
+            this.uploadedFilesPanel.Controls.Add(this.directoyNameLbl);
+            this.uploadedFilesPanel.Controls.Add(this.selectedFiles);
             this.uploadedFilesPanel.Controls.Add(this.searchUploadedTxtbox);
-            this.uploadedFilesPanel.Controls.Add(this.finalizeUploadedFiles);
-            this.uploadedFilesPanel.Controls.Add(this.removeSelectedBtn);
-            this.uploadedFilesPanel.Controls.Add(this.finalizeUploadBtn);
             this.uploadedFilesPanel.Location = new System.Drawing.Point(188, 12);
             this.uploadedFilesPanel.Name = "uploadedFilesPanel";
             this.uploadedFilesPanel.Size = new System.Drawing.Size(587, 216);
             this.uploadedFilesPanel.TabIndex = 16;
             this.uploadedFilesPanel.Visible = false;
             // 
+            // setPrivateBtn
+            // 
+            this.setPrivateBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.setPrivateBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.setPrivateBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.setPrivateBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.setPrivateBtn.Location = new System.Drawing.Point(417, 184);
+            this.setPrivateBtn.Name = "setPrivateBtn";
+            this.setPrivateBtn.Size = new System.Drawing.Size(118, 29);
+            this.setPrivateBtn.TabIndex = 21;
+            this.setPrivateBtn.Text = "Set private";
+            this.setPrivateBtn.UseVisualStyleBackColor = true;
+            this.setPrivateBtn.Click += new System.EventHandler(this.setPrivateBtn_Click);
+            // 
+            // publicFiles
+            // 
+            this.publicFiles.FormattingEnabled = true;
+            this.publicFiles.HorizontalScrollbar = true;
+            this.publicFiles.Location = new System.Drawing.Point(370, 8);
+            this.publicFiles.Name = "publicFiles";
+            this.publicFiles.Size = new System.Drawing.Size(214, 173);
+            this.publicFiles.TabIndex = 20;
+            // 
+            // setPublicBtn
+            // 
+            this.setPublicBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.setPublicBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.setPublicBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.setPublicBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.setPublicBtn.Location = new System.Drawing.Point(212, 184);
+            this.setPublicBtn.Name = "setPublicBtn";
+            this.setPublicBtn.Size = new System.Drawing.Size(118, 29);
+            this.setPublicBtn.TabIndex = 19;
+            this.setPublicBtn.Text = "Set public";
+            this.setPublicBtn.UseVisualStyleBackColor = true;
+            this.setPublicBtn.Click += new System.EventHandler(this.setPublicBtn_Click);
+            // 
+            // directoyNameLbl
+            // 
+            this.directoyNameLbl.AutoSize = true;
+            this.directoyNameLbl.BackColor = System.Drawing.Color.Transparent;
+            this.directoyNameLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.directoyNameLbl.Location = new System.Drawing.Point(3, 43);
+            this.directoyNameLbl.Name = "directoyNameLbl";
+            this.directoyNameLbl.Size = new System.Drawing.Size(145, 24);
+            this.directoyNameLbl.TabIndex = 18;
+            this.directoyNameLbl.Text = "Directory Name:";
+            // 
+            // selectedFiles
+            // 
+            this.selectedFiles.FormattingEnabled = true;
+            this.selectedFiles.HorizontalScrollbar = true;
+            this.selectedFiles.Location = new System.Drawing.Point(3, 73);
+            this.selectedFiles.Name = "selectedFiles";
+            this.selectedFiles.Size = new System.Drawing.Size(327, 108);
+            this.selectedFiles.TabIndex = 17;
+            // 
             // searchUploadedTxtbox
             // 
-            this.searchUploadedTxtbox.Location = new System.Drawing.Point(50, 29);
+            this.searchUploadedTxtbox.Location = new System.Drawing.Point(145, 48);
             this.searchUploadedTxtbox.Name = "searchUploadedTxtbox";
-            this.searchUploadedTxtbox.Size = new System.Drawing.Size(280, 20);
+            this.searchUploadedTxtbox.Size = new System.Drawing.Size(185, 20);
             this.searchUploadedTxtbox.TabIndex = 16;
             this.searchUploadedTxtbox.TextChanged += new System.EventHandler(this.searchUploadedTxtbox_TextChanged);
             // 
-            // publicFilesToUpload
+            // beginUploadBtn
             // 
-            this.publicFilesToUpload.FormattingEnabled = true;
-            this.publicFilesToUpload.Location = new System.Drawing.Point(335, 56);
-            this.publicFilesToUpload.Name = "publicFilesToUpload";
-            this.publicFilesToUpload.Size = new System.Drawing.Size(249, 109);
-            this.publicFilesToUpload.TabIndex = 17;
-            // 
-            // setPublic
-            // 
-            this.setPublic.BackgroundImage = global::ftp_client.Properties.Resources.background;
-            this.setPublic.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.setPublic.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.setPublic.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.setPublic.Location = new System.Drawing.Point(212, 171);
-            this.setPublic.Name = "setPublic";
-            this.setPublic.Size = new System.Drawing.Size(118, 42);
-            this.setPublic.TabIndex = 18;
-            this.setPublic.Text = "Set selected files to public";
-            this.setPublic.UseVisualStyleBackColor = true;
-            this.setPublic.Click += new System.EventHandler(this.setPublic_Click);
-            // 
-            // removePublic
-            // 
-            this.removePublic.BackgroundImage = global::ftp_client.Properties.Resources.background;
-            this.removePublic.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.removePublic.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.removePublic.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.removePublic.Location = new System.Drawing.Point(427, 171);
-            this.removePublic.Name = "removePublic";
-            this.removePublic.Size = new System.Drawing.Size(118, 42);
-            this.removePublic.TabIndex = 19;
-            this.removePublic.Text = "Set selected files to private";
-            this.removePublic.UseVisualStyleBackColor = true;
-            this.removePublic.Click += new System.EventHandler(this.removePublic_Click);
+            this.beginUploadBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.beginUploadBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.beginUploadBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.beginUploadBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.beginUploadBtn.Location = new System.Drawing.Point(529, 234);
+            this.beginUploadBtn.Name = "beginUploadBtn";
+            this.beginUploadBtn.Size = new System.Drawing.Size(118, 42);
+            this.beginUploadBtn.TabIndex = 17;
+            this.beginUploadBtn.Text = "Begin upload";
+            this.beginUploadBtn.UseVisualStyleBackColor = true;
+            this.beginUploadBtn.Visible = false;
+            this.beginUploadBtn.Click += new System.EventHandler(this.beginUploadBtn_Click);
             // 
             // MainMenuForm
             // 
@@ -272,6 +270,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.ClientSize = new System.Drawing.Size(1010, 552);
+            this.Controls.Add(this.beginUploadBtn);
             this.Controls.Add(this.uploadedFilesPanel);
             this.Controls.Add(this.logoutBtn);
             this.Controls.Add(this.deleteFileBtn);
@@ -305,13 +304,13 @@
         private System.Windows.Forms.Label userDataUserNameLbl;
         private System.Windows.Forms.Button deleteFileBtn;
         private System.Windows.Forms.Button logoutBtn;
-        private System.Windows.Forms.Button finalizeUploadBtn;
-        private System.Windows.Forms.Button removeSelectedBtn;
-        private System.Windows.Forms.CheckedListBox finalizeUploadedFiles;
         private System.Windows.Forms.Panel uploadedFilesPanel;
         private System.Windows.Forms.TextBox searchUploadedTxtbox;
-        private System.Windows.Forms.Button removePublic;
-        private System.Windows.Forms.Button setPublic;
-        private System.Windows.Forms.CheckedListBox publicFilesToUpload;
+        private System.Windows.Forms.ListBox selectedFiles;
+        private System.Windows.Forms.Label directoyNameLbl;
+        private System.Windows.Forms.Button setPrivateBtn;
+        private System.Windows.Forms.ListBox publicFiles;
+        private System.Windows.Forms.Button setPublicBtn;
+        private System.Windows.Forms.Button beginUploadBtn;
     }
 }

@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,15 +21,17 @@ namespace ftp_client
         Dictionary<string, string> response = null;
 
         CheckedListBox uploadedContainer = null;
-        List<string> checkedVals = new List<string>();
-        List<string> checkedPublicVals = new List<string>();
+        List<string> publicFilesContainer = new List<string>();
+        List<string> privateFilesContainer = new List<string>();
+        FolderBrowserDialog fb = new FolderBrowserDialog();
+        string selectedPath = "";
+        List<string> paths = new List<string>();
+        FilesExplorer explorer = null;
         public MainMenuForm()
         {
             InitializeComponent();
             uploadedContainer = new CheckedListBox();
-            uploadedContainer.Items.AddRange(finalizeUploadedFiles.Items);
-            finalizeUploadedFiles.ItemCheck += Entry_Checked;
-            publicFilesToUpload.ItemCheck += Entry_Checked;
+            
 
             //publicFilesToUpload.MouseDoubleClick += Open_Folder;
             //finalizeUploadedFiles.MouseDoubleClick+= Open_Folder;
@@ -79,32 +83,7 @@ namespace ftp_client
 
         private void Entry_Checked(object sender, ItemCheckEventArgs e)
         {
-            CheckedListBox list = (CheckedListBox)sender;
-
-            if (list.Name == finalizeUploadedFiles.Name)
-            {
-                if (e.CurrentValue == CheckState.Unchecked && e.NewValue == CheckState.Checked)
-                {
-
-                    checkedVals.Add(list.Items[e.Index].ToString());
-                }
-                else if (e.CurrentValue == CheckState.Checked && e.NewValue == CheckState.Unchecked)
-                {
-                    checkedVals.Remove(list.Items[e.Index].ToString());
-                } 
-            }
-            else
-            {
-                if (e.CurrentValue == CheckState.Unchecked && e.NewValue == CheckState.Checked)
-                {
-
-                    checkedPublicVals.Add(list.Items[e.Index].ToString());
-                }
-                else if (e.CurrentValue == CheckState.Checked && e.NewValue == CheckState.Unchecked)
-                {
-                    checkedPublicVals.Remove(list.Items[e.Index].ToString());
-                }
-            }
+            
         }
 
         private void refreshListBtn_Click(object sender, EventArgs e)
@@ -125,30 +104,27 @@ namespace ftp_client
             fileDialog.Filter = "All files (*.*)|*.*";
             fileDialog.InitialDirectory = userFile != "" ? userFile : Environment.GetLogicalDrives()[0];
 
-            FolderBrowserDialog fb = new FolderBrowserDialog();
+            
             
             if (fb.ShowDialog() == DialogResult.OK)
             {
 
-                //string[] path = fileDialog.FileName.Split('\\');
-
-                //finalizeUploadedFiles.Items.AddRange(fileDialog.FileNames);
-                string[] allEntries = Directory.GetFileSystemEntries(fb.SelectedPath);
-                foreach (var item in allEntries)
+                selectedPath = fb.SelectedPath;
+                explorer = new FilesExplorer(fb.SelectedPath, paths);
+                explorer.ShowDialog();
+                selectedFiles.Items.Clear();
+                for (int i = 0; i < paths.Count; i++)
                 {
-                    if(File.Exists(item))
-                        finalizeUploadedFiles.Items.Add($"File - {item}");
-                    else
-                        finalizeUploadedFiles.Items.Add($"Folder - {item}");
-                    
+                    if (paths[i].Split('\\')[0] != searchUploadedTxtbox.Text)
+                        paths[i] = paths[i].Remove(0, selectedPath.Length).Insert(0, searchUploadedTxtbox.Text);
                 }
-                
-                
+                selectedPath = searchUploadedTxtbox.Text;
+                selectedFiles.Items.AddRange(paths.ToArray());
                 uploadedFilesPanel.Visible = true;
                 
             }
-            uploadedContainer.Items.Clear();
-            uploadedContainer.Items.AddRange(finalizeUploadedFiles.Items);
+            
+            
             
         }
 
@@ -173,65 +149,133 @@ namespace ftp_client
 
         private void removeSelectedBtn_Click(object sender, EventArgs e)
         {
-            if(finalizeUploadedFiles.SelectedIndex != -1)
-            {
-                finalizeUploadedFiles.Items.RemoveAt(finalizeUploadedFiles.SelectedIndex);
-                uploadedContainer.Items.Clear();
-                uploadedContainer.Items.AddRange(finalizeUploadedFiles.Items);
-                
-
-            }
+            
         }
 
         private void finalizeUploadBtn_Click(object sender, EventArgs e)
         {
-
+            
         }
 
         private void searchUploadedTxtbox_TextChanged(object sender, EventArgs e)
         {
-            finalizeUploadedFiles.Items.Clear();
-            
-            foreach (var item in uploadedContainer.Items)
-            {
-                if (item.ToString().Contains(((TextBox)sender).Text))
-                {
-                    finalizeUploadedFiles.Items.Add(item);
-                    if(checkedVals.FindIndex(x => x == item.ToString()) != -1)
-                        finalizeUploadedFiles.SetItemCheckState(finalizeUploadedFiles.Items.Count-1,CheckState.Checked);
-                   
 
-                }
-                    
+            if (searchUploadedTxtbox.Text == "")
+                beginUploadBtn.Visible = false;
+            else
+                beginUploadBtn.Visible = true;
+
+
+            selectedFiles.Items.Clear();
+            publicFiles.Items.Clear();
+            for(int i = 0; i < paths.Count;i++)
+            {
+                
+                    paths[i] = paths[i].Remove(0, selectedPath.Length).Insert(0, searchUploadedTxtbox.Text);
             }
+            
+            for(int i = 0; i < publicFilesContainer.Count; i++)
+            {
+                publicFilesContainer[i] = publicFilesContainer[i].Remove(0, selectedPath.Length).Insert(0, searchUploadedTxtbox.Text);
+            }
+            
+
+            selectedPath = searchUploadedTxtbox.Text;
+            selectedFiles.Items.AddRange(paths.ToArray());
+            if(publicFilesContainer.Count > 0)
+                publicFiles.Items.AddRange(publicFilesContainer.ToArray());
+
             
             
         }
 
-        private void setPublic_Click(object sender, EventArgs e)
+        private void setPrivateBtn_Click(object sender, EventArgs e)
         {
-            if(checkedVals.Count > 0)
+            
+
+
+            if (publicFiles.SelectedIndex != -1 && publicFiles.Items.Count > 0)
             {
-                foreach (var item in checkedVals)
-                {
-                    publicFilesToUpload.Items.Add(item);
-                    finalizeUploadedFiles.Items.Remove(item);
-                }
-                checkedVals.Clear();
+                paths.Add(publicFiles.Text);
+                selectedFiles.Items.Add(publicFiles.Text);
+                publicFilesContainer.Remove(publicFiles.Text);
+                publicFiles.Items.Remove(publicFiles.Text);
+                
+                
+            }
+            
+        }
+
+        private void setPublicBtn_Click(object sender, EventArgs e)
+        {
+            
+
+
+            if(selectedFiles.SelectedIndex != -1 && selectedFiles.Items.Count > 0)
+            {
+                paths.Remove(selectedFiles.Text);
+                publicFiles.Items.Add(selectedFiles.Text);
+                publicFilesContainer.Add(selectedFiles.Text);
+                selectedFiles.Items.Remove(selectedFiles.Text);
+                
             }
         }
 
-        private void removePublic_Click(object sender, EventArgs e)
+        private void beginUploadBtn_Click(object sender, EventArgs e)
         {
-            if(checkedPublicVals.Count > 0)
+            string[] invalidNames = {"CON", "PRN", "AUX", "NUL",
+              "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+              "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
+            string[] invalidChars = {"<",
+                                      ">",
+                                      ":",
+                                      "\"",
+                                      "\\",
+                                      "|",
+                                      "?",
+                                      "*"};
+            char[] nonPrintableChars = new char[32];
+            for (int i = 0; i < nonPrintableChars.Length; i++)
             {
-                foreach (var item in checkedPublicVals)
-                {
-                    finalizeUploadedFiles.Items.Add(item);
-                    publicFilesToUpload.Items.Remove(item);
-                }
-                checkedPublicVals.Clear();
+                nonPrintableChars[i] = (char)i;
             }
+            if(searchUploadedTxtbox.Text == "")
+            {
+                MessageBox.Show("Directory name cannot be empty", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (searchUploadedTxtbox.Text[searchUploadedTxtbox.Text.Length-1] == ' ' || searchUploadedTxtbox.Text[searchUploadedTxtbox.Text.Length - 1] == '.')
+            {
+                MessageBox.Show("Directory names cannot end with space( ) or dot(.)", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            foreach(string name in invalidNames)
+            {
+                if(searchUploadedTxtbox.Text.Equals(name))
+                {
+                    MessageBox.Show($"Invalid directory name {name}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            foreach (string ch in invalidChars)
+            {
+                if (searchUploadedTxtbox.Text.Contains(ch))
+                {
+                    MessageBox.Show($"Invalid character {ch}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            foreach (var item in nonPrintableChars)
+            {
+                if (searchUploadedTxtbox.Text.Contains(item))
+                {
+                    MessageBox.Show($"Non-printable characters are not allowed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            Connection.SendUploadRequest(paths, publicFilesContainer, fb.SelectedPath,searchUploadedTxtbox.Text, response["UserId"], response["UserName"]);
+            MessageBox.Show("Uploading...");
+
         }
     }
 }

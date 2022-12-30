@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{B2FE29E1-A5D5-4F5C-9FA9-E3D9B1468631}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>ftp_client</RootNamespace>
     <AssemblyName>FTP_Client</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
@@ -82,6 +82,12 @@
     <Compile Include="EmailVerificationForm.Designer.cs">
       <DependentUpon>EmailVerificationForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="FilesExplorer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FilesExplorer.Designer.cs">
+      <DependentUpon>FilesExplorer.cs</DependentUpon>
+    </Compile>
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -104,6 +110,9 @@
     </Compile>
     <EmbeddedResource Include="EmailVerificationForm.resx">
       <DependentUpon>EmailVerificationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FilesExplorer.resx">
+      <DependentUpon>FilesExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>

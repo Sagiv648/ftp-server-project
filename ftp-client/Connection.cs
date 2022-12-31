@@ -352,12 +352,13 @@ namespace ftp_client
                 NetworkStream stream = client.GetStream();
                 writer.Write(packetBuilder.ToString());
                 writer.Flush();
-                MemoryStream mem = new MemoryStream();
+                //MemoryStream mem = new MemoryStream();
 
 
                 // TODO: Logging system - START batch
                 for(int i = 0; i < privatePaths.Count; i++)
                 {
+                    MemoryStream mem = new MemoryStream();
                     FileInfo f = new FileInfo(privatePaths[i].Remove(0, newRootPath.Length).Insert(0, rootPath));
                     FileStream fs = f.Open(FileMode.Open,FileAccess.Read);
                     long fSz = f.Length;
@@ -365,52 +366,19 @@ namespace ftp_client
                     long totalRead = 0;
                     char[] buffer = new char[4096];
                     byte[] buf = new byte[4096];
-                    // TODO: Logging system - START filename
 
                     Console.WriteLine($"START {f.Name}");
 
-                    //TODO: IMPORTANT! File transfering
-                    //while (true)
-                    //{
-                    //    if (totalRead >= fSz)
-                    //        break; 
-                    //    read = fs.Read(buf, 0, buf.Length);
-                    //    for(int k = 0; k < buffer.Length; k++)
-                    //    {
-                    //        buffer[k] = (char)buf[k];
-                    //    }
-                    //    if(read < buf.Length)
-                    //    {
-                    //        Array.Resize(ref buf, read);
-                    //        Array.Resize(ref buffer, read);
-                    //    }
-                    //    totalRead += read;
+                    //TODO: IMPORTANT! File transfering sender
 
-                    //    writer.Write(buffer, 0, buffer.Length);
-                    //    writer.Flush();
-                    //    //mem.Write(buffer, 0, buffer.Length);
-                    //    //mem.CopyTo(stream);
-                    //    //mem.Seek(totalRead, SeekOrigin.Begin);
-                    //    //stream.Write(buffer, 0, buffer.Length);
-                        
-                    //    //stream.Seek(totalRead, SeekOrigin.Begin);
 
-                    //    // TODO: Logging system - COMMIT filename - {uploaded}\{totalSize}
-                    //    Console.WriteLine($"COMMIT {f.Name} - {totalRead}\\{fSz}");
-                        
-                    //}
-                    //mem.Seek(0,SeekOrigin.Begin);
-                    //mem.Position = 0;
-                    //mem.CopyTo(writer);
-                    //writer.Flush();
-                    //string str = reader.ReadLine();
-                    //if(str != "Next")
-                    //{
-                    //    Console.WriteLine("It's not next, smth going on");
-                    //}
-                    // TODO: Logging system - END filename
+
+                    //IMPORTANT! File transfering
+
                     Console.WriteLine($"END {f.Name}");
+                    
                 }
+                stream.Close();
                 // TODO: Logging system - END Batch
 
                 response = new Dictionary<string, string>();

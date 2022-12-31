@@ -216,6 +216,8 @@ namespace ftp_server
                 MemoryStream mem = new MemoryStream();
                 for(int i = 0; i < depth; i++)
                 {
+                    Stream s = client.GetStream();
+                    
                     long size = long.Parse(filesMapping["Size"][i]);
                     Console.WriteLine($"{filePath + "\\" + filesMapping["Path"][i]}: {filesMapping["Size"][i]}: {filesMapping["Access"][i]}");
                     byte[] buffer = new byte[4096];
@@ -226,69 +228,12 @@ namespace ftp_server
                     StreamReader reader = new StreamReader(client.GetStream());
                     FileStream f = File.Create($"{filePath + "\\" + filesMapping["Path"][i]}");
                     
+                    //TODO: IMPORTANT! File transfering reciever
                     
-                    char[] buf = new char[4096];
-                    //TODO: IMPORTANT! File transfering
-                    //while (true)
-                    //{
-                    //    Console.WriteLine(totalRead);
-                    //    if (totalRead >= size)
-                    //    {
-                    //        Console.WriteLine($"At the end totalread is {totalRead}");
-                    //        f.Close();
-                    //        break;
-                    //    }
-                    //    read = reader.ReadBlock(buf, 0, buf.Length);
-                    //    Console.WriteLine(read);
-                    //    if (read < buf.Length)
-                    //    {
-                    //        Array.Resize(ref buf, read);
-                    //        Array.Resize(ref buffer, read);
-                    //    }
-                        
-                    //    Console.WriteLine($"read -> {read}");
-                    //    totalRead += read;
-                    //    for(int k  = 0; k < buf.Length; k++)
-                    //    {
-                    //        buffer[k] = (byte)buf[k];
-                    //        //Console.WriteLine(buffer[k]);
-                    //    }
-                    //    f.Write(buffer, 0, buffer.Length);
-                    //    f.Seek(totalRead,SeekOrigin.Begin);
-
-                    //}
-                    //while (true)
-                    //{
-                    //    
-
-
-                    //    
-
-                    //    if(read < buffer.Length)
-                    //    {
-                    //        Array.Resize(ref buffer, read);
-                    //    }
-                    //    totalRead += read;
-                    //    f.Write(buffer, 0, buffer.Length);
-                    //    f.Seek(totalRead,SeekOrigin.Begin);
-
-                    //}
-                    Console.WriteLine("End of loop");
-
-
-                    //Console.WriteLine(mem.GetBuffer().Length);
-
-                    
-                    //writer.WriteLine("Next");
-                    //writer.Flush();
-                   
-                    f.Close();
+                    //IMPORTANT! File transfering
                     
                 }
                 
-
-
-
             }
             catch (Exception exception)
             {

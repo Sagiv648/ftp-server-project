@@ -22,10 +22,10 @@ namespace ftp_client
 
         public static List<object> formsParams= new List<object>();
 
+
+
+
         
-       
-
-
         public static string navigatedForm = "LoginForm";
 
         public static Dictionary<string,Form> allForms= null;

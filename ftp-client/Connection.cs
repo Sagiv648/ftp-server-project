@@ -20,11 +20,11 @@ namespace ftp_client
         static TcpClient client = null;
         public static SmtpClient mailClient = new SmtpClient("smtp.gmail.com", 587);
 
-
+        public static readonly string compName = Environment.MachineName;
         
          static readonly string serverIP = "192.168.1.18";
          static readonly int port = 20;
-        static IPEndPoint server = new IPEndPoint(IPAddress.Parse(serverIP), port);
+        static IPEndPoint server = compName == "DESKTOP-DM0U3G8" ? new IPEndPoint(IPAddress.Parse("10.70.0.134"),port) : new IPEndPoint(IPAddress.Parse(serverIP), port);
         
         
         static readonly string headerRequest = "Code:1%\r\n" +
@@ -370,15 +370,22 @@ namespace ftp_client
                     Console.WriteLine($"START {f.Name}");
 
                     //TODO: IMPORTANT! File transfering sender
+                    while(totalRead < fSz)
+                    {
 
-
+                        read = fs.Read(buf, 0, buf.Length);
+                        totalRead += read;
+                        stream.Write(buf, 0, read);
+                        fs.Seek(totalRead, SeekOrigin.Begin);
+                    }
+                    stream.Close();
 
                     //IMPORTANT! File transfering
 
                     Console.WriteLine($"END {f.Name}");
                     
                 }
-                stream.Close();
+                
                 // TODO: Logging system - END Batch
 
                 response = new Dictionary<string, string>();

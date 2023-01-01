@@ -190,27 +190,19 @@ namespace ftp_server
             StringBuilder response = new StringBuilder();
             string filePath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User) + $"\\{bufferInput["UserId"]}_{bufferInput["UserName"]}".Trim();
 
-            //foreach (var item in filesMapping["Path"])
-            //{
-            //    string[] pathComps = item.Split('\\');
-            //    string concatPaths = "";
-            //    for(int i = 0; i < pathComps.Length-1; i++)
-            //    {
-            //        concatPaths = $"\\{pathComps[i]}";
-            //        if (!Directory.Exists($"{filePath + concatPaths}"))
-            //        {
-            //            Directory.CreateDirectory(filePath + concatPaths);
-            //        }
-                    
-            //    }
-            //}
-
-
+            
             try
             {
                 
                 if (!filesMapping.ContainsKey("Path") || !filesMapping.ContainsKey("Size") || !filesMapping.ContainsKey("Access"))
                     return "";
+                //Console.WriteLine(filesMapping["Path"][0]);
+                string[] pathComps = filesMapping["Path"][0].Split('\\');
+                if (!Directory.Exists(filePath+$"\\{pathComps}"))
+                {
+                    Directory.CreateDirectory($"{filePath}\\{pathComps[0]}");
+                }
+
                 int depth = filesMapping["Path"].Count;
                 
                 MemoryStream mem = new MemoryStream();
@@ -227,9 +219,28 @@ namespace ftp_server
                     StreamWriter writer = new StreamWriter(client.GetStream());
                     StreamReader reader = new StreamReader(client.GetStream());
                     FileStream f = File.Create($"{filePath + "\\" + filesMapping["Path"][i]}");
-                    
+
                     //TODO: IMPORTANT! File transfering reciever
                     
+                    int availabeRead = 0;
+                    while(totalRead < size)
+                    {
+                        while ((availabeRead = client.Available) == 0) ;
+                        
+
+                        
+
+                        //while (  (availabeRead = client.Available) == 0) ;
+                        Console.WriteLine(availabeRead);
+                        read = s.Read(buffer, 0, availabeRead);
+
+                        totalRead += read;
+                        f.Write(buffer, 0, read);
+                        f.Seek(totalRead, SeekOrigin.Begin);
+                    }
+                    f.Close();
+
+
                     //IMPORTANT! File transfering
                     
                 }

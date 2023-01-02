@@ -57,11 +57,11 @@ namespace ftp_server
                 
                 input.SetWorkFinishedStatus(true);
                 input.SetWorkFinishedStatus(!input.GetSignal().WaitOne());
-                Dictionary<string, List<string>> filesMapping = new Dictionary<string, List<string>>()
+                Dictionary<string, string> filesMapping = new Dictionary<string, string>()
                     {
-                        {"Path", new List<string>() },
-                        {"Size", new List<string>() },
-                        {"Access", new List<string>() }
+                        {"Path", "" },
+                        {"Size", "" },
+                        {"Access", "" }
                     };
                 try
                 {
@@ -78,22 +78,14 @@ namespace ftp_server
                         string[] tempArr = localStr.Split(':');
                         if(tempArr.Length == 3)
                         {
-                            filesMapping["Path"].Add(tempArr[0]);
-                            filesMapping["Size"].Add(tempArr[1]);
-                            filesMapping["Access"].Add(tempArr[2]);
+                            filesMapping["Path"] =tempArr[0];
+                            filesMapping["Size"] =tempArr[1];
+                            filesMapping["Access"] =tempArr[2];
                         }
                         else
                         fields.Add(tempArr[0], tempArr[1].Trim('\0'));
                     }
 
-                    //foreach (var item in filesMapping)
-                    //{
-                    //    Console.WriteLine(item.Key);
-                    //    foreach (var item2 in item.Value)
-                    //    {
-                    //        Console.WriteLine(item2);
-                    //    }
-                    //}
                 }
                 catch (Exception ex)
                 {
@@ -182,8 +174,9 @@ namespace ftp_server
                         case (int)Packet.Code.File_Upload:
                             Console.WriteLine("upload");
                             //Collect the relevant data, like the uploaded file size, name and access modifier and use them to listen for the client's data packet
-                            writer.Write(responsePacket);
-                            writer.Flush();
+                            //writer.Write(responsePacket);
+                            //writer.Flush();
+                            input.GetClient().Dispose();
                             break;
 
 

@@ -274,16 +274,69 @@ namespace ftp_client
                 }
             }
 
-            Dictionary<string, string> uploadResponse = Connection.SendUploadRequest(paths, publicFilesContainer, fb.SelectedPath, searchUploadedTxtbox.Text, response["UserId"], response["UserName"]);
-            if (uploadResponse != null)
+
+
+            List<string> allFiles = new List<string>();
+            allFiles.AddRange(paths);
+            allFiles.AddRange(publicFilesContainer);
+            Dictionary<string,string> uploadResponse = null;
+
+
+
+            foreach (var path in allFiles)
             {
-                MessageBox.Show("All uploaded.");
+               
+                string physicalPath = path.Remove(0, searchUploadedTxtbox.Text.Length).Insert(0, fb.SelectedPath);
+                uploadResponse = Connection.SendUploadRequest(physicalPath, path, searchUploadedTxtbox.Text, 
+                    Convert.ToInt32(publicFilesContainer.Contains(path)).ToString(),
+                    response["UserId"], response["UserName"]);
+                int codeTest = 0;
+
+                try
+                {
+                    foreach (var item in uploadResponse)
+                    {
+                        Console.WriteLine(item.Key + ":" + item.Value);
+                    }
+
+
+                    
+                    if (!int.TryParse(uploadResponse["Code"], out codeTest))
+                    {
+                        Console.WriteLine("Error occured.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    throw;
+                }
+
+                if(codeTest == (int)Connection.Code.Action_Confirm)
+                {
+                    Console.WriteLine($"{physicalPath} transmitted successfully.");
+                    myFilesDisplayer.Items.Add(uploadResponse["File"]);
+                    
+                    
+                }
+                else
+                {
+                    Console.WriteLine($"{physicalPath} DID NOT transmit successfully.");
+                }
             }
-            else
-            {
-                MessageBox.Show("Error occured.");
-            }
-            
+            MessageBox.Show("All uploaded.");
+
+
+            //Dictionary<string, string> uploadResponse = Connection.SendUploadRequest(paths, publicFilesContainer, fb.SelectedPath, searchUploadedTxtbox.Text, response["UserId"], response["UserName"]);
+            //if (uploadResponse != null)
+            //{
+            //    
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Error occured.");
+            //}
+
 
         }
     }

@@ -143,7 +143,7 @@ namespace ftp_server
             return packetOut;
         }
 
-        public static int RecieveHeaderPacket(Dictionary<string,string> buffer, Dictionary<string, List<string>> fileMapping, TcpClient client,out string responsePacket)
+        public static int RecieveHeaderPacket(Dictionary<string,string> buffer, Dictionary<string, string> fileMapping, TcpClient client,out string responsePacket)
         {
             responsePacket = "";
 
@@ -156,7 +156,11 @@ namespace ftp_server
                 switch (codeTest)
                 {
                     case (int)Code.File_Upload:
-                        responsePacket = WriteFiles(fileMapping, buffer, client);
+                        responsePacket = WriteFiles(fileMapping, buffer, client).ToString();
+
+                        if (responsePacket == false.ToString())
+                            return (int)Code.Action_Denied;
+
                         return (int)Code.File_Upload;
 
                     case (int)Code.File_Download:
@@ -185,112 +189,92 @@ namespace ftp_server
             return -1;
         }
         //TODO: Write the logic of writing it on the server's disk AND appending it to the DB
-        public static string WriteFiles(Dictionary<string, List<string>> filesMapping, Dictionary<string,string> bufferInput ,TcpClient client)
+        public static bool WriteFiles(Dictionary<string, string> filesMapping, Dictionary<string,string> bufferInput ,TcpClient client)
         {
-            StringBuilder response = new StringBuilder();
+            
             string filePath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User) + $"\\{bufferInput["UserId"]}_{bufferInput["UserName"]}".Trim();
-
+            string response = "";
             
             try
             {
                 
                 if (!filesMapping.ContainsKey("Path") || !filesMapping.ContainsKey("Size") || !filesMapping.ContainsKey("Access"))
-                    return "";
+                    return false;
                 //Console.WriteLine(filesMapping["Path"][0]);
-                string[] pathComps = filesMapping["Path"][0].Split('\\');
-                if (!Directory.Exists(filePath+$"\\{pathComps}"))
+                string[] pathComps = filesMapping["Path"].Split('\\');
+
+                if (!Directory.Exists(filePath + $"\\{pathComps[0]}"))
                 {
                     Directory.CreateDirectory($"{filePath}\\{pathComps[0]}");
                 }
-
-                int depth = filesMapping["Path"].Count;
-                
-                MemoryStream mem = new MemoryStream();
-                for(int i = 0; i < depth; i++)
+                else if(pathComps.Length > 2)
                 {
-                    Stream s = client.GetStream();
-                    
-                    long size = long.Parse(filesMapping["Size"][i]);
-                    Console.WriteLine($"{filePath + "\\" + filesMapping["Path"][i]}: {filesMapping["Size"][i]}: {filesMapping["Access"][i]}");
-                    byte[] buffer = new byte[64000];
-                    int read = 0;
-                    long totalRead = 0;
-                    FileInfo F = new FileInfo($"{filePath + "\\" + filesMapping["Path"][i]}");
-                    StreamWriter writer = new StreamWriter(client.GetStream(),Encoding.ASCII);
-                    StreamReader reader = new StreamReader(client.GetStream());
-                    FileStream f = File.Create($"{filePath + "\\" + filesMapping["Path"][i]}");
-                    
-                    writer.Write("START\r\nEND\r\n");
-                    //TODO: IMPORTANT! File transfering reciever
-                    writer.Flush();
+                    DirectoryInfo fileNewLocation = new DirectoryInfo(filePath + $"\\{pathComps[0]}");
+                    for(int i = 1; i < pathComps.Length-1; i++)
+                    {
+                        fileNewLocation = Directory.CreateDirectory(fileNewLocation.FullName + $"\\{pathComps[i]}");
+                    }
+                    filePath = fileNewLocation.FullName;
+                }
 
-                  
+                long size = long.Parse(filesMapping["Size"]);
+                Console.WriteLine($"{filePath + "\\" + filesMapping["Path"]}: {filesMapping["Size"]}: {filesMapping["Access"]}");
+                byte[] buffer = new byte[64000];
+                int read = 0;
+                long totalRead = 0;
+                FileInfo outputFile = new FileInfo($"{filePath + "\\" + filesMapping["Path"]}");
+                StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
+                StreamReader reader = new StreamReader(client.GetStream());
+                FileStream outputFileStream = File.Create($"{filePath + "\\" + filesMapping["Path"]}");
+
+                writer.Write("START\r\nEND\r\n");
+                writer.Flush();
+                //TODO: IMPORTANT! File transfering reciever
+                response = $"Code:{(int)Code.Action_Confirm}\r\n" +
+                $"File:{filesMapping["Path"]}\r\n" +
+                $"END\r\n";
+
+                Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
+                while (totalRead < size)
+                {
+
+                    read = client.GetStream().Read(buffer, 0, buffer.Length);
+                    outputFileStream.Write(buffer, 0, read);
+                    totalRead += read;
                     Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
-                    while (totalRead < size)
+                    if (totalRead >= size)
                     {
                         
-                        read = client.GetStream().Read(buffer, 0, buffer.Length);
-                        f.Write(buffer, 0, read);
-                        totalRead += read;
-                        Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
-                        if (totalRead >= size)
-                        {
-                            writer.Write("All\r\nEND\r\n");
-                            break;
-                        }
-                        writer.Write($"Recv-{read}\r\nEND\r\n");
-                        writer.Flush();
-                        //Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
+                        break;
                     }
-                    Console.WriteLine("All passed?");
-                    client.Dispose();
-
-
-                    //client.GetStream().Close();
-                    f.Close();
-                    //while(totalRead < size)
-                    //{
-                    //    if (totalRead >= size)
-                    //        break;
-
-                    //    while (client.Available == 0) ;
-
-                    //    Console.WriteLine(client.Available);
-
-                    //    read = s.Read(buffer, 0, client.Available);
-                    //    Console.WriteLine(read);
-                        
-                    //    totalRead += read;
-                    //    f.Write(buffer, 0, read);
-                    //    f.Seek(totalRead, SeekOrigin.Begin);
-
-                    //    writer.Write($"Recv-{read}\r\nNEXT\r\n");
-                    //    writer.Flush();
-                    //    Console.WriteLine("x");
-                    //    Console.WriteLine("totalread = {0}", totalRead);
-                    //}
-                    
-                    
-                    
-
-
-                    //IMPORTANT! File transfering
-                    
+                    writer.Write($"Recv-{read}\r\nEND\r\n");
+                    writer.Flush();
+                    //Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
                 }
                 
+               
+                Console.WriteLine("All passed?");
+
+
+
+
+                //client.Dispose();
+                outputFileStream.Close();
+
+                //client.GetStream().Close();
+                
+                
+      
             }
             catch (Exception exception)
             {
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
 
-                return "";
+                return false;
             }
-            return response.ToString();
-        }
-        public static bool RecieveDataPacket(Queue<byte[]> buffer)
-        {
             return true;
         }
+        
         public static int RecieveUserInfo(Dictionary<string,string> bufferInput, TcpClient cl, out string responsePacket)
         {
             responsePacket = "";

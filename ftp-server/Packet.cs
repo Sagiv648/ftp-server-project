@@ -197,35 +197,36 @@ namespace ftp_server
             
             try
             {
-                
+                Console.WriteLine("The input path is: {0}", filesMapping["Path"]);
                 if (!filesMapping.ContainsKey("Path") || !filesMapping.ContainsKey("Size") || !filesMapping.ContainsKey("Access"))
                     return false;
-                //Console.WriteLine(filesMapping["Path"][0]);
+                
                 string[] pathComps = filesMapping["Path"].Split('\\');
 
-                if (!Directory.Exists(filePath + $"\\{pathComps[0]}"))
+                
+                string fileName = pathComps[pathComps.Length - 1];
+                if(pathComps.Length > 2)
                 {
-                    Directory.CreateDirectory($"{filePath}\\{pathComps[0]}");
-                }
-                else if(pathComps.Length > 2)
-                {
-                    DirectoryInfo fileNewLocation = new DirectoryInfo(filePath + $"\\{pathComps[0]}");
-                    for(int i = 1; i < pathComps.Length-1; i++)
-                    {
-                        fileNewLocation = Directory.CreateDirectory(fileNewLocation.FullName + $"\\{pathComps[i]}");
-                    }
-                    filePath = fileNewLocation.FullName;
-                }
+                    DirectoryInfo location = new DirectoryInfo(filePath);
+                    
+                    for(int i = 0; i < pathComps.Length-1; i++)
+                        location = location.CreateSubdirectory($"./{pathComps[i]}");
 
+                    filePath = location.FullName;
+                    
+                }
+                
                 long size = long.Parse(filesMapping["Size"]);
                 Console.WriteLine($"{filePath + "\\" + filesMapping["Path"]}: {filesMapping["Size"]}: {filesMapping["Access"]}");
                 byte[] buffer = new byte[64000];
                 int read = 0;
                 long totalRead = 0;
-                FileInfo outputFile = new FileInfo($"{filePath + "\\" + filesMapping["Path"]}");
+                FileInfo outputFile = new FileInfo($"{filePath + "\\" + fileName}");
+                
                 StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
                 StreamReader reader = new StreamReader(client.GetStream());
-                FileStream outputFileStream = File.Create($"{filePath + "\\" + filesMapping["Path"]}");
+                FileStream outputFileStream = outputFile.Create();
+               
 
                 writer.Write("START\r\nEND\r\n");
                 writer.Flush();
@@ -249,22 +250,14 @@ namespace ftp_server
                     }
                     writer.Write($"Recv-{read}\r\nEND\r\n");
                     writer.Flush();
-                    //Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
+                    
                 }
                 
                
                 Console.WriteLine("All passed?");
 
-
-
-
-                //client.Dispose();
                 outputFileStream.Close();
 
-                //client.GetStream().Close();
-                
-                
-      
             }
             catch (Exception exception)
             {

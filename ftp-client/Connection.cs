@@ -366,19 +366,78 @@ namespace ftp_client
                     long totalRead = 0;
                     char[] buffer = new char[4096];
                     byte[] buf = new byte[4096];
-
+                    FileInfo log = new FileInfo(".log");
+                    StreamWriter logStream = new StreamWriter( log.OpenWrite());
                     Console.WriteLine($"START {f.Name}");
 
-                    //TODO: IMPORTANT! File transfering sender
-                    while(totalRead < fSz)
+                    string tmp = "";
+                    while((tmp= reader.ReadLine()) != "END") 
                     {
-
-                        read = fs.Read(buf, 0, buf.Length);
-                        totalRead += read;
-                        stream.Write(buf, 0, read);
-                        fs.Seek(totalRead, SeekOrigin.Begin);
+                        if (tmp.Equals("START"))
+                        {
+                            logStream.WriteLine($"START COMMIT{f.Name}-{DateTime.Now}");
+                            break;
+                        }
+                            
                     }
-                    stream.Close();
+
+                    fs.CopyTo(stream);
+                    fs.Close();
+                    logStream.WriteLine($"END COMMIT{f.Name}-{DateTime.Now}");
+                    //TODO: IMPORTANT! File transfering sender
+                    //while (fs.Position < fs.Length) 
+                    //{
+                    //    fs.CopyTo(stream);
+                    //    while((tmp = reader.ReadLine()) != "END")
+                    //    {
+                    //        Console.WriteLine(tmp);
+                    //        if (tmp.Contains("Recv"))
+                    //        {
+                                
+                                
+                    //        }
+                    //    }
+                    //    Console.WriteLine("fs Position = {0}\\{1}", fs.Position,fs.Length);
+                    //}
+
+                    //while((tmp = reader.ReadLine()) != "END")
+                    //{
+                    //    if(tmp.Equals("All"))
+                    //    {
+                    //        client.Close();
+                    //        break;
+                    //    }
+                    //}
+
+                    //client.GetStream().Close();
+                    Console.WriteLine("server disconnected");
+                    
+                    
+                    //while(totalRead < fSz)
+                    //{
+
+
+                    //    read = fs.Read(buf, 0, buf.Length);
+                    //    totalRead += read;
+
+                    //    if (!client.Connected)
+                    //    {
+                    //        Console.WriteLine("disconnected");
+                    //        break;
+                    //    }
+
+                    //    while((tmp = reader.ReadLine()) != "END")
+                    //    {
+                    //        if (tmp.Contains("Recv"))
+                    //        {
+                    //            Console.WriteLine(tmp);
+                    //        }
+                    //    }
+                    //    //Array.Clear(buf, 0, buf.Length - read);
+                    //    stream.Write(buf, 0, read);
+                    //    fs.Seek(totalRead, SeekOrigin.Begin);
+                    //}
+
 
                     //IMPORTANT! File transfering
 

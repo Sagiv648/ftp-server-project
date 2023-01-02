@@ -212,33 +212,66 @@ namespace ftp_server
                     
                     long size = long.Parse(filesMapping["Size"][i]);
                     Console.WriteLine($"{filePath + "\\" + filesMapping["Path"][i]}: {filesMapping["Size"][i]}: {filesMapping["Access"][i]}");
-                    byte[] buffer = new byte[4096];
+                    byte[] buffer = new byte[64000];
                     int read = 0;
                     long totalRead = 0;
                     FileInfo F = new FileInfo($"{filePath + "\\" + filesMapping["Path"][i]}");
-                    StreamWriter writer = new StreamWriter(client.GetStream());
+                    StreamWriter writer = new StreamWriter(client.GetStream(),Encoding.ASCII);
                     StreamReader reader = new StreamReader(client.GetStream());
                     FileStream f = File.Create($"{filePath + "\\" + filesMapping["Path"][i]}");
-
-                    //TODO: IMPORTANT! File transfering reciever
                     
-                    int availabeRead = 0;
-                    while(totalRead < size)
+                    writer.Write("START\r\nEND\r\n");
+                    //TODO: IMPORTANT! File transfering reciever
+                    writer.Flush();
+
+                  
+                    Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
+                    while (totalRead < size)
                     {
-                        while ((availabeRead = client.Available) == 0) ;
                         
-
-                        
-
-                        //while (  (availabeRead = client.Available) == 0) ;
-                        Console.WriteLine(availabeRead);
-                        read = s.Read(buffer, 0, availabeRead);
-
-                        totalRead += read;
+                        read = client.GetStream().Read(buffer, 0, buffer.Length);
                         f.Write(buffer, 0, read);
-                        f.Seek(totalRead, SeekOrigin.Begin);
+                        totalRead += read;
+                        Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
+                        if (totalRead >= size)
+                        {
+                            writer.Write("All\r\nEND\r\n");
+                            break;
+                        }
+                        writer.Write($"Recv-{read}\r\nEND\r\n");
+                        writer.Flush();
+                        //Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
                     }
+                    Console.WriteLine("All passed?");
+                    client.Dispose();
+
+
+                    //client.GetStream().Close();
                     f.Close();
+                    //while(totalRead < size)
+                    //{
+                    //    if (totalRead >= size)
+                    //        break;
+
+                    //    while (client.Available == 0) ;
+
+                    //    Console.WriteLine(client.Available);
+
+                    //    read = s.Read(buffer, 0, client.Available);
+                    //    Console.WriteLine(read);
+                        
+                    //    totalRead += read;
+                    //    f.Write(buffer, 0, read);
+                    //    f.Seek(totalRead, SeekOrigin.Begin);
+
+                    //    writer.Write($"Recv-{read}\r\nNEXT\r\n");
+                    //    writer.Flush();
+                    //    Console.WriteLine("x");
+                    //    Console.WriteLine("totalread = {0}", totalRead);
+                    //}
+                    
+                    
+                    
 
 
                     //IMPORTANT! File transfering

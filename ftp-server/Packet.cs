@@ -252,7 +252,10 @@ namespace ftp_server
                 
                
                 Console.WriteLine("All passed?");
-
+                string msg = "";
+                Database.WriteFile(filesMapping["Path"], bufferInput["UserId"], filesMapping["Access"], out msg);
+                if(msg != "")
+                    Console.WriteLine(msg);
                 outputFileStream.Close();
 
             }

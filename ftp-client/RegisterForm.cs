@@ -148,6 +148,23 @@ namespace ftp_client
             emailTextbox.Text = null;
             passwordTextbox.Text = null;
             confirmPasswordTextbox.Text = null;
+
+            int codeTest = 0;
+            if (!int.TryParse(response["Code"], out codeTest))
+            {
+                MessageBox.Show("Network issues, please try again later.", "Error",MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            else
+            {
+                if(codeTest == 400)
+                {
+                    errorLbl.Text = response["Error"];
+                    errorLbl.Visible = true;
+                    return;
+                }
+            }
+
             Program.formsParams.Add(new Dictionary<Form, Dictionary<string, string>>()
             {
                 {this, response }

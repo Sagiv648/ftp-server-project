@@ -59,12 +59,12 @@ namespace ftp_client
                         myFilesDisplayer.Items.Add(files[i]);
                     }
                 }
-                    
-
-                //foreach (var item in response)
-                //{
-                //    Program.DisplayTestWindow($"{item.Key}:{item.Value}", ToString(), 2);
-                //}
+                string[] publicFiles = response["PublicFiles"].Split('|');
+                for(int i = 0;i < publicFiles.Length; i++)
+                {
+                    publicFilesDisplayer.Items.Add(publicFiles[i]);
+                }
+               
             }
 
             
@@ -100,7 +100,10 @@ namespace ftp_client
 
         private void downloadFileBtn_Click(object sender, EventArgs e)
         {
-           
+            if(publicFilesDisplayer.SelectedIndex != -1)
+            {
+                Connection.SendDownloadRequest(response["UserName"], response["UserId"], publicFilesDisplayer.SelectedItem.ToString());
+            }
         }
 
         private void uploadFileBtn_Click(object sender, EventArgs e)
@@ -304,10 +307,10 @@ namespace ftp_client
 
             foreach (var path in allFiles)
             {
-               
+                int access = Convert.ToInt32(publicFilesContainer.Contains(path));
                 string physicalPath = path.Remove(0, searchUploadedTxtbox.Text.Length).Insert(0, fb.SelectedPath);
                 uploadResponse = Connection.SendUploadRequest(physicalPath, path, searchUploadedTxtbox.Text, 
-                    Convert.ToInt32(publicFilesContainer.Contains(path)).ToString(),
+                    access.ToString(),
                     response["UserId"], response["UserName"]);
                 int codeTest = 0;
 
@@ -333,8 +336,13 @@ namespace ftp_client
 
                 if(codeTest == (int)Connection.Code.Action_Confirm)
                 {
+                    if(access == 1)
+                        publicFilesDisplayer.Items.Add(uploadResponse["File"]);
+                    else
+                        myFilesDisplayer.Items.Add(uploadResponse["File"]);
+
                     Console.WriteLine($"{physicalPath} transmitted successfully.");
-                    myFilesDisplayer.Items.Add(uploadResponse["File"]);
+                    
                     
                     
                 }
@@ -343,6 +351,12 @@ namespace ftp_client
                     Console.WriteLine($"{physicalPath} DID NOT transmit successfully.");
                 }
             }
+            uploadedFilesPanel.Visible = false;
+            paths.Clear();
+            publicFilesContainer.Clear();
+            publicFiles.Items.Clear();
+            selectedFiles.Items.Clear();
+            searchUploadedTxtbox.Text = "";
             MessageBox.Show("All uploaded.");
 
 

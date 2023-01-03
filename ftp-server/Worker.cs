@@ -124,7 +124,7 @@ namespace ftp_server
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("sign up good");
-
+                            input.GetClient().Dispose();
                             continue;
 
                         case (int)Packet.Code.Sign_In:
@@ -134,7 +134,7 @@ namespace ftp_server
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("user exists");
-
+                            input.GetClient().Dispose();
                             continue;
 
                         case (int)Packet.Code.Sign_Out:
@@ -144,7 +144,7 @@ namespace ftp_server
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("sign out successful");
-
+                            input.GetClient().Dispose();
                             continue;
 
                         case (int)Packet.Code.Action_Denied:
@@ -156,7 +156,7 @@ namespace ftp_server
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("denied");
-
+                            input.GetClient().Dispose();
                             continue;
 
                         default:
@@ -176,7 +176,7 @@ namespace ftp_server
                             //Collect the relevant data, like the uploaded file size, name and access modifier and use them to listen for the client's data packet
                             //writer.Write(responsePacket);
                             //writer.Flush();
-                            input.GetClient().Dispose();
+                            
                             break;
 
 
@@ -219,6 +219,7 @@ namespace ftp_server
                 }
                 catch (Exception ex)
                 {
+                    input.GetClient().Dispose();
                     Console.WriteLine($"{ex.Message}\n{ex.Source}");
 
                     continue;
@@ -231,7 +232,7 @@ namespace ftp_server
                 //1. Read from the stream.
                 //2. Parse the bytes.
 
-
+                input.GetClient().Dispose();
                 //Read the bytes from the client's stream and parse the packets accordingly
                 filesMapping.Clear();
 

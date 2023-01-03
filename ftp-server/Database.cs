@@ -56,6 +56,7 @@ namespace ftp_server
                     $"use {dbName} " +
                     $"create table Files (" +
                     $"Id int NOT NULL PRIMARY KEY IDENTITY(1,1), " +
+                    $"User_Id int," +
                     $"File_name nvarchar(100)," +
                     $"Access BIT)"
 
@@ -282,6 +283,30 @@ namespace ftp_server
             return output;
         }
 
+        public static void WriteFile(string virtualPath, string userId, string access,out string msg)
+        {
+            msg = "";
+            try
+            {
+
+                dbAccess.WaitOne();
+                conn.Open();
+                sqlCmd.CommandText = $"use [{dbName}] insert Files values ({userId}, '{virtualPath}',{access})";
+                Console.WriteLine(sqlCmd.CommandText);
+                sqlCmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                conn.Close();
+                dbAccess.ReleaseMutex();
+
+                msg = e.Message;
+                return;
+                
+            }
+            dbAccess.ReleaseMutex();
+        }
+        
         public static void CreateSession(string userName, IPAddress clIp, int userId)
         {
             sqlCmd.CommandText = $"use {dbName} insert into Sessions values (GETDATE(), \'{clIp}\', \'{userName} \', {userId})";
@@ -379,10 +404,11 @@ namespace ftp_server
         {
           
             errMsg = "";
-            dbAccess.WaitOne();
+            
             string userName = "";
             int id = -1;
             string hashedPassword = "";
+            dbAccess.WaitOne();
             try
             {
                 conn.Open();
@@ -448,8 +474,11 @@ namespace ftp_server
                 Console.WriteLine($"{errMsg}\n{ex.Source}");
                 
             }
+            conn.Close();
+            dbAccess.ReleaseMutex();
 
         }
+
 
     }
 }

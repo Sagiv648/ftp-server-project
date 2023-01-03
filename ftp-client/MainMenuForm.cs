@@ -53,7 +53,13 @@ namespace ftp_client
                 userDataUserNameLbl.Text = userDataUserNameLbl.Text.Replace("%", $"{response["UserName"]}");
                 string[] files = response["Your_Files"].Split('|');
                 if(files.Length > 0 && files[0] != "")
-                    myFilesDisplayer.DataSource = response["Your_Files"].Split('|');
+                {
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        myFilesDisplayer.Items.Add(files[i]);
+                    }
+                }
+                    
 
                 //foreach (var item in response)
                 //{
@@ -112,6 +118,8 @@ namespace ftp_client
                 selectedPath = fb.SelectedPath;
                 explorer = new FilesExplorer(fb.SelectedPath, paths);
                 explorer.ShowDialog();
+                if (paths.Count == 0)
+                    return;
                 selectedFiles.Items.Clear();
                 for (int i = 0; i < paths.Count; i++)
                 {
@@ -123,6 +131,8 @@ namespace ftp_client
                 uploadedFilesPanel.Visible = true;
                 
             }
+            
+                
             
             
             
@@ -161,9 +171,18 @@ namespace ftp_client
         {
 
             if (searchUploadedTxtbox.Text == "")
+            {
                 beginUploadBtn.Visible = false;
+                removeSelectedBtn.Visible = false;
+
+            }
+
             else
+            {
                 beginUploadBtn.Visible = true;
+                removeSelectedBtn.Visible = true;
+            }
+                
 
 
             selectedFiles.Items.Clear();
@@ -309,7 +328,7 @@ namespace ftp_client
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    throw;
+                    MessageBox.Show(ex.Message + "|" + ex.Source);
                 }
 
                 if(codeTest == (int)Connection.Code.Action_Confirm)
@@ -338,6 +357,26 @@ namespace ftp_client
             //}
 
 
+        }
+
+        private void removeSelectedBtn_Click_1(object sender, EventArgs e)
+        {
+            if(publicFiles.SelectedIndex != -1)
+            {
+                publicFilesContainer.Remove(publicFiles.Text);
+                publicFiles.Items.RemoveAt(publicFiles.SelectedIndex);
+                
+            } 
+            else if(selectedFiles.SelectedIndex != -1)
+            {
+                paths.Remove(selectedFiles.Text);
+                selectedFiles.Items.RemoveAt(selectedFiles.SelectedIndex);
+            }
+            if(selectedFiles.Items.Count == 0 && publicFiles.Items.Count == 0)
+            {
+                uploadedFilesPanel.Visible = false;
+            }
+                
         }
     }
 }

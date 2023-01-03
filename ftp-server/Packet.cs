@@ -96,7 +96,7 @@ namespace ftp_server
             //If the client successfully logged in, a session will be created for him.
             //If the client's session still stands, he will have access.
             
-
+            
 
             string errMsg = "";
 
@@ -108,13 +108,14 @@ namespace ftp_server
             Console.WriteLine("userId is {0} and code was {1}", userId, initialCode);
             if (userId == -1)
                 return null;
-            //Console.WriteLine("The problem is probably here right?");
+            
             string directory = Database.GetUserDirectoryById(out errMsg, userId);
             string fileNames = "";
-
-            DirectoryInfo clientDirectory = new DirectoryInfo($"{Database.diskPath}/{directory}");
-            List<FileInfo> clientFiles = clientDirectory.GetFiles().ToList();
-            //Console.WriteLine("count of client files is {0}",clientFiles.Count);
+            string clientRootPath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User) + $"\\{directory}";
+            
+            DirectoryInfo clientDirectory = new DirectoryInfo($"{clientRootPath}");
+            List<FileInfo> clientFiles = clientDirectory.GetFiles("*",SearchOption.AllDirectories).ToList();
+            
             int i = 0;
             fileNames = "";
             for (i = 0; i < clientFiles.Count; i++)
@@ -122,24 +123,17 @@ namespace ftp_server
 
                 if (i == clientFiles.Count - 1)
                 {
-                    fileNames += clientFiles[i].Name;
+                    fileNames += clientFiles[i].FullName.Remove(0,clientRootPath.Length+1);
                 }
                 else
                 {
-                    fileNames += clientFiles[i].Name + '|';
+                    fileNames += clientFiles[i].FullName.Remove(0,clientRootPath.Length+1) + '|';
                 }
             }
-            //Console.WriteLine("is the mslib after or before this");
+            
             packetOut = packetOut.Replace("1%", fileNames); 
             packetOut = packetOut.Replace("2%", Database.GetAllPublicFiles(out errMsg));
-            Console.WriteLine("Packet out is\n{0}", packetOut);
-
-
-            //Once I have the User's directory name, I can find out what files he has on the server's disk.
-
-
-            //Console.WriteLine(packetOut);
-
+            //Console.WriteLine("Packet out is\n{0}", packetOut);
             return packetOut;
         }
 
@@ -205,7 +199,7 @@ namespace ftp_server
 
                 
                 string fileName = pathComps[pathComps.Length - 1];
-                if(pathComps.Length > 2)
+                if(pathComps.Length >= 2)
                 {
                     DirectoryInfo location = new DirectoryInfo(filePath);
                     
@@ -245,11 +239,14 @@ namespace ftp_server
                     Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
                     if (totalRead >= size)
                     {
+                        Console.WriteLine(response);
+                        writer.Write(response);
+                        writer.Flush();
                         
                         break;
                     }
-                    writer.Write($"Recv-{read}\r\nEND\r\n");
-                    writer.Flush();
+                    //writer.Write($"Recv-{read}\r\nEND\r\n");
+                    //writer.Flush();
                     
                 }
                 

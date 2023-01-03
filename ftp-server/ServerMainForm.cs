@@ -129,8 +129,8 @@ namespace ftp_server
          {
            
             IPEndPoint endPoint;
-            endPoint = new IPEndPoint(IPAddress.Any, 20);
-
+            //endPoint = new IPEndPoint(IPAddress.Any, 20);
+            endPoint = new IPEndPoint(IPAddress.Loopback, 20);
             MessageBox.Show($"Server is running on socket: {endPoint}", "Running", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             try

@@ -24,7 +24,7 @@ namespace ftp_client
         
          static readonly string serverIP = "192.168.1.18";
          static readonly int port = 20;
-        static IPEndPoint server = compName == "DESKTOP-DM0U3G8" ? new IPEndPoint(IPAddress.Parse("10.70.0.134"),port) : new IPEndPoint(IPAddress.Parse(serverIP), port);
+        static IPEndPoint server = compName == "DESKTOP-DM0U3G8" ? new IPEndPoint(IPAddress.Parse("127.0.0.1"),port) : new IPEndPoint(IPAddress.Parse(serverIP), port);
         
         
         static readonly string headerRequest = "Code:1%\r\n" +
@@ -573,6 +573,9 @@ namespace ftp_client
             packetBuilder = packetBuilder.Replace("%", $"{virtualPath}:{physicalFile.Length}:{access}\r\n");
             Console.WriteLine("output packet is\n");
             Console.WriteLine(packetBuilder.ToString());
+            FileInfo log = new FileInfo(".log");
+            FileStream logFileStream = log.OpenWrite();
+            StreamWriter logStream = new StreamWriter(logFileStream);
             try
             {
                 client = new TcpClient();
@@ -582,8 +585,9 @@ namespace ftp_client
                 NetworkStream stream = client.GetStream();
                 writer.Write(packetBuilder.ToString());
                 writer.Flush();
-                FileInfo log = new FileInfo(".log");
-                StreamWriter logStream = new StreamWriter( log.OpenWrite());
+                
+                
+                
                 Console.WriteLine($"START {physicalFile.Name}");
                 client.SendTimeout = 600000;
                 string tmp = "";
@@ -592,36 +596,61 @@ namespace ftp_client
                 {
                     if (tmp.Equals("START"))
                     {
+                        logStream.BaseStream.Seek(logStream.BaseStream.Length, SeekOrigin.Begin);
                         logStream.WriteLine($"START COMMIT {physicalFile.Name} - {DateTime.Now}");
                         break;
                     }
 
                 }
                 //TODO: IMPORTANT! File transfering sender
-
+                
                 physicalFileStream.CopyTo(stream);
                 response = new Dictionary<string, string>();
+                Dictionary<string, string> test = new Dictionary<string, string>();
+                
+                string t = reader.ReadLine();
+                Console.WriteLine("t is {0}", t);
+                while((tmp = reader.ReadLine()) != null)
+                {
+                    Console.WriteLine(tmp);
+                    string[] tmpArr = tmp.Split(':');
+                    if(tmpArr.Length == 2)
+                    {
+                        Console.WriteLine(tmpArr[0] + ":" + tmpArr[1]);
+                        response.Add(tmpArr[0], tmpArr[1]);
+                    }
+                }
+
+                
+
                
-                logStream.WriteLine($"END COMMIT {physicalFile.Name}-{DateTime.Now}");
+
+                if (!response.ContainsKey("Code") || !response.ContainsKey("File"))
+                {
+                    Console.WriteLine("Doesn't contain one");
+                    logStream.Close();
+                    logFileStream.Dispose();
+                    return null;
+
+                }
+                  
+
+                logStream.BaseStream.Seek(logStream.BaseStream.Length, SeekOrigin.Begin);
+                logStream.WriteLine($"END COMMIT {physicalFile.Name} - {DateTime.Now}");
+
 
                 logStream.Close();
-                
-
                 physicalFileStream.Close();
-                response.Add("Code", "200");
-                response.Add("File", virtualPath);
-                Console.WriteLine("server disconnected");
-
-                
-                Console.WriteLine($"END {physicalFile.Name}");
                
+                
                 
             }
             catch (Exception exception)
             {
 
                 client.Close();
-                
+                logStream.Close();
+                physicalFileStream.Close();
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
                 packetBuilder = packetBuilder.Clear();
                 return null;

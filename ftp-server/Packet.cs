@@ -60,21 +60,8 @@ namespace ftp_server
          * File bytes...
          */
 
-        static string envVarPath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User);
-        static string filesSpace = envVarPath == null ? $"{Directory.GetCurrentDirectory()}\\Files-space" : envVarPath;
-
-        public static string ByteArrToString(byte[] arr)
-        {
-            return new string(arr.ToList().Select(x => (char)x).ToArray());
-            
-        }
-
-        public static string BuildHeaderPacket()
-        {
-            
-
-            return null;
-        }
+       
+        static string filesSpace = Program.envFileStoragePath == null ? $"{Directory.GetCurrentDirectory()}\\Files-space" : Program.envFileStoragePath;
 
         public static string BuildUserInfoPacket(TcpClient cl, string response, int initialCode)
         {
@@ -91,13 +78,7 @@ namespace ftp_server
             Console.WriteLine(packetOut);
             if (!isActionConfirm || initialCode == (int)Code.Sign_Out)
                 return packetOut;
-            //Console.WriteLine(packetOut);
-            //Perform a Sql query to get user files based on the session, since if the client successfully registered, a session will be created for him.
-            //If the client successfully logged in, a session will be created for him.
-            //If the client's session still stands, he will have access.
-            
-            
-
+ 
             string errMsg = "";
 
             int userId = -1;
@@ -159,10 +140,10 @@ namespace ftp_server
 
                     case (int)Code.File_Download:
 
-                        if(SendFiles(buffer,client))
-                            return (int)Code.File_Download;
+                        if(!SendFiles(buffer,client))
+                            return (int)Code.Action_Denied;
 
-                        return (int)Code.Action_Denied;
+                        return (int)Code.File_Download;
 
                     case (int)Code.File_Rename:
 
@@ -268,7 +249,7 @@ namespace ftp_server
             catch (Exception exception)
             {
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-
+                Console.WriteLine(exception.StackTrace);
                 return false;
             }
             return true;
@@ -321,8 +302,8 @@ namespace ftp_server
                     
                 FileStream downloadedFile = file.OpenRead();
                 long fSize = file.Length;
-                int read = 0;
-                long totalRead = 0;
+                //int read = 0;
+                //long totalRead = 0;
                 byte[] buffer = new byte[64000];
 
                 downloadedFile.CopyTo(client.GetStream());
@@ -334,7 +315,7 @@ namespace ftp_server
             {
                 
                 Console.WriteLine($"ERROR AT: {ex.Source} - {ex.Message}");
-                
+                Console.WriteLine(ex.StackTrace);
                 return false;
             }
             
@@ -438,88 +419,6 @@ namespace ftp_server
 
             }
 
-
-
-
-
-
-
-            //while (buffer.Count > 0)
-            //{
-            //    string str = buffer.Dequeue();
-            //    if (str[str.Length - 1] != 0)
-            //    {
-            //        while (buffer.Peek()[buffer.Peek().Length-1] != 0)
-            //        {
-            //            str += buffer.Dequeue();
-            //        }
-            //        str += buffer.Dequeue();
-            //    }
-                
-            //    List<string> fields = str.TrimEnd('\0').Split(':').ToList();
-            //    string errMsg = "";
-            //    if (fields[0] == "Code")
-            //    {
-            //        int codeTest = 0;
-            //        if (!int.TryParse(fields[1], out codeTest))
-            //        {
-            //            buffer.Clear();
-            //            fields.Clear();
-            //            return (int)Code.Action_Denied;
-            //        }
-            //        switch (codeTest)
-            //        {
-            //            case (int)Code.Sign_Up:
-
-            //                string response = Database.RegisterUser(out errMsg,buffer);
-            //                if(response == "")
-            //                {
-            //                    Console.WriteLine(errMsg);
-            //                    return (int)Code.Action_Denied;
-            //                }
-            //                //Handle DB registering with UserName, UserEmail, HashedPassword
-            //                //Return true if user successfully logged in with the specificed credentials, all else will return false
-            //                responsePacket = response;
-            //                return (int)Code.Sign_Up;
-
-            //            case (int)Code.Sign_In:
-
-            //                //Handle DB logging UserName, UserEmail, HashedPassword
-            //                //Return true if user exists and password is correct, all else will return false
-            //                return (int)Code.Action_Denied;
-
-            //            case (int)Code.Sign_Out:
-
-            //                //Handle DB session breaking using the Client's IP
-            //                return (int)Code.Action_Denied;
-
-            //            case (int)Code.Session_Trying:
-
-                            
-            //                string packet = Database.IsSessionValid(out errMsg, clIp);
-            //                if (packet.Length == 0)
-            //                {
-            //                    Console.WriteLine(errMsg);
-            //                    return (int)Code.Action_Denied;
-            //                }
-            //                responsePacket = packet;
-            //                return (int)Code.Session_Trying;
-
-            //            default:
-                            
-            //                fields.Clear();
-                            
-            //                return -1;
-
-            //        }
-            //    }
-
-
-                
-            //}
-
-            
-            
         }
 
 

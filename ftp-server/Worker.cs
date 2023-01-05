@@ -93,15 +93,10 @@ namespace ftp_server
                 catch (Exception ex)
                 {
                     Console.WriteLine($"{ex.Message}\n{ex.Source}");
+                    Console.WriteLine(ex.StackTrace);
                     continue;
                 }
                 
-
-                foreach (var item in fields)
-                {
-                    Console.WriteLine(item.Key + " " + item.Value);
-                }
-                   
                 // At this point, I have the header/userInfo packet
                 string responsePacket;
                 string response;
@@ -224,7 +219,7 @@ namespace ftp_server
                 {
                     input.GetClient().Dispose();
                     Console.WriteLine($"{ex.Message}\n{ex.Source}");
-
+                    Console.WriteLine(ex.StackTrace);
                     continue;
                 }
 

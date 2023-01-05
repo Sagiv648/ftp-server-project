@@ -43,14 +43,6 @@ namespace ftp_client
         static void Main()
         {
 
-
-
-            //Console.WriteLine(SHA.ComputeSHA256Hash("12345"));
-
-            //Connection.SendFileUpload($@"C:\Users\sagiv\Projects\1.College-work-directory\win-forms-project\Untitled\ftp-client\bin\Debug\t.exe", "", "", "");
-
-
-
             if (!File.Exists("upload.log"))
             {
                 File.Create("upload.log");
@@ -130,7 +122,7 @@ namespace ftp_client
                 {
 
                     DisplayTestWindow(ex.Message, ex.Source, 1);
-                    
+                    Console.WriteLine(ex.StackTrace);
                 }
                 Application.Exit();
                 

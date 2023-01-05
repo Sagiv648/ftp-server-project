@@ -19,12 +19,9 @@ namespace ftp_client
     {
         static TcpClient client = null;
         public static SmtpClient mailClient = new SmtpClient("smtp.gmail.com", 587);
-
-        public static readonly string compName = Environment.MachineName;
-        
-         static readonly string serverIP = "127.0.0.1";
-         static readonly int port = 20;
-         static IPEndPoint server = new IPEndPoint(IPAddress.Parse(serverIP), port);
+        static readonly string serverIP = "127.0.0.1";
+        static readonly int port = 20;
+        static IPEndPoint server = new IPEndPoint(IPAddress.Parse(serverIP), port);
         
         
         static readonly string headerRequest = "Code:1%\r\n" +
@@ -63,12 +60,9 @@ namespace ftp_client
 
         }
 
-
-        static StringBuilder packetBuilder = new StringBuilder();
-        
-        
         public static bool InitEmailClient()
         {
+
             try
             {
                 mailClient.Credentials = new NetworkCredential("lsrpacc9@gmail.com", "rcabxcabfdxervev");
@@ -92,6 +86,7 @@ namespace ftp_client
         /// <returns><b>Dictionary with fields and their values</b> if the session is valid and <b>null</b> if the session is invalid.</returns>
         public static Dictionary<string,string> TrySession()
         {
+            StringBuilder packetBuilder = new StringBuilder();
 
             packetBuilder.Append(userInfoRequest);
             packetBuilder = packetBuilder.Replace("1%", ((int)Code.Session_Trying).ToString());
@@ -130,11 +125,11 @@ namespace ftp_client
                     Console.WriteLine("Connection closed");
                 }
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-                packetBuilder = packetBuilder.Clear();
+                
                 return null;
             }
             client.Close();
-            packetBuilder = packetBuilder.Clear();
+            
             
             return output;
         }
@@ -147,6 +142,8 @@ namespace ftp_client
         /// <returns><b>Dictionary with the fields and their values</b> if the user managed to login successfully and <b>null</b> if the login didn't manage to login successfully.</returns>
         public static Dictionary<string,string> SendLoginRequest(string userEmail, string userPassword)
         {
+            StringBuilder packetBuilder = new StringBuilder();
+
             string hashedPassword = SHA.ComputeSHA256Hash(userPassword);
             Console.WriteLine(userEmail);
             Console.WriteLine(userPassword);
@@ -190,7 +187,7 @@ namespace ftp_client
                     Console.WriteLine("Connection closed");
                 }
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-                packetBuilder = packetBuilder.Clear();
+                
                 return null;
             }
             foreach (var item in output)
@@ -198,7 +195,7 @@ namespace ftp_client
                 Console.WriteLine($"{item.Key}: {item.Value}");
             }
             client.Close();
-            packetBuilder = packetBuilder.Clear();
+            
             return output;
         }
 
@@ -211,6 +208,8 @@ namespace ftp_client
         /// <returns><b>Dictionary with the fields and their values</b> if the user managed to login successfully and <b>null</b> if the login didn't manage to login successfully.</returns>
         public static Dictionary<string,string> SendRegisterRequest(string userName, string userEmail, string userPassword)
         {
+            StringBuilder packetBuilder = new StringBuilder();
+
             packetBuilder = packetBuilder.Append(userInfoRequest);
             packetBuilder = packetBuilder.Replace("1%", ((int)Code.Sign_Up).ToString());
             packetBuilder = packetBuilder.Replace("2%", userName);
@@ -248,7 +247,7 @@ namespace ftp_client
                     Console.WriteLine("Connection closed");
                 }
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-                packetBuilder = packetBuilder.Clear();
+                
                 return null;
 
             }
@@ -258,7 +257,7 @@ namespace ftp_client
                 Console.WriteLine($"{item.Key}: {item.Value}");
             }
             client.Close();
-            packetBuilder = packetBuilder.Clear();
+            
             return response;
 
         }
@@ -268,6 +267,8 @@ namespace ftp_client
         /// </summary>
         public static Dictionary<string,string> SendLogoutRequest(string userId)
         {
+            StringBuilder packetBuilder = new StringBuilder();
+
             packetBuilder = packetBuilder.Append(userInfoRequest);
             packetBuilder = packetBuilder.Replace("1%", ((int)Code.Sign_Out).ToString());
             packetBuilder = packetBuilder.Replace("2%", userId);
@@ -301,7 +302,7 @@ namespace ftp_client
                     Console.WriteLine("Connection closed");
                 }
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-                packetBuilder = packetBuilder.Clear();
+                Console.WriteLine(exception.StackTrace);
                 return null;
 
             }
@@ -311,7 +312,7 @@ namespace ftp_client
                 Console.WriteLine($"{item.Key}: {item.Value}");
             }
             client.Close();
-            packetBuilder = packetBuilder.Clear();
+            
             return response;
         }
 
@@ -321,6 +322,8 @@ namespace ftp_client
 
         public static bool SendDownloadRequest(string userName, string userId, string virtualPath, string physicalPathDestination)
         {
+            StringBuilder packetBuilder = new StringBuilder();
+
             //"Code:1%\r\n" +
             //"UserId:2%\r\n" +
             //"UserName:3%\r\n" +
@@ -358,7 +361,7 @@ namespace ftp_client
                 {
                     Console.WriteLine("Here");
                     client.Close();
-                    packetBuilder = packetBuilder.Clear();
+                    
                     return false;
                 }
                 string fileName = "";
@@ -376,7 +379,7 @@ namespace ftp_client
                 {
                     Console.WriteLine("what here?");
                     client.Close();
-                    packetBuilder = packetBuilder.Clear();
+                    
                     return false;
                 }
 
@@ -422,18 +425,20 @@ namespace ftp_client
             {
 
                 Console.WriteLine($"ERROR AT {exception.Source} - {exception.Message}");
-
+                Console.WriteLine(exception.StackTrace);
                 return false;
             }
 
 
-            packetBuilder = packetBuilder.Clear();
+            
             return true;
 
         }
 
         public static Dictionary<string,string> SendUploadRequest(string physicalPath, string virtualPath,string virtualRootPath,string access,string userId, string userName )
         {
+            StringBuilder packetBuilder = new StringBuilder();
+
             //static readonly string headerRequest = "Code:1%\r\n" +
             //"UserId:2%\r\n" +
             //"UserName:3%\r\n" +
@@ -531,10 +536,10 @@ namespace ftp_client
                 logStream.Close();
                 physicalFileStream.Close();
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-                packetBuilder = packetBuilder.Clear();
+                Console.WriteLine(exception.StackTrace);
                 return null;
             }
-            packetBuilder = packetBuilder.Clear();
+            
             return response;
   
         }

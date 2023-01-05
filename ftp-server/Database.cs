@@ -10,24 +10,20 @@ using System.Net.Sockets;
 using System.Net;
 using EasyEncryption;
 using System.IO;
+using System.Data.SqlTypes;
 
 namespace ftp_server
 {
-    //TODO: All the read/writes to the database should be atomic
+    //TODO: All the writes to the database should be atomic
     public static class Database
     {
 
 
         private static Mutex dbAccess = new Mutex();
 
-        static string envConnStr = Environment.GetEnvironmentVariable("sql-connection-string", EnvironmentVariableTarget.User);
-        static string envDbName = Environment.GetEnvironmentVariable("ftp-server-db", EnvironmentVariableTarget.User);
-
-        private static string connectionString = envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI" : envConnStr;
-        private static string dbName = envDbName == null ? "FTP_Server" : envDbName;
-        private static SqlConnection conn = new SqlConnection(connectionString);
-        private static SqlCommand sqlCmd = new SqlCommand("", conn);
-        private static SqlDataReader reader = null;
+        private static string connectionString = Program.envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI" : Program.envConnStr;
+        private static string dbName = Program.envDbName == null ? "FTP_Server" : Program.envDbName;
+        
 
         
         public static bool InitTables(out string msg)
@@ -65,63 +61,67 @@ namespace ftp_server
 
                 }
             };
-
-
             try
             {
-                conn.Open();
-                sqlCmd.CommandText = $"use {dbName} select name from sys.tables";
-                reader = sqlCmd.ExecuteReader();
+                List<string> tables = new List<string>();
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand sqlCmd = new SqlCommand("", conn);
+                    sqlCmd.CommandText = $"use {dbName} select name from sys.tables";
+                    using(SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            tables.Add(reader["name"].ToString());
+                        }
+                    }
+                    for (int i = 0; i < tablesCreationCommandMapping.Keys.Count; i++)
+                    {
+                        int j = 0;
+                        for (j = 0; j < tables.Count; j++)
+                        {
+                            if (tables[j] == tablesCreationCommandMapping.Keys.ToList()[i])
+                                break;
+                        }
+                        if (j == tables.Count)
+                        {
+                            try
+                            {
+                                sqlCmd.CommandText = tablesCreationCommandMapping[tablesCreationCommandMapping.Keys.ToList()[i]];
+                                sqlCmd.ExecuteNonQuery();
+
+                            }
+                            catch (Exception ex)
+                            {
+                                msg = ex.Message;
+                                Console.WriteLine($"{ex.Message}");
+                                Console.WriteLine(ex.StackTrace);
+
+                                return false;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                
+
+
             }
             catch (Exception ex)
             {
                 msg = ex.Message;
-                conn.Close();
-
+                Console.WriteLine($"{ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 return false;
 
 
             }
-            List<string> tables = new List<string>();
-            while (reader.Read())
-            {
-
-                tables.Add(reader["name"].ToString());
-
-            }
-
-            reader.Close();
-            for (int i = 0; i < tablesCreationCommandMapping.Keys.Count; i++)
-            {
-                int j = 0;
-                for (j = 0; j < tables.Count; j++)
-                {
-                    if (tables[j] == tablesCreationCommandMapping.Keys.ToList()[i])
-                        break;
-                }
-                if (j == tables.Count)
-                {
-                    try
-                    {
-                        sqlCmd.CommandText = tablesCreationCommandMapping[tablesCreationCommandMapping.Keys.ToList()[i]];
-                        sqlCmd.ExecuteNonQuery();
-
-                    }
-                    catch (Exception ex)
-                    {
-                        msg = ex.Message;
-                        Console.WriteLine(msg);
-                        conn.Close();
-
-                        return false;
-
-                    }
-
-                }
-
-            }
-
-            conn.Close();
+  
             msg = "";
             return true;
         }
@@ -134,45 +134,42 @@ namespace ftp_server
             dbAccess.WaitOne();
             try
             {
-                conn.Open();
-
-                sqlCmd.CommandText = $"use {dbName} select * from Sessions where User_Ip = \'{clientIp}\'";
-                reader = sqlCmd.ExecuteReader();
-
-                while (reader.Read())
+                using(SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    //output.Add($"Id:{reader["Id"]}");
-                    userName = reader["User_name"].ToString();
-                    userId = int.Parse(reader["User_id"].ToString());
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    sqlCmd.CommandText = $"use {dbName} select * from Sessions where User_Ip = \'{clientIp}\'";
 
+                    using (SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            //output.Add($"Id:{reader["Id"]}");
+                            userName = reader["User_name"].ToString();
+                            userId = int.Parse(reader["User_id"].ToString());
+
+
+                        }
+                    }
 
                 }
-
-                Console.WriteLine("Session working?");
-                reader.Close();
-                Console.WriteLine("Reader is closed");
-
             }
             catch (Exception ex)
             {
                 
-                if (!reader.IsClosed)
-                    reader.Close();
-                conn.Close();
+                
                 dbAccess.ReleaseMutex();
 
                 msg = ex.Message;
                 Console.WriteLine(msg + "{0}", ex.Source);
+                Console.WriteLine(ex.StackTrace);
                 return "";
             }
-            conn.Close();
+            
             dbAccess.ReleaseMutex();
             if (userName == "" || userId == -1)
                 return "Invalid session";
 
-            
-            
-           
             return $"UserName:{userName}\r\nUserId:{userId}";
         }
 
@@ -183,32 +180,35 @@ namespace ftp_server
             int userId = -1;
             try
             {
-                conn.Open();
-                Console.WriteLine(clientIp);
-                if (initalCode == (int)Packet.Code.Session_Trying || initalCode == (int)Packet.Code.Sign_In)
-                    sqlCmd.CommandText = $"use {dbName} select User_id from Sessions where User_Ip = \'{clientIp}\'";
-                else
-                    sqlCmd.CommandText = $"use {dbName} select Id from Users where Id = SCOPE_IDENTITY()";
-                //Console.WriteLine(sqlCmd.CommandText);
-                reader = sqlCmd.ExecuteReader();
-                while (reader.Read())
+                using(SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    userId = int.Parse(reader[initalCode == (int)Packet.Code.Sign_Up ? "Id" :  "User_id"].ToString());
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    if (initalCode == (int)Packet.Code.Session_Trying || initalCode == (int)Packet.Code.Sign_In)
+                        sqlCmd.CommandText = $"use {dbName} select User_id from Sessions where User_Ip = \'{clientIp}\'";
+                    else
+                        sqlCmd.CommandText = $"use {dbName} select Id from Users where Id = SCOPE_IDENTITY()";
+
+                    using (SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            userId = int.Parse(reader[initalCode == (int)Packet.Code.Sign_Up ? "Id" : "User_id"].ToString());
+                        }
+                    }
                 }
-                Console.WriteLine("Code : {0} -> id: {1}",initalCode  ,userId);
-                reader.Close();
+
             }
             catch (Exception ex)
             {
+                dbAccess.ReleaseMutex();
                 msg = ex.Message;
                 Console.WriteLine(msg + "{0}", ex.Source);
-                if (!reader.IsClosed)
-                    reader.Close();
-                conn.Close();
-                dbAccess.ReleaseMutex();
+                Console.WriteLine(ex.StackTrace);
+                
                 return -1;
             }
-            conn.Close();
+            
             dbAccess.ReleaseMutex();
             return userId;
         }
@@ -219,28 +219,34 @@ namespace ftp_server
             dbAccess.WaitOne();
             try
             {
-                conn.Open();
-                sqlCmd.CommandText = $"use {dbName} select Directory from Users where Id = {userId}";
-                reader = sqlCmd.ExecuteReader();
 
-                while (reader.Read())
+                using(SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    output = reader["Directory"].ToString();
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand(); 
+                    sqlCmd.CommandText = $"use {dbName} select Directory from Users where Id = {userId}";
+
+                    using(SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            output = reader["Directory"].ToString();
+                        }
+                    }
                 }
-                reader.Close();
+
             }
             catch (Exception ex)
             {
+                dbAccess.ReleaseMutex();
                 msg = ex.Message;
                 Console.WriteLine(msg + "{0}",ex.Source);
-                if (!reader.IsClosed)
-                    reader.Close();
-                conn.Close();
-                dbAccess.ReleaseMutex();
+                Console.WriteLine(ex.StackTrace);
+                
                 return "";
                 
             }
-            conn.Close();
+            
             dbAccess.ReleaseMutex();
 
             return output;
@@ -253,35 +259,42 @@ namespace ftp_server
             string output = "";
             try
             {
-                conn.Open();
-                sqlCmd.CommandText = $"use {dbName} select File_name from Files where Access = 1";
-                reader = sqlCmd.ExecuteReader();
-
-                while (reader.Read())
+                using(SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    output += reader["File_name"].ToString() + '|';
-                    
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    sqlCmd.CommandText = $"use {dbName} select File_name from Files where Access = 1";
+                    using(SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            output += reader["File_name"].ToString() + '|';
+
+                        }
+                        if (output != "")
+                            output = output.Substring(0, output.Length - 1);
+                    }
                 }
-                if(output != "")
-                output = output.Substring(0,output.Length - 1);
-                reader.Close();
+
+                
+               
+                
+
+                
+                
             }
             catch (Exception ex)
             {
+                dbAccess.ReleaseMutex();
                 msg = ex.Message;
                 
                 Console.WriteLine(msg + "{0}", ex.Source);
-                if (!reader.IsClosed)
-                    reader.Close();
-                conn.Close();
-                dbAccess.ReleaseMutex();
-
-                msg = ex.Message;
+                Console.WriteLine(ex.StackTrace);
                 return "";
 
                 
             }
-            conn.Close();
+            
             dbAccess.ReleaseMutex();
             return output;
         }
@@ -293,16 +306,21 @@ namespace ftp_server
             {
 
                 dbAccess.WaitOne();
-                conn.Open();
-                sqlCmd.CommandText = $"use [{dbName}] insert Files values ({userId}, '{virtualPath}',{access})";
-                Console.WriteLine(sqlCmd.CommandText);
-                sqlCmd.ExecuteNonQuery();
+
+                using(SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    sqlCmd.CommandText = $"use [{dbName}] insert Files values ({userId}, '{virtualPath}',{access})";
+                    sqlCmd.ExecuteNonQuery();
+                }
             }
             catch (Exception e)
             {
-                conn.Close();
+                
                 dbAccess.ReleaseMutex();
-
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
                 msg = e.Message;
                 return;
                 
@@ -310,12 +328,14 @@ namespace ftp_server
             dbAccess.ReleaseMutex();
         }
         
-        public static void CreateSession(string userName, IPAddress clIp, int userId)
+        public static void CreateSession(SqlCommand sqlCmd,string userName, IPAddress clIp, int userId)
         {
+            
+
             sqlCmd.CommandText = $"use {dbName} insert into Sessions values (GETDATE(), \'{clIp}\', \'{userName} \', {userId})";
             sqlCmd.ExecuteNonQuery();
         }
-        public static void DestroySession(int id)
+        public static void DestroySession(SqlCommand sqlCmd,int id)
         {
             sqlCmd.CommandText = $"use {dbName} delete from Sessions where User_id={id}";
             sqlCmd.ExecuteNonQuery();
@@ -337,58 +357,60 @@ namespace ftp_server
             int id = -1;
             try
             {
-                
-                conn.Open();
-                sqlCmd.CommandText = $"use {dbName} select Id from Users where User_email = \'{fieldValueMapping["UserEmail"]}\'";
-                reader = sqlCmd.ExecuteReader();
-                while(reader.Read())
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    id = int.Parse(reader["Id"].ToString());
-                }
-                reader.Close();
-                if(id != -1)
-                {
-                    
-                    conn.Close();
-                    dbAccess.ReleaseMutex();
-                    return "User exists";
-                }
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    sqlCmd.CommandText = $"use {dbName} select Id from Users where User_email = \'{fieldValueMapping["UserEmail"]}\'";
+                    using(SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            id = int.Parse(reader["Id"].ToString());
+                        }
                 
-                sqlCmd.CommandText = $"use {dbName} insert into Users values (\'{fieldValueMapping["UserName"]}\'" +
+                        if (id != -1)
+                        {
+                            dbAccess.ReleaseMutex();
+                            return "User exists";
+                        }
+                    }
+                    sqlCmd.CommandText = $"use {dbName} insert into Users values (\'{fieldValueMapping["UserName"]}\'" +
                     $",\'{fieldValueMapping["UserEmail"]}\', \'{fieldValueMapping["HashedPassword"]}\', \'\')";
 
-                sqlCmd.ExecuteNonQuery();
-                sqlCmd.CommandText = $"use {dbName} select User_name, Id from Users where Id = SCOPE_IDENTITY()";
-                reader = sqlCmd.ExecuteReader();
-                
-                
-                while(reader.Read()) 
-                {
-                    id = int.Parse(reader["Id"].ToString());
-                    userName = reader["User_name"].ToString();
+                    sqlCmd.ExecuteNonQuery();
+                    sqlCmd.CommandText = $"use {dbName} select User_name, Id from Users where Id = SCOPE_IDENTITY()";
+                    using (SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            id = int.Parse(reader["Id"].ToString());
+                            userName = reader["User_name"].ToString();
+                        }
+                    }
+                    string userFile = Directory.CreateDirectory($"Files-space/{id}_{userName}").Name;
+                    sqlCmd.CommandText = $"use {dbName} update Users set Directory = \'{userFile}\' where Id = {id}";
+                    sqlCmd.ExecuteNonQuery();
+
                 }
-                reader.Close();
-                string userFile = Directory.CreateDirectory($"Files-space/{id}_{userName}").Name;
-                sqlCmd.CommandText = $"use {dbName} update Users set Directory = \'{userFile}\' where Id = {id}";
-                sqlCmd.ExecuteNonQuery();
-
-
-                //CreateSession(userName, clIp, id);
+                
+               
+               
 
 
             }
             catch (Exception ex)
             {
+                
+                
+                dbAccess.ReleaseMutex();
                 errMsg = ex.Message;
                 Console.WriteLine($"{errMsg}\n{ex.Source}");
-                if (!reader.IsClosed)
-                    reader.Close();
-                conn.Close();
-                dbAccess.ReleaseMutex();
+                Console.WriteLine(ex.StackTrace);
                 return "db-error";
                 
             }
-            conn.Close();
+            
             dbAccess.ReleaseMutex();
             return $"UserName:{userName}\r\nUserId:{id}";
         }
@@ -411,49 +433,52 @@ namespace ftp_server
             string userName = "";
             int id = -1;
             string hashedPassword = "";
-            dbAccess.WaitOne();
+            
             try
             {
-                conn.Open();
-                sqlCmd.CommandText = $"use {dbName} select * from Users where User_email=\'{fieldValueMapping["UserEmail"]}\'";
-                reader = sqlCmd.ExecuteReader();
-                while(reader.Read())
-                {
-                    id = int.Parse(reader["Id"].ToString());
-                    userName = reader["User_name"].ToString();
-                    hashedPassword = reader["Password"].ToString();
-                }
-                
 
-                reader.Close();
-                if (id == -1)
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    conn.Close();
-                    dbAccess.ReleaseMutex();
-                    return "Invalid credentials";
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    sqlCmd.CommandText = $"use {dbName} select * from Users where User_email=\'{fieldValueMapping["UserEmail"]}\'";
+                    using(SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            id = int.Parse(reader["Id"].ToString());
+                            userName = reader["User_name"].ToString();
+                            hashedPassword = reader["Password"].ToString();
+                        }
+                    }
+                    if (id == -1)
+                    {
+
+                        
+                        return "Invalid credentials";
+                    }
+                    else if (!hashedPassword.Equals(fieldValueMapping["HashedPassword"]))
+                    {
+
+                        
+                        return "Invalid credentials";
+                    }
+                    CreateSession(sqlCmd,userName, clIp, id);
                 }
-                else if (!hashedPassword.Equals(fieldValueMapping["HashedPassword"]))
-                {
-                    conn.Close();
-                    dbAccess.ReleaseMutex();
-                    return "Invalid credentials";
-                }
-                CreateSession(userName, clIp, id);
                 
             }
             catch (Exception ex)
             {
-                if (!reader.IsClosed)
-                    reader.Close();
-                conn.Close();
-                dbAccess.ReleaseMutex();
+                
+                
                 errMsg = ex.Message;
                 Console.WriteLine($"{errMsg}\n{ex.Source}");
+                Console.WriteLine(ex.StackTrace);
                 return "db-error";
             }
 
-            conn.Close();
-            dbAccess.ReleaseMutex();
+            
+            
             return $"UserName:{userName}\r\nUserId:{id}";
 
         }
@@ -462,23 +487,30 @@ namespace ftp_server
         public static void UserLogout(out string errMsg, Dictionary<string, string> fieldValueMapping, IPAddress clIp)
         {
             errMsg = "";
-            dbAccess.WaitOne();
+            
             try
             {
-                conn.Open();
-                DestroySession(int.Parse(fieldValueMapping["UserId"]));
+                using(SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    DestroySession(sqlCmd,int.Parse(fieldValueMapping["UserId"]));
+
+                }
+                
+                
             }
             catch (Exception ex)
             {
-                conn.Close();
-                dbAccess.ReleaseMutex();
+                
+                
 
                 errMsg = ex.Message;
                 Console.WriteLine($"{errMsg}\n{ex.Source}");
-                
+                Console.WriteLine(ex.StackTrace);
             }
-            conn.Close();
-            dbAccess.ReleaseMutex();
+            
+           
 
         }
 

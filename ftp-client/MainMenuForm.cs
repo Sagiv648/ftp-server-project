@@ -38,7 +38,7 @@ namespace ftp_client
             
             if(Program.formsParams.Count != 0)
             {
-                response = ((Dictionary<string,string>)Program.formsParams.Find(x => x is Dictionary<string, string>));
+                response = (Dictionary<string, string>)Program.formsParams.Last();
             }
 
             FormClosing += Program.CloseForm;
@@ -100,14 +100,29 @@ namespace ftp_client
 
         private void downloadFileBtn_Click(object sender, EventArgs e)
         {
-            if(publicFilesDisplayer.SelectedIndex != -1)
+            if(publicFilesDisplayer.SelectedItems.Count > 0)
             {
-                Connection.SendDownloadRequest(response["UserName"], response["UserId"], publicFilesDisplayer.SelectedItem.ToString());
+               
+                
+                FolderBrowserDialog fb = new FolderBrowserDialog();
+                if(fb.ShowDialog() != DialogResult.OK)
+                {
+                    return; 
+                }
+                
+                foreach (var item in publicFilesDisplayer.SelectedItems)
+                {
+                   Connection.SendDownloadRequest(response["UserName"], response["UserId"], item.ToString(), fb.SelectedPath);
+
+                }
+                Process.Start("explorer.exe", fb.SelectedPath);
             }
         }
 
         private void uploadFileBtn_Click(object sender, EventArgs e)
         {
+            
+
 
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "All files (*.*)|*.*";
@@ -117,6 +132,12 @@ namespace ftp_client
             
             if (fb.ShowDialog() == DialogResult.OK)
             {
+
+                selectedFiles.Items.Clear();
+                publicFiles.Items.Clear();
+                searchUploadedTxtbox.Text = "";
+                publicFilesContainer.Clear();
+                paths.Clear();
 
                 selectedPath = fb.SelectedPath;
                 explorer = new FilesExplorer(fb.SelectedPath, paths);
@@ -152,7 +173,7 @@ namespace ftp_client
             {
                 Program.navigatedForm = "LoginForm";
                 
-                
+                Program.formsParams.Clear();
                 response = null;
                 Dispose();
                 

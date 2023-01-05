@@ -57,6 +57,7 @@
             this.publicFilesDisplayer.FormattingEnabled = true;
             this.publicFilesDisplayer.Location = new System.Drawing.Point(12, 231);
             this.publicFilesDisplayer.Name = "publicFilesDisplayer";
+            this.publicFilesDisplayer.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.publicFilesDisplayer.Size = new System.Drawing.Size(439, 236);
             this.publicFilesDisplayer.TabIndex = 0;
             // 

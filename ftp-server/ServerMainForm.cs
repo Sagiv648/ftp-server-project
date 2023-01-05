@@ -79,10 +79,7 @@ namespace ftp_server
 
          public static void ManagerMethod()
          {
-            
 
-
-            
             while (true)
             {
                 while (clientsQueue.Count == 0)
@@ -98,11 +95,9 @@ namespace ftp_server
                     {
                         Worker.workers[i].GetWorkerInput().SetClient(clientsQueue.Dequeue());
                         //Worker.workers[i].GetWorkerInput().SetWorkFinishedStatus(false);
-
                         Worker.workers[i].GetWorkerInput().GetSignal().Set();
-
-                       
                         break;
+
                     }
                 }
                 Worker.ManagerOverseerMutex.ReleaseMutex();
@@ -110,18 +105,9 @@ namespace ftp_server
                     Thread.Sleep(1000);
 
 
-                
-                
 
             }
-            
 
-            
-                
-            
-
-
-            
          }
  
 

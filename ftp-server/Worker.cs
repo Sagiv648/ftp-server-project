@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Net.Sockets;
 using System.IO;
+using System.Collections.ObjectModel;
 
 namespace ftp_server
 {
@@ -13,7 +14,7 @@ namespace ftp_server
     {
         Thread t;
         WorkerInput input;
-       
+        
         
         public static Mutex ManagerOverseerMutex = new Mutex();
 
@@ -24,8 +25,6 @@ namespace ftp_server
         {
             t = new Thread(workingMethod);
             this.input = input;
-            
-            
 
         }
 
@@ -84,6 +83,10 @@ namespace ftp_server
                         }
                         else
                         fields.Add(tempArr[0], tempArr[1].Trim('\0'));
+                    }
+                    foreach (var item in fields)
+                    {
+                        Console.WriteLine(item.Key+":"+item.Value);
                     }
 
                 }

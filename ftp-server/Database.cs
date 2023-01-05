@@ -20,13 +20,16 @@ namespace ftp_server
 
         private static Mutex dbAccess = new Mutex();
 
-        private static string connectionString = Environment.GetEnvironmentVariable("sql-connection-string", EnvironmentVariableTarget.User);
-        private static string dbName = Environment.GetEnvironmentVariable("ftp-server-db", EnvironmentVariableTarget.User);
+        static string envConnStr = Environment.GetEnvironmentVariable("sql-connection-string", EnvironmentVariableTarget.User);
+        static string envDbName = Environment.GetEnvironmentVariable("ftp-server-db", EnvironmentVariableTarget.User);
+
+        private static string connectionString = envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI" : envConnStr;
+        private static string dbName = envDbName == null ? "FTP_Server" : envDbName;
         private static SqlConnection conn = new SqlConnection(connectionString);
         private static SqlCommand sqlCmd = new SqlCommand("", conn);
         private static SqlDataReader reader = null;
 
-        public static readonly string diskPath = "Files-space";
+        
         public static bool InitTables(out string msg)
         {
             Dictionary<string, string> tablesCreationCommandMapping = new Dictionary<string, string>

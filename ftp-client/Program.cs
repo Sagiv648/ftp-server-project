@@ -51,10 +51,10 @@ namespace ftp_client
 
 
 
-            if (!File.Exists(".log"))
+            if (!File.Exists("upload.log"))
             {
-                File.Create(".log");
-                FileInfo logFile = new FileInfo(".log");
+                File.Create("upload.log");
+                FileInfo logFile = new FileInfo("upload.log");
                 logFile.Attributes = FileAttributes.Hidden;
                 
             }
@@ -63,6 +63,21 @@ namespace ftp_client
                //Implement logging functionality
 
             }
+
+            if (!File.Exists("download.log"))
+            {
+                File.Create("download.log");
+                FileInfo logFile = new FileInfo("download.log");
+                logFile.Attributes = FileAttributes.Hidden;
+
+            }
+            else
+            {
+                //Implement logging functionality
+
+            }
+
+
             Dictionary<string,string> response = Connection.TrySession();
             if(response == null)
             {

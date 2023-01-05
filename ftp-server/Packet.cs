@@ -60,8 +60,8 @@ namespace ftp_server
          * File bytes...
          */
 
-       
-
+        static string envVarPath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User);
+        static string filesSpace = envVarPath == null ? $"{Directory.GetCurrentDirectory()}\\Files-space" : envVarPath;
 
         public static string ByteArrToString(byte[] arr)
         {
@@ -111,7 +111,7 @@ namespace ftp_server
             
             string directory = Database.GetUserDirectoryById(out errMsg, userId);
             string fileNames = "";
-            string clientRootPath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User) + $"\\{directory}";
+            string clientRootPath = filesSpace + $"\\{directory}";
             
             DirectoryInfo clientDirectory = new DirectoryInfo($"{clientRootPath}");
             List<FileInfo> clientFiles = clientDirectory.GetFiles("*",SearchOption.AllDirectories).ToList();
@@ -159,7 +159,10 @@ namespace ftp_server
 
                     case (int)Code.File_Download:
 
-                        return (int)Code.File_Download;
+                        if(SendFiles(buffer,client))
+                            return (int)Code.File_Download;
+
+                        return (int)Code.Action_Denied;
 
                     case (int)Code.File_Rename:
 
@@ -186,7 +189,7 @@ namespace ftp_server
         public static bool WriteFiles(Dictionary<string, string> filesMapping, Dictionary<string,string> bufferInput ,TcpClient client)
         {
             
-            string filePath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User) + $"\\{bufferInput["UserId"]}_{bufferInput["UserName"]}".Trim();
+            string filePath = filesSpace + $"\\{bufferInput["UserId"]}_{bufferInput["UserName"]}".Trim();
             string response = "";
             
             try
@@ -219,7 +222,10 @@ namespace ftp_server
                 
                 StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
                 StreamReader reader = new StreamReader(client.GetStream());
+                
                 FileStream outputFileStream = outputFile.Create();
+                if (filesMapping["Access"] == "1")
+                    outputFile.Attributes = FileAttributes.Hidden;
                
 
                 writer.Write("START\r\nEND\r\n");
@@ -268,6 +274,74 @@ namespace ftp_server
             return true;
         }
         
+        public static bool SendFiles(Dictionary<string, string> bufferInput, TcpClient client)
+        {
+            try
+            {
+                string storagePath = filesSpace;
+                StreamReader reader = new StreamReader(client.GetStream());
+                StreamWriter writer = new StreamWriter(client.GetStream());
+                //Console.WriteLine("Here?");
+                DirectoryInfo dir = new DirectoryInfo(storagePath);
+                //Console.WriteLine(dir.FullName);
+                
+                FileInfo[] allFiles = dir.GetFiles($"*", SearchOption.AllDirectories);
+                FileInfo file = null;
+                foreach (var item in allFiles)
+                {
+                    
+                    if (item.FullName.Contains(bufferInput["File"]) && item.Attributes != FileAttributes.Hidden)
+                    {
+                        file = item;
+                        break;
+                    }
+                }
+                if (file == null)
+                {
+                    client.Close();
+                    return false;
+
+                }
+                //Console.WriteLine(file.FullName);
+                writer.Write($"\r\n{file.Name}:{file.Length}\r\nEND\r\n");
+                writer.Flush();
+                string tmp = "";
+                
+                while((tmp = reader.ReadLine()) != null)
+                {
+                    Console.WriteLine($"tmp is {tmp}");
+                    if (tmp == "START")
+                        break;
+                }
+                if (tmp != "START")
+                {
+                    Console.WriteLine("tmp is not START it's {0}", tmp);
+                    return false;
+                }
+                    
+                FileStream downloadedFile = file.OpenRead();
+                long fSize = file.Length;
+                int read = 0;
+                long totalRead = 0;
+                byte[] buffer = new byte[64000];
+
+                downloadedFile.CopyTo(client.GetStream());
+                downloadedFile.Close();
+                Console.WriteLine("All transfered");
+
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine($"ERROR AT: {ex.Source} - {ex.Message}");
+                
+                return false;
+            }
+            
+
+            return true;
+        }
+
         public static int RecieveUserInfo(Dictionary<string,string> bufferInput, TcpClient cl, out string responsePacket)
         {
             responsePacket = "";

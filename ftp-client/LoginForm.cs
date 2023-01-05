@@ -16,13 +16,13 @@ namespace ftp_client
     public partial class LoginForm : Form
     {
 
-        Dictionary<string, string> response = null;
+        Dictionary<string, string> response;
 
         public LoginForm()
         {
             InitializeComponent();
             FormClosing += Program.CloseForm;
-
+            response = null;
             if (Program.formsParams.FindIndex(x => x is Dictionary<Form, Dictionary<string, string>>) != -1)
                 registerPromptLbl.Text = "You can log in now.";
 
@@ -108,7 +108,7 @@ namespace ftp_client
 
 
                 Cursor = Cursors.WaitCursor;
-                
+                response = null;
                 response = Connection.SendLoginRequest(userEmailTextBox.Text, userPasswordTextbox.Text);
                 userEmailTextBox.Text = null;
                 userPasswordTextbox.Text = null;

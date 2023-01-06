@@ -492,8 +492,8 @@ namespace ftp_client
                 response = new Dictionary<string, string>();
                 Dictionary<string, string> test = new Dictionary<string, string>();
                 
-                string t = reader.ReadLine();
-                Console.WriteLine("t is {0}", t);
+                //string t = reader.ReadLine();
+                //Console.WriteLine("t is {0}", t);
                 while((tmp = reader.ReadLine()) != null)
                 {
                     Console.WriteLine(tmp);
@@ -509,7 +509,7 @@ namespace ftp_client
 
                
 
-                if (!response.ContainsKey("Code") || !response.ContainsKey("File"))
+                if (!response.ContainsKey("Code"))
                 {
                     Console.WriteLine("Doesn't contain one");
                     logStream.Close();

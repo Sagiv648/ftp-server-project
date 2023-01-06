@@ -352,15 +352,15 @@ namespace ftp_client
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    MessageBox.Show(ex.Message + "|" + ex.Source);
+                    Console.WriteLine(ex.StackTrace);
                 }
 
                 if(codeTest == (int)Connection.Code.Action_Confirm)
                 {
                     if(access == 1)
-                        publicFilesDisplayer.Items.Add(uploadResponse["File"]);
+                        publicFilesDisplayer.Items.Add(uploadResponse["File_name"]);
                     else
-                        myFilesDisplayer.Items.Add(uploadResponse["File"]);
+                        myFilesDisplayer.Items.Add(uploadResponse["File_name"]);
 
                     Console.WriteLine($"{physicalPath} transmitted successfully.");
                     

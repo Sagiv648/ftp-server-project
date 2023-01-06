@@ -75,7 +75,7 @@ namespace ftp_server
 
             string packetOut = $"Code:{(isActionConfirm ?  (int)Code.Action_Confirm :(int)Code.Action_Denied )}" +
                 $"\r\n{(isActionConfirm ? response + "\r\nYour_Files:1%\r\nPublicFiles:2%" : "Error:" + response) }\r\nEND\r\n";
-            Console.WriteLine(packetOut);
+            //Console.WriteLine(packetOut);
             if (!isActionConfirm || initialCode == (int)Code.Sign_Out)
                 return packetOut;
  
@@ -86,10 +86,11 @@ namespace ftp_server
                 userId = Database.GetUserIdByIp(out errMsg, clIp, initialCode);
             else
                 userId = int.Parse(response.Split('\r', '\n').ToList().Find(x => x.Contains("UserId")).TrimEnd(new char[] { '\r', '\n' }).Split(':')[1]);
-            Console.WriteLine("userId is {0} and code was {1}", userId, initialCode);
             if (userId == -1)
                 return null;
             
+
+            //TODO: Enumerate user files with the db through id
             string directory = Database.GetUserDirectoryById(out errMsg, userId);
             string fileNames = "";
             string clientRootPath = filesSpace + $"\\{directory}";
@@ -212,9 +213,7 @@ namespace ftp_server
                 writer.Write("START\r\nEND\r\n");
                 writer.Flush();
                 //TODO: IMPORTANT! File transfering reciever
-                response = $"Code:{(int)Code.Action_Confirm}\r\n" +
-                $"File:{filesMapping["Path"]}\r\n" +
-                $"END\r\n";
+                
 
                 Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
                 while (totalRead < size)
@@ -224,25 +223,36 @@ namespace ftp_server
                     outputFileStream.Write(buffer, 0, read);
                     totalRead += read;
                     Console.WriteLine("totalread = {0}\\{1}", totalRead, size);
-                    if (totalRead >= size)
-                    {
-                        Console.WriteLine(response);
-                        writer.Write(response);
-                        writer.Flush();
-                        
-                        break;
-                    }
-                    //writer.Write($"Recv-{read}\r\nEND\r\n");
-                    //writer.Flush();
-                    
+
                 }
                 
                
                 Console.WriteLine("All passed?");
                 string msg = "";
-                Database.WriteFile(filesMapping["Path"], bufferInput["UserId"], filesMapping["Access"], out msg);
-                if(msg != "")
+                Dictionary<string,string> result = Database.WriteFile(outputFile, bufferInput["UserId"], filesMapping["Access"], out msg);
+
+                
+
+                if (result == null)
+                {
                     Console.WriteLine(msg);
+                    response = $"Code:{(int)Code.Action_Denied}\r\n" +
+                        $"Reason:Server_error\r\n" +
+                        $"END\r\n";
+                }  
+                else
+                {
+                    response = $"Code:{(int)Code.Action_Confirm}\r\n" +
+                    $"File_Id:{result["Id"]}\r\n" +
+                    $"File_name:{result["File_name"]}\r\n" +
+                    $"File_size:{result["File_size"]}\r\n" +
+                    $"Access:{result["Access"]}\r\n" +
+                    $"END\r\n";
+                }
+                writer.Write(response);
+                writer.Flush();
+
+
                 outputFileStream.Close();
 
             }

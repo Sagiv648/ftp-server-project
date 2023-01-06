@@ -5,8 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-using System.Windows.Forms;
-
 namespace ftp_server
 {
     static class Program
@@ -17,15 +15,15 @@ namespace ftp_server
         public static string envFileStoragePath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User);
 
 
-        public static Thread manager = new Thread(new ThreadStart(ManagerMethod));
-        public static Thread listenerThread = new Thread(new ParameterizedThreadStart(ListenerMethod));
+        static Thread manager = new Thread(new ThreadStart(ManagerMethod));
+        static Thread listenerThread = new Thread(new ParameterizedThreadStart(ListenerMethod));
 
-        public static AutoResetEvent listenerManagerCommunication = new AutoResetEvent(false);
+        static AutoResetEvent listenerManagerCommunication = new AutoResetEvent(false);
 
 
         static int workersNum = 50;
         static int backlog = 50;
-        public static Queue<TcpClient> clientsQueue = new Queue<TcpClient>();
+        static Queue<TcpClient> clientsQueue = new Queue<TcpClient>();
         static TcpListener serverListener;
 
         
@@ -102,7 +100,8 @@ namespace ftp_server
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Error occured\n{e.Message}");
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
                 return false;
 
             }

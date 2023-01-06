@@ -21,7 +21,7 @@ namespace ftp_server
 
         private static Mutex dbAccess = new Mutex();
 
-        private static string connectionString = Program.envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI" : Program.envConnStr;
+        private static string connectionString = Program.envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI;Initial Catalog=FTP_Server" : Program.envConnStr;
         private static string dbName = Program.envDbName == null ? "FTP_Server" : Program.envDbName;
         
 
@@ -51,13 +51,14 @@ namespace ftp_server
                 "User_id int )"
                 },
                 {
-                    "Files",
-                    $"use {dbName} " +
-                    $"create table Files (" +
-                    $"Id int NOT NULL PRIMARY KEY IDENTITY(1,1), " +
-                    $"User_Id int," +
-                    $"File_name nvarchar(100)," +
-                    $"Access BIT)"
+                "Files",
+                $"use {dbName} " +
+                $"create table Files (" +
+                $"Id int NOT NULL PRIMARY KEY IDENTITY(1,1), " +
+                $"User_Id int," +
+                $"File_name nvarchar(100)," +
+                $"File_size bigint," +
+                $"Access BIT)"
 
                 }
             };
@@ -68,7 +69,7 @@ namespace ftp_server
                 {
                     conn.Open();
                     SqlCommand sqlCmd = new SqlCommand("", conn);
-                    sqlCmd.CommandText = $"use {dbName} select name from sys.tables";
+                    sqlCmd.CommandText = $"select name from sys.tables";
                     using(SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -138,7 +139,7 @@ namespace ftp_server
                 {
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand();
-                    sqlCmd.CommandText = $"use {dbName} select * from Sessions where User_Ip = \'{clientIp}\'";
+                    sqlCmd.CommandText = $"select * from Sessions where User_Ip = \'{clientIp}\'";
 
                     using (SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
@@ -185,9 +186,9 @@ namespace ftp_server
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand();
                     if (initalCode == (int)Packet.Code.Session_Trying || initalCode == (int)Packet.Code.Sign_In)
-                        sqlCmd.CommandText = $"use {dbName} select User_id from Sessions where User_Ip = \'{clientIp}\'";
+                        sqlCmd.CommandText = $"select User_id from Sessions where User_Ip = \'{clientIp}\'";
                     else
-                        sqlCmd.CommandText = $"use {dbName} select Id from Users where Id = SCOPE_IDENTITY()";
+                        sqlCmd.CommandText = $"select Id from Users where Id = SCOPE_IDENTITY()";
 
                     using (SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
@@ -224,7 +225,7 @@ namespace ftp_server
                 {
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand(); 
-                    sqlCmd.CommandText = $"use {dbName} select Directory from Users where Id = {userId}";
+                    sqlCmd.CommandText = $"select Directory from Users where Id = {userId}";
 
                     using(SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
@@ -263,7 +264,7 @@ namespace ftp_server
                 {
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand();
-                    sqlCmd.CommandText = $"use {dbName} select File_name from Files where Access = 1";
+                    sqlCmd.CommandText = $"select File_name from Files where Access = 1";
                     using(SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -298,10 +299,11 @@ namespace ftp_server
             dbAccess.ReleaseMutex();
             return output;
         }
-
-        public static void WriteFile(string virtualPath, string userId, string access,out string msg)
+        //TODO: Write GetUserPrivateFiles
+        public static Dictionary<string,string> WriteFile(FileInfo file, string userId, string access,out string msg)
         {
             msg = "";
+            Dictionary<string,string> result= null;
             try
             {
 
@@ -311,8 +313,25 @@ namespace ftp_server
                 {
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand();
-                    sqlCmd.CommandText = $"use [{dbName}] insert Files values ({userId}, '{virtualPath}',{access})";
-                    sqlCmd.ExecuteNonQuery();
+                    string filePath = file.FullName.Remove(0, Program.envFileStoragePath.Length + 1);
+                    
+                    sqlCmd.CommandText = $"insert Files output inserted.* values ({userId}, '{filePath.Remove(0, filePath.IndexOf('\\')+1)}', {file.Length},{access})";
+                    using(SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            
+                            result = new Dictionary<string, string>()
+                            {
+                                {"Id", reader["Id"].ToString() },
+                                {"File_name", reader["File_name"].ToString() },
+                                {"File_size", reader["File_size"].ToString() },
+                                {"Access", reader["Access"].ToString() }
+
+                            };
+                        }
+                    }
+                    
                 }
             }
             catch (Exception e)
@@ -322,25 +341,26 @@ namespace ftp_server
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
                 msg = e.Message;
-                return;
+                return null;
                 
             }
             dbAccess.ReleaseMutex();
+            return result;
         }
         
         public static void CreateSession(SqlCommand sqlCmd,string userName, IPAddress clIp, int userId)
         {
             
 
-            sqlCmd.CommandText = $"use {dbName} insert into Sessions values (GETDATE(), \'{clIp}\', \'{userName} \', {userId})";
+            sqlCmd.CommandText = $"insert into Sessions values (GETDATE(), \'{clIp}\', \'{userName} \', {userId})";
             sqlCmd.ExecuteNonQuery();
         }
         public static void DestroySession(SqlCommand sqlCmd,int id)
         {
-            sqlCmd.CommandText = $"use {dbName} delete from Sessions where User_id={id}";
+            sqlCmd.CommandText = $"delete from Sessions where User_id={id}";
             sqlCmd.ExecuteNonQuery();
         }
-        //TODO: Write RegisterUser procedure - Needs testing
+        
 
         ///<summary>
         ///<param name="errMsg"> <b>errMsg</b> - Reference to a string object which will contain an error message.<br/>If no error occurs the string will be empty.</param><br/>
@@ -361,7 +381,7 @@ namespace ftp_server
                 {
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand();
-                    sqlCmd.CommandText = $"use {dbName} select Id from Users where User_email = \'{fieldValueMapping["UserEmail"]}\'";
+                    sqlCmd.CommandText = $"select Id from Users where User_email = \'{fieldValueMapping["UserEmail"]}\'";
                     using(SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -375,11 +395,11 @@ namespace ftp_server
                             return "User exists";
                         }
                     }
-                    sqlCmd.CommandText = $"use {dbName} insert into Users values (\'{fieldValueMapping["UserName"]}\'" +
+                    sqlCmd.CommandText = $"insert into Users values (\'{fieldValueMapping["UserName"]}\'" +
                     $",\'{fieldValueMapping["UserEmail"]}\', \'{fieldValueMapping["HashedPassword"]}\', \'\')";
 
                     sqlCmd.ExecuteNonQuery();
-                    sqlCmd.CommandText = $"use {dbName} select User_name, Id from Users where Id = SCOPE_IDENTITY()";
+                    sqlCmd.CommandText = $"select User_name, Id from Users where Id = SCOPE_IDENTITY()";
                     using (SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -389,7 +409,7 @@ namespace ftp_server
                         }
                     }
                     string userFile = Directory.CreateDirectory($"Files-space/{id}_{userName}").Name;
-                    sqlCmd.CommandText = $"use {dbName} update Users set Directory = \'{userFile}\' where Id = {id}";
+                    sqlCmd.CommandText = $"update Users set Directory = \'{userFile}\' where Id = {id}";
                     sqlCmd.ExecuteNonQuery();
 
                 }
@@ -415,7 +435,7 @@ namespace ftp_server
             return $"UserName:{userName}\r\nUserId:{id}";
         }
 
-        //TODO: Write CheckUserLogin procedure
+        
 
         /// <summary>
         /// The procedure checks 2 things: <br/>1) If the user exists at all.<br/>2) If the hashed passwords (hashed with EasyEncryption's SHA256) match.
@@ -441,7 +461,7 @@ namespace ftp_server
                 {
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand();
-                    sqlCmd.CommandText = $"use {dbName} select * from Users where User_email=\'{fieldValueMapping["UserEmail"]}\'";
+                    sqlCmd.CommandText = $"select * from Users where User_email=\'{fieldValueMapping["UserEmail"]}\'";
                     using(SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -483,7 +503,7 @@ namespace ftp_server
 
         }
 
-        //TODO: Write UserLogout procedure
+        
         public static void UserLogout(out string errMsg, Dictionary<string, string> fieldValueMapping, IPAddress clIp)
         {
             errMsg = "";

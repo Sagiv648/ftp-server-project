@@ -88,15 +88,18 @@ namespace ftp_client
 
         private void PublicFilesListView_MouseClick(object sender, MouseEventArgs e)
         {
+            
             if(e.Button == MouseButtons.Left)
             {
                 ListView list = (ListView)sender;
+                
                 list.SelectedItems[0].ForeColor = Color.Blue == list.SelectedItems[0].ForeColor ? Color.Black : Color.Blue;
                 if (list.SelectedItems[0].ForeColor == Color.Blue)
                     fileIds.Add(list.SelectedIndices[0]);
                 else
                     fileIds.Remove(list.SelectedIndices[0]);
             }
+            
         }
 
         private void Open_Folder(object sender, MouseEventArgs e)
@@ -120,8 +123,26 @@ namespace ftp_client
 
         private void refreshListBtn_Click(object sender, EventArgs e)
         {
-            
-            
+            Dictionary<string, string> result = Connection.SendRefreshRequest(response["UserName"], response["UserId"]);
+            if(result == null)
+            {
+                MessageBox.Show("Error occured with refreshing, please check your network", "Network error", MessageBoxButtons.OK, MessageBoxIcon.Error );
+                return;
+            }
+            string[] publicFiles = result["PublicFiles"].Split('|');
+            publicFilesListView.Items.Clear();
+            if (publicFiles[0] != "")
+            {
+                for (int i = 0; i < publicFiles.Length; i++)
+                {
+                    string[] fields = publicFiles[i].Split(':');
+                    publicFilesListView.Items.Add(new ListViewItem(fields[0]));
+                    publicFilesListView.Items[i].SubItems.Add(fields[1]);
+                    publicFilesListView.Items[i].SubItems.Add(fields[2]);
+                }
+            }
+            MessageBox.Show("List refreshed.", "Refreshing", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
         }
 
         private void downloadFileBtn_Click(object sender, EventArgs e)

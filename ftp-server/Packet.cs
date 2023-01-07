@@ -24,6 +24,7 @@ namespace ftp_server
             File_Download = 4,
             File_Delete = 5,
             File_Rename = 6,
+            Public_Files_Refresh = 7,
             Session_Trying = 10,
             Action_Confirm = 200,
             Action_Denied = 400,
@@ -108,7 +109,21 @@ namespace ftp_server
                     case (int)Code.File_Delete:
 
                         return (int)Code.File_Delete;
-                        
+                    case (int)Code.Public_Files_Refresh:
+                        Console.WriteLine("enter here?");
+                        string errMsg = "";
+                        string publicFiles = Database.GetAllPublicFiles(out errMsg);
+                        Console.WriteLine(errMsg);
+                        if(errMsg != "")
+                            return (int)Code.Action_Denied;
+                        string packet = $"Code:{((int)Code.Action_Confirm)}\r\nPublicFiles:{publicFiles}\r\nEND\r\n";
+                        Console.WriteLine(packet);
+                        using (StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.ASCII))
+                        {
+                            writer.Write(packet);
+                            writer.Flush();
+                        }
+                        return (int)Code.Public_Files_Refresh;
 
 
 

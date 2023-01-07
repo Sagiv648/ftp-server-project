@@ -52,6 +52,7 @@ namespace ftp_client
             File_Download = 4,
             File_Delete = 5,
             File_Rename = 6,
+            Public_Files_Refresh = 7,
             Session_Trying = 10,
             Action_Confirm = 200,
             Action_Denied = 400,
@@ -79,6 +80,52 @@ namespace ftp_client
             return true;
         }
 
+        public static Dictionary<string,string> SendRefreshRequest(string userName, string userId)
+        {
+            
+            string packet = $"Code:{((int)Code.Public_Files_Refresh)}\r\n" +
+                $"UserName:{userName}\r\nUserId:{userId}\r\nEND\r\n";
+            Dictionary<string, string> result = null;
+            try
+            {
+                using (client = new TcpClient())
+                {
+                    client.Connect(server);
+                    StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
+                    
+                    
+                    writer.Write(packet);
+                    writer.Flush();
+
+                    StreamReader reader = new StreamReader(client.GetStream(), Encoding.ASCII);
+                    result = new Dictionary<string, string>();
+                    string tmp = "";
+                    while ((tmp = reader.ReadLine()) != null)
+                    {
+                        string[] tempArr = tmp.Split(':');
+                        if (tempArr[0] == "Your_Files" || tempArr[0] == "PublicFiles")
+                        {
+                            string files = "";
+                            for (int i = 1; i < tempArr.Length; i++)
+                                files += $"{tempArr[i]}:";
+                            files = files.Remove(files.Length - 1, 1);
+
+                            result.Add(tempArr[0], files);
+                        }
+                        else if(tempArr.Length == 2)
+                            result.Add(tempArr[0], tempArr[1]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                return null;
+            }
+            return result;
+        }
 
         /// <summary>
         /// Will send a userInfo request to the server to try for a session.

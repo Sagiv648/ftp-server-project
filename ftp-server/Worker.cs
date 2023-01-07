@@ -205,7 +205,9 @@ namespace ftp_server
                             writer.Flush();
                             break;
 
+                        case (int)Packet.Code.Public_Files_Refresh:
 
+                            break;
                         default:
                             Console.WriteLine("wild one");
                             writer.Write(responsePacket);

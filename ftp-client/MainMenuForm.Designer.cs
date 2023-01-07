@@ -70,6 +70,7 @@
             this.refreshListBtn.TabIndex = 1;
             this.refreshListBtn.Text = "Refresh List";
             this.refreshListBtn.UseVisualStyleBackColor = true;
+            this.refreshListBtn.Click += refreshListBtn_Click;
             // 
             // publicFilesLbl
             // 

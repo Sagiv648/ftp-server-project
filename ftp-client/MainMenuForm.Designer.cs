@@ -29,10 +29,8 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainMenuForm));
-            this.publicFilesDisplayer = new System.Windows.Forms.ListBox();
             this.refreshListBtn = new System.Windows.Forms.Button();
             this.publicFilesLbl = new System.Windows.Forms.Label();
-            this.myFilesDisplayer = new System.Windows.Forms.ListBox();
             this.myFilesLbl = new System.Windows.Forms.Label();
             this.uploadFileBtn = new System.Windows.Forms.Button();
             this.downloadFileBtn = new System.Windows.Forms.Button();
@@ -48,18 +46,17 @@
             this.searchUploadedTxtbox = new System.Windows.Forms.TextBox();
             this.beginUploadBtn = new System.Windows.Forms.Button();
             this.removeSelectedBtn = new System.Windows.Forms.Button();
+            this.publicFilesListView = new System.Windows.Forms.ListView();
+            this.fileIdHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.fileNameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.fileSizeHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.privateFilesListView = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.renameFileBtn = new System.Windows.Forms.Button();
             this.uploadedFilesPanel.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // publicFilesDisplayer
-            // 
-            this.publicFilesDisplayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.publicFilesDisplayer.FormattingEnabled = true;
-            this.publicFilesDisplayer.Location = new System.Drawing.Point(12, 231);
-            this.publicFilesDisplayer.Name = "publicFilesDisplayer";
-            this.publicFilesDisplayer.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.publicFilesDisplayer.Size = new System.Drawing.Size(439, 236);
-            this.publicFilesDisplayer.TabIndex = 0;
             // 
             // refreshListBtn
             // 
@@ -85,16 +82,6 @@
             this.publicFilesLbl.TabIndex = 2;
             this.publicFilesLbl.Text = "Public files:";
             // 
-            // myFilesDisplayer
-            // 
-            this.myFilesDisplayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.myFilesDisplayer.FormattingEnabled = true;
-            this.myFilesDisplayer.HorizontalScrollbar = true;
-            this.myFilesDisplayer.Location = new System.Drawing.Point(808, 99);
-            this.myFilesDisplayer.Name = "myFilesDisplayer";
-            this.myFilesDisplayer.Size = new System.Drawing.Size(196, 262);
-            this.myFilesDisplayer.TabIndex = 3;
-            // 
             // myFilesLbl
             // 
             this.myFilesLbl.AutoSize = true;
@@ -112,7 +99,7 @@
             this.uploadFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.uploadFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.uploadFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.uploadFileBtn.Location = new System.Drawing.Point(808, 386);
+            this.uploadFileBtn.Location = new System.Drawing.Point(808, 348);
             this.uploadFileBtn.Name = "uploadFileBtn";
             this.uploadFileBtn.Size = new System.Drawing.Size(118, 42);
             this.uploadFileBtn.TabIndex = 5;
@@ -151,7 +138,7 @@
             this.deleteFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.deleteFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.deleteFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.deleteFileBtn.Location = new System.Drawing.Point(808, 444);
+            this.deleteFileBtn.Location = new System.Drawing.Point(1140, 348);
             this.deleteFileBtn.Name = "deleteFileBtn";
             this.deleteFileBtn.Size = new System.Drawing.Size(118, 42);
             this.deleteFileBtn.TabIndex = 10;
@@ -282,6 +269,83 @@
             this.removeSelectedBtn.Visible = false;
             this.removeSelectedBtn.Click += new System.EventHandler(this.removeSelectedBtn_Click_1);
             // 
+            // publicFilesListView
+            // 
+            this.publicFilesListView.AllowColumnReorder = true;
+            this.publicFilesListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.fileIdHeader,
+            this.fileNameHeader,
+            this.fileSizeHeader});
+            this.publicFilesListView.FullRowSelect = true;
+            this.publicFilesListView.GridLines = true;
+            this.publicFilesListView.HideSelection = false;
+            this.publicFilesListView.Location = new System.Drawing.Point(12, 234);
+            this.publicFilesListView.Name = "publicFilesListView";
+            this.publicFilesListView.Size = new System.Drawing.Size(450, 243);
+            this.publicFilesListView.TabIndex = 19;
+            this.publicFilesListView.UseCompatibleStateImageBehavior = false;
+            this.publicFilesListView.View = System.Windows.Forms.View.Details;
+            // 
+            // fileIdHeader
+            // 
+            this.fileIdHeader.Text = "File Id";
+            this.fileIdHeader.Width = 150;
+            // 
+            // fileNameHeader
+            // 
+            this.fileNameHeader.Text = "File Name";
+            this.fileNameHeader.Width = 150;
+            // 
+            // fileSizeHeader
+            // 
+            this.fileSizeHeader.Text = "File Size";
+            this.fileSizeHeader.Width = 146;
+            // 
+            // privateFilesListView
+            // 
+            this.privateFilesListView.AllowColumnReorder = true;
+            this.privateFilesListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2,
+            this.columnHeader3});
+            this.privateFilesListView.FullRowSelect = true;
+            this.privateFilesListView.GridLines = true;
+            this.privateFilesListView.HideSelection = false;
+            this.privateFilesListView.Location = new System.Drawing.Point(808, 99);
+            this.privateFilesListView.Name = "privateFilesListView";
+            this.privateFilesListView.Size = new System.Drawing.Size(450, 243);
+            this.privateFilesListView.TabIndex = 20;
+            this.privateFilesListView.UseCompatibleStateImageBehavior = false;
+            this.privateFilesListView.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "File Id";
+            this.columnHeader1.Width = 150;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "File Name";
+            this.columnHeader2.Width = 150;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "File Size";
+            this.columnHeader3.Width = 146;
+            // 
+            // renameFileBtn
+            // 
+            this.renameFileBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
+            this.renameFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.renameFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.renameFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.renameFileBtn.Location = new System.Drawing.Point(978, 348);
+            this.renameFileBtn.Name = "renameFileBtn";
+            this.renameFileBtn.Size = new System.Drawing.Size(118, 42);
+            this.renameFileBtn.TabIndex = 21;
+            this.renameFileBtn.Text = "Rename File";
+            this.renameFileBtn.UseVisualStyleBackColor = true;
+            // 
             // MainMenuForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -289,7 +353,10 @@
             this.AutoSize = true;
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1091, 571);
+            this.ClientSize = new System.Drawing.Size(1270, 565);
+            this.Controls.Add(this.renameFileBtn);
+            this.Controls.Add(this.privateFilesListView);
+            this.Controls.Add(this.publicFilesListView);
             this.Controls.Add(this.removeSelectedBtn);
             this.Controls.Add(this.beginUploadBtn);
             this.Controls.Add(this.uploadedFilesPanel);
@@ -299,10 +366,8 @@
             this.Controls.Add(this.downloadFileBtn);
             this.Controls.Add(this.uploadFileBtn);
             this.Controls.Add(this.myFilesLbl);
-            this.Controls.Add(this.myFilesDisplayer);
             this.Controls.Add(this.publicFilesLbl);
             this.Controls.Add(this.refreshListBtn);
-            this.Controls.Add(this.publicFilesDisplayer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "MainMenuForm";
@@ -315,10 +380,8 @@
         }
 
         #endregion
-        private System.Windows.Forms.ListBox publicFilesDisplayer;
         private System.Windows.Forms.Button refreshListBtn;
         private System.Windows.Forms.Label publicFilesLbl;
-        private System.Windows.Forms.ListBox myFilesDisplayer;
         private System.Windows.Forms.Label myFilesLbl;
         private System.Windows.Forms.Button uploadFileBtn;
         private System.Windows.Forms.Button downloadFileBtn;
@@ -334,5 +397,14 @@
         private System.Windows.Forms.Button setPublicBtn;
         private System.Windows.Forms.Button beginUploadBtn;
         private System.Windows.Forms.Button removeSelectedBtn;
+        private System.Windows.Forms.ListView publicFilesListView;
+        private System.Windows.Forms.ColumnHeader fileIdHeader;
+        private System.Windows.Forms.ColumnHeader fileNameHeader;
+        private System.Windows.Forms.ColumnHeader fileSizeHeader;
+        private System.Windows.Forms.ListView privateFilesListView;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.Button renameFileBtn;
     }
 }

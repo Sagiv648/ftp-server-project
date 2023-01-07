@@ -11,6 +11,7 @@ using System.Net;
 using EasyEncryption;
 using System.IO;
 using System.Data.SqlTypes;
+using System.Data;
 
 namespace ftp_server
 {
@@ -19,10 +20,10 @@ namespace ftp_server
     {
 
 
-        private static Mutex dbAccess = new Mutex();
+        static readonly Mutex dbAccess = new Mutex();
 
-        private static string connectionString = Program.envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI;Initial Catalog=FTP_Server" : Program.envConnStr;
-        private static string dbName = Program.envDbName == null ? "FTP_Server" : Program.envDbName;
+        static readonly string connectionString = Program.envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI;Initial Catalog=FTP_Server" : Program.envConnStr;
+        
         
 
         
@@ -32,7 +33,6 @@ namespace ftp_server
             {
                 {
                     "Users",
-                    $"use {dbName} " +
                 $"create table Users (" +
                 $"Id int NOT NULL PRIMARY KEY IDENTITY(1,1), " +
                 $"User_name nvarchar(50), " +
@@ -42,7 +42,6 @@ namespace ftp_server
                 },
                 {
                     "Sessions",
-                    $"use {dbName} " +
                 $"create table Sessions (" +
                 $"Id int NOT NULL PRIMARY KEY IDENTITY(1,1), " +
                 $"Logged_in SMALLDATETIME, " +
@@ -52,7 +51,6 @@ namespace ftp_server
                 },
                 {
                 "Files",
-                $"use {dbName} " +
                 $"create table Files (" +
                 $"Id int NOT NULL PRIMARY KEY IDENTITY(1,1), " +
                 $"User_Id int," +
@@ -257,38 +255,32 @@ namespace ftp_server
         {
             msg = "";
             dbAccess.WaitOne();
-            string output = "";
+            string response = "";
             try
             {
                 using(SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand();
-                    sqlCmd.CommandText = $"select File_name from Files where Access = 1";
-                    using(SqlDataReader reader = sqlCmd.ExecuteReader())
+                    sqlCmd.CommandText = $"select * from Files where Access = 1";
+                    using (SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            output += reader["File_name"].ToString() + '|';
-
+                            string fileName = reader["File_name"].ToString();
+                            
+                            response += $"{reader["Id"]}:{fileName.Remove(0, fileName.IndexOf('\\') + 1)}:{reader["File_size"]}|";
                         }
-                        if (output != "")
-                            output = output.Substring(0, output.Length - 1);
+                        if (response != "")
+                            response = response.Remove(response.Length - 1, 1);
                     }
-                }
-
-                
-               
-                
-
-                
-                
+                }   
             }
             catch (Exception ex)
             {
                 dbAccess.ReleaseMutex();
                 msg = ex.Message;
-                
+        
                 Console.WriteLine(msg + "{0}", ex.Source);
                 Console.WriteLine(ex.StackTrace);
                 return "";
@@ -297,9 +289,86 @@ namespace ftp_server
             }
             
             dbAccess.ReleaseMutex();
-            return output;
+            return response;
         }
-        //TODO: Write GetUserPrivateFiles
+        
+
+        public static FileInfo GetFileById(string fileId, out string msg)
+        {
+            msg = "";
+            FileInfo response = null;
+            dbAccess.WaitOne();
+            try
+            {
+                using(SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    sqlCmd.CommandText = $"select File_name from Files where Id = {fileId}";
+                    using(SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while(reader.Read())
+                        {
+                            response = new FileInfo($"{Program.envFileStoragePath}\\{reader["File_name"]}");
+                        }
+                        if(response == null)
+                        {
+                            dbAccess.ReleaseMutex();
+                            return null;
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                dbAccess.ReleaseMutex();
+                msg = ex.Message;
+                Console.WriteLine(ex.StackTrace);
+                return null;
+                
+            }
+            dbAccess.ReleaseMutex();
+            return response;
+        }
+
+        public static string GetUserFilesById(int userId,out string msg)
+        {
+            msg = "";
+            string response = "";
+            dbAccess.WaitOne();
+            try
+            {
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand sqlCmd = conn.CreateCommand();
+                    sqlCmd.CommandText = $"select * from Files where User_Id = {userId}";
+                    using (SqlDataReader reader = sqlCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string fileName = reader["File_name"].ToString();
+                            response += $"{reader["Id"]}:{fileName.Remove(0, fileName.IndexOf('\\')+1)}:{reader["File_size"]}|";
+                        }
+                        if (response != "")
+                            response = response.Remove(response.Length - 1, 1);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                dbAccess.ReleaseMutex();
+                msg = ex.Message;
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                return "";
+            }
+            dbAccess.ReleaseMutex();
+            Console.WriteLine(response);
+            return response;
+        }
         public static Dictionary<string,string> WriteFile(FileInfo file, string userId, string access,out string msg)
         {
             msg = "";
@@ -315,7 +384,7 @@ namespace ftp_server
                     SqlCommand sqlCmd = conn.CreateCommand();
                     string filePath = file.FullName.Remove(0, Program.envFileStoragePath.Length + 1);
                     
-                    sqlCmd.CommandText = $"insert Files output inserted.* values ({userId}, '{filePath.Remove(0, filePath.IndexOf('\\')+1)}', {file.Length},{access})";
+                    sqlCmd.CommandText = $"insert Files output inserted.* values ({userId}, '{filePath}', {file.Length},{access})";
                     using(SqlDataReader reader = sqlCmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -351,7 +420,6 @@ namespace ftp_server
         public static void CreateSession(SqlCommand sqlCmd,string userName, IPAddress clIp, int userId)
         {
             
-
             sqlCmd.CommandText = $"insert into Sessions values (GETDATE(), \'{clIp}\', \'{userName} \', {userId})";
             sqlCmd.ExecuteNonQuery();
         }

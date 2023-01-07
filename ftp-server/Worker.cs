@@ -39,7 +39,7 @@ namespace ftp_server
         public static void WorkerMethod(object obj)
         {
             WorkerInput input = (WorkerInput)obj;
-            //DirectoryInfo directoy = null;
+            
             Dictionary<string, string> fields = new Dictionary<string, string>();
             int bufferSize = (int)Math.Pow(2, 10) * 64;
 
@@ -55,6 +55,7 @@ namespace ftp_server
                 fields.Clear();
                 
                 input.SetWorkFinishedStatus(true);
+
                 input.SetWorkFinishedStatus(!input.GetSignal().WaitOne());
                 Dictionary<string, string> filesMapping = new Dictionary<string, string>()
                     {
@@ -112,7 +113,7 @@ namespace ftp_server
                             writer.Write(response);
                             writer.Flush();
                             Console.WriteLine("session valid");
-
+                            input.GetClient().Dispose();
                             continue;
 
                         case (int)Packet.Code.Sign_Up:

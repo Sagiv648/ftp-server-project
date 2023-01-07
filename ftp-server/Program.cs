@@ -10,20 +10,20 @@ namespace ftp_server
     static class Program
     {
 
-        public static string envConnStr = Environment.GetEnvironmentVariable("sql-connection-string", EnvironmentVariableTarget.User);
-        public static string envDbName = Environment.GetEnvironmentVariable("ftp-server-db", EnvironmentVariableTarget.User);
-        public static string envFileStoragePath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User);
+        public static readonly string envConnStr = Environment.GetEnvironmentVariable("sql-connection-string", EnvironmentVariableTarget.User);
+        public static readonly string envDbName = Environment.GetEnvironmentVariable("ftp-server-db", EnvironmentVariableTarget.User);
+        public static readonly string envFileStoragePath = Environment.GetEnvironmentVariable("Server-files-storage", EnvironmentVariableTarget.User);
 
 
-        static Thread manager = new Thread(new ThreadStart(ManagerMethod));
-        static Thread listenerThread = new Thread(new ParameterizedThreadStart(ListenerMethod));
+        static readonly Thread manager = new Thread(new ThreadStart(ManagerMethod));
+        static readonly Thread listenerThread = new Thread(new ParameterizedThreadStart(ListenerMethod));
 
-        static AutoResetEvent listenerManagerCommunication = new AutoResetEvent(false);
+        static readonly AutoResetEvent listenerManagerCommunication = new AutoResetEvent(false);
 
 
-        static int workersNum = 50;
-        static int backlog = 50;
-        static Queue<TcpClient> clientsQueue = new Queue<TcpClient>();
+        static readonly int workersNum = 50;
+        static readonly int backlog = 50;
+        static readonly Queue<TcpClient> clientsQueue = new Queue<TcpClient>();
         static TcpListener serverListener;
 
         
@@ -34,7 +34,7 @@ namespace ftp_server
             string message;
             if (!Database.InitTables(out message))
             {
-                //TODO: Display error message in the admin panel
+                
                 Console.WriteLine(message);
             }
             
@@ -74,11 +74,7 @@ namespace ftp_server
             //processinglastreqlbl.Visible = false;
 
 
-            //Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new ServerMainForm());
-
-
+           
         }
 
         static bool InitServer()
@@ -137,8 +133,9 @@ namespace ftp_server
                 {
                     if (Worker.workers[i].GetWorkerInput().IsWorkFinished())
                     {
+
                         Worker.workers[i].GetWorkerInput().SetClient(clientsQueue.Dequeue());
-                        //Worker.workers[i].GetWorkerInput().SetWorkFinishedStatus(false);
+                        
                         Worker.workers[i].GetWorkerInput().GetSignal().Set();
                         break;
 

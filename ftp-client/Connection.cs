@@ -110,6 +110,16 @@ namespace ftp_client
                 while( (temp = reader.ReadLine()) != "END")
                 {
                     string[] tempArr = temp.Split(':');
+                    if (tempArr[0] == "Your_Files" || tempArr[0] == "PublicFiles")
+                    {
+                        string files = "";
+                        for (int i = 1; i < tempArr.Length; i++)
+                            files += $"{tempArr[i]}:";
+                        files = files.Remove(files.Length - 1, 1);
+                        
+                        output.Add(tempArr[0], files);
+                    }
+                    else
                     output.Add(tempArr[0], tempArr[1]);
                 }
             }
@@ -320,22 +330,17 @@ namespace ftp_client
 
         
 
-        public static bool SendDownloadRequest(string userName, string userId, string virtualPath, string physicalPathDestination)
+        public static bool SendDownloadRequest(string userName, string userId, string fileId, string physicalPathDestination)
         {
             StringBuilder packetBuilder = new StringBuilder();
 
-            //"Code:1%\r\n" +
-            //"UserId:2%\r\n" +
-            //"UserName:3%\r\n" +
-            //"RootDirectoryName:4%\r\n" +
-            //"%" +
-            //"END\r\n";
             packetBuilder = packetBuilder.Append(headerDownloadRequest);
             packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Download).ToString());
             packetBuilder = packetBuilder.Replace("2%", userId);
             packetBuilder = packetBuilder.Replace("3%", userName);
-            packetBuilder = packetBuilder.Replace("%", "File:"+virtualPath);
+            packetBuilder = packetBuilder.Replace("%", $"File:{fileId}");
             //Console.WriteLine(packetBuilder.ToString());
+            Console.WriteLine(packetBuilder);
             
             try
             {
@@ -352,7 +357,7 @@ namespace ftp_client
                 while ((tmp = reader.ReadLine()) != null)
                 {
                     Console.WriteLine(tmp);
-                    tmp = reader.ReadLine();
+                    //tmp = reader.ReadLine();
                     tmpArr = tmp.Split(':');
                     if (tmpArr.Length == 2)
                         break;

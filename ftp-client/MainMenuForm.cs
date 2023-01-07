@@ -17,7 +17,7 @@ namespace ftp_client
     public partial class MainMenuForm : Form
     {
         
-        string userFile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        //string userFile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         Dictionary<string, string> response = null;
 
         CheckedListBox uploadedContainer = null;
@@ -27,6 +27,7 @@ namespace ftp_client
         string selectedPath = "";
         List<string> paths = new List<string>();
         FilesExplorer explorer = null;
+        List<int> fileIds = new List<int>();
         public MainMenuForm()
         {
             InitializeComponent();
@@ -42,7 +43,7 @@ namespace ftp_client
             }
 
             FormClosing += Program.CloseForm;
-            
+            publicFilesListView.MouseDoubleClick += PublicFilesListView_MouseClick;
 
          
 
@@ -52,17 +53,30 @@ namespace ftp_client
             {
                 userDataUserNameLbl.Text = userDataUserNameLbl.Text.Replace("%", $"{response["UserName"]}");
                 string[] files = response["Your_Files"].Split('|');
-                if(files.Length > 0 && files[0] != "")
+                Console.WriteLine(response["Your_Files"]);
+                if (files[0] != "")
                 {
-                    for (int i = 0; i < files.Length; i++)
+                    for(int i = 0; i < files.Length; i++)
                     {
-                        myFilesDisplayer.Items.Add(files[i]);
+                        string[] fields = files[i].Split(':');
+                        privateFilesListView.Items.Add(new ListViewItem(fields[0]));
+                        privateFilesListView.Items[i].SubItems.Add(fields[1]);
+                        privateFilesListView.Items[i].SubItems.Add(fields[2]);
                     }
                 }
+
                 string[] publicFiles = response["PublicFiles"].Split('|');
-                for(int i = 0;i < publicFiles.Length; i++)
+                Console.WriteLine(response["PublicFiles"]);
+
+                if (publicFiles[0] != "")
                 {
-                    publicFilesDisplayer.Items.Add(publicFiles[i]);
+                    for (int i = 0; i < publicFiles.Length; i++)
+                    {
+                        string[] fields = publicFiles[i].Split(':');
+                        publicFilesListView.Items.Add(new ListViewItem(fields[0]));
+                        publicFilesListView.Items[i].SubItems.Add(fields[1]);
+                        publicFilesListView.Items[i].SubItems.Add(fields[2]);
+                    }
                 }
                
             }
@@ -72,6 +86,18 @@ namespace ftp_client
             
         }
 
+        private void PublicFilesListView_MouseClick(object sender, MouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Left)
+            {
+                ListView list = (ListView)sender;
+                list.SelectedItems[0].ForeColor = Color.Blue == list.SelectedItems[0].ForeColor ? Color.Black : Color.Blue;
+                if (list.SelectedItems[0].ForeColor == Color.Blue)
+                    fileIds.Add(list.SelectedIndices[0]);
+                else
+                    fileIds.Remove(list.SelectedIndices[0]);
+            }
+        }
 
         private void Open_Folder(object sender, MouseEventArgs e)
         {
@@ -100,20 +126,28 @@ namespace ftp_client
 
         private void downloadFileBtn_Click(object sender, EventArgs e)
         {
-            if(publicFilesDisplayer.SelectedItems.Count > 0)
+            if(fileIds.Count > 0)
             {
-               
-                
+
+                //Console.WriteLine(publicFilesListView.SelectedItems[0].Text+":"+ publicFilesListView.SelectedItems[0].SubItems[1].Text + ":" + publicFilesListView.SelectedItems[0].SubItems[2].Text);
                 FolderBrowserDialog fb = new FolderBrowserDialog();
                 if(fb.ShowDialog() != DialogResult.OK)
                 {
                     return; 
                 }
-                
-                foreach (var item in publicFilesDisplayer.SelectedItems)
-                {
-                   Connection.SendDownloadRequest(response["UserName"], response["UserId"], item.ToString(), fb.SelectedPath);
 
+                
+
+                foreach (var item in publicFilesListView.Items)
+                {
+                    Console.WriteLine(item.ToString());
+                }
+
+                foreach (int item in fileIds)
+                {
+                    
+                    Connection.SendDownloadRequest(response["UserName"], response["UserId"], publicFilesListView.Items[item].Text, fb.SelectedPath);
+                    publicFilesListView.Items[item].ForeColor = Color.Black;
                 }
                 Process.Start("explorer.exe", fb.SelectedPath);
             }
@@ -126,7 +160,7 @@ namespace ftp_client
 
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "All files (*.*)|*.*";
-            fileDialog.InitialDirectory = userFile != "" ? userFile : Environment.GetLogicalDrives()[0];
+            //fileDialog.InitialDirectory = userFile != "" ? userFile : Environment.GetLogicalDrives()[0];
 
             
             
@@ -358,10 +392,15 @@ namespace ftp_client
                 if(codeTest == (int)Connection.Code.Action_Confirm)
                 {
                     if(access == 1)
-                        publicFilesDisplayer.Items.Add(uploadResponse["File_name"]);
-                    else
-                        myFilesDisplayer.Items.Add(uploadResponse["File_name"]);
+                    {
+                        publicFilesListView.Items.Add(uploadResponse["File_Id"]);
+                        publicFilesListView.Items[publicFilesListView.Items.Count - 1].SubItems.Add(uploadResponse["File_name"]);
+                        publicFilesListView.Items[publicFilesListView.Items.Count - 1].SubItems.Add(uploadResponse["File_size"]);
+                    }
 
+                    privateFilesListView.Items.Add(uploadResponse["File_Id"]);
+                    privateFilesListView.Items[privateFilesListView.Items.Count - 1].SubItems.Add(uploadResponse["File_name"]);
+                    privateFilesListView.Items[privateFilesListView.Items.Count - 1].SubItems.Add(uploadResponse["File_size"]);
                     Console.WriteLine($"{physicalPath} transmitted successfully.");
                     
                     

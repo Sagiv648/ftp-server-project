@@ -32,36 +32,7 @@ namespace ftp_server
 
         }
 
-
-        //Header packets that should always be followed with data packets are (from client to server and the opposite):
-        //1. Header packets with File_Upload code
-        //2. Header packets with File_Download code
-
-
-
-        //Header Packet should look like this
-        /* UserName:[]\r\n
-         * UserEmail:[]\r\n
-         * Code:[]\r\n
-         * Directory:[][Directory]\r\n
-         * FileName:[]\r\n
-         * FileSize:[]\r\n
-         * AccessModifier:[]\r\n
-         * 
-         * 
-         * 
-         * 
-         */
-
-        //------------------------------------------
-
-        //Data Packet should look like this
-        /*
-         * File bytes...
-         */
-
-       
-        static string filesSpace = Program.envFileStoragePath == null ? $"{Directory.GetCurrentDirectory()}\\Files-space" : Program.envFileStoragePath;
+        static readonly string filesSpace = Program.envFileStoragePath == null ? $"{Directory.GetCurrentDirectory()}\\Files-space" : Program.envFileStoragePath;
 
         public static string BuildUserInfoPacket(TcpClient cl, string response, int initialCode)
         {
@@ -88,34 +59,17 @@ namespace ftp_server
                 userId = int.Parse(response.Split('\r', '\n').ToList().Find(x => x.Contains("UserId")).TrimEnd(new char[] { '\r', '\n' }).Split(':')[1]);
             if (userId == -1)
                 return null;
-            
-
-            //TODO: Enumerate user files with the db through id
-            string directory = Database.GetUserDirectoryById(out errMsg, userId);
-            string fileNames = "";
-            string clientRootPath = filesSpace + $"\\{directory}";
-            
-            DirectoryInfo clientDirectory = new DirectoryInfo($"{clientRootPath}");
-            List<FileInfo> clientFiles = clientDirectory.GetFiles("*",SearchOption.AllDirectories).ToList();
-            
-            int i = 0;
-            fileNames = "";
-            for (i = 0; i < clientFiles.Count; i++)
-            {
-
-                if (i == clientFiles.Count - 1)
-                {
-                    fileNames += clientFiles[i].FullName.Remove(0,clientRootPath.Length+1);
-                }
-                else
-                {
-                    fileNames += clientFiles[i].FullName.Remove(0,clientRootPath.Length+1) + '|';
-                }
-            }
-            
-            packetOut = packetOut.Replace("1%", fileNames); 
+           
+            errMsg = "";
+            packetOut = packetOut.Replace("1%", Database.GetUserFilesById(userId, out errMsg));
+            if (errMsg != "")
+                return null;
             packetOut = packetOut.Replace("2%", Database.GetAllPublicFiles(out errMsg));
-            //Console.WriteLine("Packet out is\n{0}", packetOut);
+            if (errMsg != "")
+                return null;
+
+
+            Console.WriteLine(packetOut);
             return packetOut;
         }
 
@@ -244,7 +198,7 @@ namespace ftp_server
                 {
                     response = $"Code:{(int)Code.Action_Confirm}\r\n" +
                     $"File_Id:{result["Id"]}\r\n" +
-                    $"File_name:{result["File_name"]}\r\n" +
+                    $"File_name:{result["File_name"].Remove(0, result["File_name"].IndexOf('\\')+1)}\r\n" +
                     $"File_size:{result["File_size"]}\r\n" +
                     $"Access:{result["Access"]}\r\n" +
                     $"END\r\n";
@@ -269,31 +223,38 @@ namespace ftp_server
         {
             try
             {
-                string storagePath = filesSpace;
+                //string storagePath = filesSpace;
                 StreamReader reader = new StreamReader(client.GetStream());
                 StreamWriter writer = new StreamWriter(client.GetStream());
-                //Console.WriteLine("Here?");
-                DirectoryInfo dir = new DirectoryInfo(storagePath);
-                //Console.WriteLine(dir.FullName);
-                
-                FileInfo[] allFiles = dir.GetFiles($"*", SearchOption.AllDirectories);
-                FileInfo file = null;
-                foreach (var item in allFiles)
-                {
-                    
-                    if (item.FullName.Contains(bufferInput["File"]) && item.Attributes != FileAttributes.Hidden)
-                    {
-                        file = item;
-                        break;
-                    }
-                }
-                if (file == null)
-                {
-                    client.Close();
-                    return false;
+                //DirectoryInfo dir = new DirectoryInfo(storagePath);
 
+                //TODO: Query the db to get the file path by the file Id -> storagePath + file path = absolute path to the file.
+                //FileInfo[] allFiles = dir.GetFiles($"*", SearchOption.AllDirectories);
+                //FileInfo file = null;
+                //foreach (var item in allFiles)
+                //{
+
+                //    if (item.FullName.Contains(bufferInput["File"]) && item.Attributes != FileAttributes.Hidden)
+                //    {
+                //        file = item;
+                //        break;
+                //    }
+                //}
+                //if (file == null)
+                //{
+                //    client.Close();
+                //    return false;
+
+                //}
+                string errMsg = "";
+                FileInfo file = Database.GetFileById(bufferInput["File"],out errMsg);
+                if(file == null || errMsg != "")
+                {
+                    if(errMsg != "")
+                        Console.WriteLine(errMsg);
+                    return false;
                 }
-                //Console.WriteLine(file.FullName);
+                Console.WriteLine(file.Length);
                 writer.Write($"\r\n{file.Name}:{file.Length}\r\nEND\r\n");
                 writer.Flush();
                 string tmp = "";
@@ -312,8 +273,6 @@ namespace ftp_server
                     
                 FileStream downloadedFile = file.OpenRead();
                 long fSize = file.Length;
-                //int read = 0;
-                //long totalRead = 0;
                 byte[] buffer = new byte[64000];
 
                 downloadedFile.CopyTo(client.GetStream());

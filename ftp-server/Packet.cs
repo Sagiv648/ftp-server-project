@@ -151,7 +151,8 @@ namespace ftp_server
                 
                 string[] pathComps = filesMapping["Path"].Split('\\');
 
-                
+                Console.WriteLine($"path mapping is {filesMapping["Path"]}");
+                Console.WriteLine($"File space is {filesSpace}");
                 string fileName = pathComps[pathComps.Length - 1];
                 if(pathComps.Length >= 2)
                 {
@@ -170,7 +171,7 @@ namespace ftp_server
                 int read = 0;
                 long totalRead = 0;
                 FileInfo outputFile = new FileInfo($"{filePath + "\\" + fileName}");
-                
+                Console.WriteLine($"outputFile is : {outputFile.FullName}");
                 StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
                 StreamReader reader = new StreamReader(client.GetStream());
                 
@@ -198,9 +199,13 @@ namespace ftp_server
                
                 Console.WriteLine("All passed?");
                 string msg = "";
-                Dictionary<string,string> result = Database.WriteFile(outputFile, bufferInput["UserId"], filesMapping["Access"], out msg);
-
                 
+
+
+                outputFileStream.Close();
+                Dictionary<string, string> result = Database.WriteFile(outputFile, bufferInput["UserId"], filesMapping["Access"], out msg);
+
+
 
                 if (result == null)
                 {
@@ -208,21 +213,18 @@ namespace ftp_server
                     response = $"Code:{(int)Code.Action_Denied}\r\n" +
                         $"Reason:Server_error\r\n" +
                         $"END\r\n";
-                }  
+                }
                 else
                 {
                     response = $"Code:{(int)Code.Action_Confirm}\r\n" +
                     $"File_Id:{result["Id"]}\r\n" +
-                    $"File_name:{result["File_name"].Remove(0, result["File_name"].IndexOf('\\')+1)}\r\n" +
+                    $"File_name:{result["File_name"].Remove(0, result["File_name"].IndexOf('\\') + 1)}\r\n" +
                     $"File_size:{result["File_size"]}\r\n" +
                     $"Access:{result["Access"]}\r\n" +
                     $"END\r\n";
                 }
                 writer.Write(response);
                 writer.Flush();
-
-
-                outputFileStream.Close();
 
             }
             catch (Exception exception)

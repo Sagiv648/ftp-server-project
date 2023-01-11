@@ -22,9 +22,9 @@ namespace ftp_server
 
         static readonly Mutex dbAccess = new Mutex();
 
-        static readonly string connectionString = Program.envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI;Initial Catalog=FTP_Server" : Program.envConnStr;
+        static readonly string connectionString = Program.envConnStr == null ? "Server=localhost\\SQLEXPRESS;Integrated Security=SSPI;database=FTP_Server" : Program.envConnStr;
         
-        
+        static readonly string filesSpace = Program.envFileStoragePath == null ? $"{Directory.GetCurrentDirectory()}\\Files-space" : Program.envFileStoragePath;
 
         
         public static bool InitTables(out string msg)
@@ -309,7 +309,7 @@ namespace ftp_server
                     {
                         while(reader.Read())
                         {
-                            response = new FileInfo($"{Program.envFileStoragePath}\\{reader["File_name"]}");
+                            response = new FileInfo($"{filesSpace}\\{reader["File_name"]}");
                         }
                         if(response == null)
                         {
@@ -382,8 +382,8 @@ namespace ftp_server
                 {
                     conn.Open();
                     SqlCommand sqlCmd = conn.CreateCommand();
-                    string filePath = file.FullName.Remove(0, Program.envFileStoragePath.Length + 1);
-                    
+                    string filePath = file.FullName.Remove(0, filesSpace.Length + 1);
+                    Console.WriteLine("File length is {0}", file.Length);
                     sqlCmd.CommandText = $"insert Files output inserted.* values ({userId}, '{filePath}', {file.Length},{access})";
                     using(SqlDataReader reader = sqlCmd.ExecuteReader())
                     {

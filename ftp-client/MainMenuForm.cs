@@ -32,8 +32,9 @@ namespace ftp_client
         {
             InitializeComponent();
             uploadedContainer = new CheckedListBox();
-            
 
+            
+            
             //publicFilesToUpload.MouseDoubleClick += Open_Folder;
             //finalizeUploadedFiles.MouseDoubleClick+= Open_Folder;
             
@@ -93,8 +94,8 @@ namespace ftp_client
             {
                 ListView list = (ListView)sender;
                 
-                list.SelectedItems[0].ForeColor = Color.Blue == list.SelectedItems[0].ForeColor ? Color.Black : Color.Blue;
-                if (list.SelectedItems[0].ForeColor == Color.Blue)
+                list.SelectedItems[0].BackColor = Color.Orange == list.SelectedItems[0].BackColor ? Color.White : Color.Orange;
+                if (list.SelectedItems[0].BackColor == Color.Orange)
                     fileIds.Add(list.SelectedIndices[0]);
                 else
                     fileIds.Remove(list.SelectedIndices[0]);
@@ -163,13 +164,24 @@ namespace ftp_client
                 {
                     Console.WriteLine(item.ToString());
                 }
-
+                
                 foreach (int item in fileIds)
                 {
-                    
+                    string extension = publicFilesListView.Items[item].SubItems[1].Text.Split('\\').ToList().Last().Split('.').ToList().Last();
+
+                    //Console.WriteLine(publicFilesListView.Items[item].Text);
+                    if(extension == "jpg" || extension == "png")
+                    {
+                        Connection.SendPicPreviewRequest(response["UserName"], response["UserId"], publicFilesListView.Items[item].Text, fb.SelectedPath);
+                        publicFilesListView.Items[item].BackColor = Color.White;
+                        continue;
+                    }
+
+
                     Connection.SendDownloadRequest(response["UserName"], response["UserId"], publicFilesListView.Items[item].Text, fb.SelectedPath);
-                    publicFilesListView.Items[item].ForeColor = Color.Black;
+                    publicFilesListView.Items[item].BackColor = Color.White;
                 }
+                
                 Process.Start("explorer.exe", fb.SelectedPath);
             }
         }
@@ -261,30 +273,30 @@ namespace ftp_client
                 beginUploadBtn.Visible = true;
                 removeSelectedBtn.Visible = true;
             }
-                
+
 
 
             selectedFiles.Items.Clear();
             publicFiles.Items.Clear();
-            for(int i = 0; i < paths.Count;i++)
+            for (int i = 0; i < paths.Count; i++)
             {
-                
-                    paths[i] = paths[i].Remove(0, selectedPath.Length).Insert(0, searchUploadedTxtbox.Text);
+
+                paths[i] = paths[i].Remove(0, selectedPath.Length).Insert(0, searchUploadedTxtbox.Text);
             }
-            
-            for(int i = 0; i < publicFilesContainer.Count; i++)
+
+            for (int i = 0; i < publicFilesContainer.Count; i++)
             {
                 publicFilesContainer[i] = publicFilesContainer[i].Remove(0, selectedPath.Length).Insert(0, searchUploadedTxtbox.Text);
             }
-            
+
 
             selectedPath = searchUploadedTxtbox.Text;
             selectedFiles.Items.AddRange(paths.ToArray());
-            if(publicFilesContainer.Count > 0)
+            if (publicFilesContainer.Count > 0)
                 publicFiles.Items.AddRange(publicFilesContainer.ToArray());
 
-            
-            
+
+
         }
 
         private void setPrivateBtn_Click(object sender, EventArgs e)
@@ -379,7 +391,7 @@ namespace ftp_client
             allFiles.AddRange(publicFilesContainer);
             Dictionary<string,string> uploadResponse = null;
 
-
+            
 
             foreach (var path in allFiles)
             {
@@ -441,15 +453,7 @@ namespace ftp_client
             MessageBox.Show("All uploaded.");
 
 
-            //Dictionary<string, string> uploadResponse = Connection.SendUploadRequest(paths, publicFilesContainer, fb.SelectedPath, searchUploadedTxtbox.Text, response["UserId"], response["UserName"]);
-            //if (uploadResponse != null)
-            //{
-            //    
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Error occured.");
-            //}
+            
 
 
         }

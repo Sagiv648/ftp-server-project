@@ -100,6 +100,12 @@
     <Compile Include="MainMenuForm.Designer.cs">
       <DependentUpon>MainMenuForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="PicturePreviewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PicturePreviewForm.Designer.cs">
+      <DependentUpon>PicturePreviewForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -124,6 +130,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainMenuForm.resx">
       <DependentUpon>MainMenuForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PicturePreviewForm.resx">
+      <DependentUpon>PicturePreviewForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

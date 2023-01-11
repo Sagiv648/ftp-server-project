@@ -375,7 +375,127 @@ namespace ftp_client
 
 
 
-        
+        public static bool SendPicPreviewRequest(string userName, string userId, string fileId, string physicalPathDestination)
+        {
+            StringBuilder packetBuilder = new StringBuilder();
+
+            packetBuilder = packetBuilder.Append(headerDownloadRequest);
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Download).ToString());
+            packetBuilder = packetBuilder.Replace("2%", userId);
+            packetBuilder = packetBuilder.Replace("3%", userName);
+            packetBuilder = packetBuilder.Replace("%", $"File:{fileId}");
+            //Console.WriteLine(packetBuilder.ToString());
+            Console.WriteLine(packetBuilder);
+
+            try
+            {
+                client = new TcpClient();
+                client.Connect(server);
+                StreamWriter writer = new StreamWriter(client.GetStream());
+                StreamReader reader = new StreamReader(client.GetStream());
+                writer.Write(packetBuilder.ToString());
+                writer.Flush();
+                string tmp = "";
+
+                //Console.WriteLine(reader.ReadLine() + " here one");
+                string[] tmpArr = null;
+                while ((tmp = reader.ReadLine()) != null)
+                {
+                    Console.WriteLine(tmp);
+                    //tmp = reader.ReadLine();
+                    tmpArr = tmp.Split(':');
+                    if (tmpArr.Length == 2)
+                        break;
+                }
+                if (tmpArr.Length != 2)
+                {
+                    Console.WriteLine("Here");
+                    client.Close();
+
+                    return false;
+                }
+                string fileName = "";
+                long fileSz = 0;
+                Console.WriteLine(tmpArr[0] + ":" + tmpArr[1] + " here sec");
+                for (int i = 0; i < tmpArr.Length; i++)
+                {
+                    if (!long.TryParse(tmpArr[i], out fileSz))
+                    {
+                        fileName = tmpArr[i];
+                    }
+                }
+                Console.WriteLine("sz is {0}", fileSz);
+                if (fileSz == 0)
+                {
+                    Console.WriteLine("what here?");
+                    client.Close();
+
+                    return false;
+                }
+
+                writer.Write("START\r\nEND\r\n");
+                writer.Flush();
+
+                FileInfo downloadLogger = new FileInfo("download.log");
+
+
+
+                MemoryStream mem = new MemoryStream();
+                
+               
+                FileStream loggerStream = downloadLogger.OpenWrite();
+                writer = new StreamWriter(loggerStream);
+                byte[] buffer = new byte[64000];
+
+
+
+                writer.WriteLine($"START DOWNLOAD {fileName} - 0/{fileSz} - {DateTime.Now}");
+                writer.BaseStream.Seek(downloadLogger.Length, SeekOrigin.Begin);
+                long totalRead = 0;
+                int read = 0;
+
+                Console.WriteLine("Reading now");
+
+                while (totalRead < fileSz)
+                {
+                    read = client.GetStream().Read(buffer, 0, buffer.Length);
+                    totalRead += read;
+                    mem.Write(buffer, 0, read);
+
+                    mem.Seek(totalRead, SeekOrigin.Begin);
+                    writer.WriteLine($"COMMIT DOWNLOAD {fileName} - {totalRead}/{fileSz} - {DateTime.Now}");
+                    writer.BaseStream.Seek(downloadLogger.Length, SeekOrigin.Begin);
+
+                }
+                client.Close();
+                
+                
+
+
+                writer.WriteLine($"END DOWNLOAD {fileName} - {totalRead}/{fileSz} - {DateTime.Now}");
+                writer.Close();
+                Form picView = new PicturePreviewForm(mem);
+               
+                picView.ShowDialog();
+                picView.Dispose();
+                mem.Close();
+
+
+                
+
+            }
+            catch (Exception exception)
+            {
+
+                Console.WriteLine($"ERROR AT {exception.Source} - {exception.Message}");
+                Console.WriteLine(exception.StackTrace);
+                return false;
+            }
+
+
+
+            return true;
+        }
 
         public static bool SendDownloadRequest(string userName, string userId, string fileId, string physicalPathDestination)
         {
@@ -440,6 +560,9 @@ namespace ftp_client
 
                 FileInfo downloadLogger = new FileInfo("download.log");
                 FileInfo newFile = new FileInfo($"{physicalPathDestination}\\{fileName}");
+
+                
+
                 FileStream fStream = newFile.Create();
                 fStream.Close();
                 fStream = newFile.OpenWrite();

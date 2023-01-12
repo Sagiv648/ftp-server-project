@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PicturePreviewForm));
             this.pictureBoxDisplayPreview = new System.Windows.Forms.PictureBox();
             this.picSaveBtn = new System.Windows.Forms.Button();
             this.picDropBtn = new System.Windows.Forms.Button();
@@ -54,6 +55,7 @@
             this.picSaveBtn.TabIndex = 1;
             this.picSaveBtn.Text = "Save";
             this.picSaveBtn.UseVisualStyleBackColor = true;
+            this.picSaveBtn.Click += new System.EventHandler(this.picSaveBtn_Click);
             // 
             // picDropBtn
             // 
@@ -66,6 +68,7 @@
             this.picDropBtn.TabIndex = 2;
             this.picDropBtn.Text = "Drop";
             this.picDropBtn.UseVisualStyleBackColor = true;
+            this.picDropBtn.Click += new System.EventHandler(this.picDropBtn_Click);
             // 
             // PicturePreviewForm
             // 
@@ -78,6 +81,7 @@
             this.Controls.Add(this.picDropBtn);
             this.Controls.Add(this.picSaveBtn);
             this.Controls.Add(this.pictureBoxDisplayPreview);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PicturePreviewForm";
             this.Text = "PicturePreviewForm";
             this.Load += new System.EventHandler(this.PicturePreviewForm_Load);

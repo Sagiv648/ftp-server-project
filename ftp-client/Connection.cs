@@ -22,8 +22,8 @@ namespace ftp_client
         static readonly string serverIP = "127.0.0.1";
         static readonly int port = 20;
         static IPEndPoint server = new IPEndPoint(IPAddress.Parse(serverIP), port);
-        
-        
+
+
         static readonly string headerRequest = "Code:1%\r\n" +
             "UserId:2%\r\n" +
             "UserName:3%\r\n" +
@@ -80,9 +80,9 @@ namespace ftp_client
             return true;
         }
 
-        public static Dictionary<string,string> SendRefreshRequest(string userName, string userId)
+        public static Dictionary<string, string> SendRefreshRequest(string userName, string userId)
         {
-            
+
             string packet = $"Code:{((int)Code.Public_Files_Refresh)}\r\n" +
                 $"UserName:{userName}\r\nUserId:{userId}\r\nEND\r\n";
             Dictionary<string, string> result = null;
@@ -92,8 +92,8 @@ namespace ftp_client
                 {
                     client.Connect(server);
                     StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
-                    
-                    
+
+
                     writer.Write(packet);
                     writer.Flush();
 
@@ -112,7 +112,7 @@ namespace ftp_client
 
                             result.Add(tempArr[0], files);
                         }
-                        else if(tempArr.Length == 2)
+                        else if (tempArr.Length == 2)
                             result.Add(tempArr[0], tempArr[1]);
                     }
                 }
@@ -131,18 +131,18 @@ namespace ftp_client
         /// Will send a userInfo request to the server to try for a session.
         /// </summary>
         /// <returns><b>Dictionary with fields and their values</b> if the session is valid and <b>null</b> if the session is invalid.</returns>
-        public static Dictionary<string,string> TrySession()
+        public static Dictionary<string, string> TrySession()
         {
             StringBuilder packetBuilder = new StringBuilder();
 
             packetBuilder.Append(userInfoRequest);
             packetBuilder = packetBuilder.Replace("1%", ((int)Code.Session_Trying).ToString());
-            
+
             //Console.WriteLine(packetBuilder);
             StreamReader reader;
             StreamWriter writer;
             Dictionary<string, string> output = null;
-            
+
             try
             {
                 client = new TcpClient();
@@ -154,7 +154,7 @@ namespace ftp_client
                 writer.Write(packetBuilder.ToString());
                 writer.Flush();
                 output = new Dictionary<string, string>();
-                while( (temp = reader.ReadLine()) != "END")
+                while ((temp = reader.ReadLine()) != "END")
                 {
                     string[] tempArr = temp.Split(':');
                     if (tempArr[0] == "Your_Files" || tempArr[0] == "PublicFiles")
@@ -163,41 +163,41 @@ namespace ftp_client
                         for (int i = 1; i < tempArr.Length; i++)
                             files += $"{tempArr[i]}:";
                         files = files.Remove(files.Length - 1, 1);
-                        
+
                         output.Add(tempArr[0], files);
                     }
                     else
-                    output.Add(tempArr[0], tempArr[1]);
+                        output.Add(tempArr[0], tempArr[1]);
                 }
             }
             catch (Exception exception)
             {
                 client.Close();
-                if(exception is SocketException)
+                if (exception is SocketException)
                 {
                     Console.WriteLine("Network error");
                 }
-                else if(exception is ObjectDisposedException)
+                else if (exception is ObjectDisposedException)
                 {
                     Console.WriteLine("Connection closed");
                 }
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-                
+
                 return null;
             }
             client.Close();
-            
-            
+
+
             return output;
         }
-        
+
         /// <summary>
         /// Will send a userInfo request to the server to login to the server.
         /// </summary>
         /// <param name="userEmail"></param>
         /// <param name="userPassword"></param>
         /// <returns><b>Dictionary with the fields and their values</b> if the user managed to login successfully and <b>null</b> if the login didn't manage to login successfully.</returns>
-        public static Dictionary<string,string> SendLoginRequest(string userEmail, string userPassword)
+        public static Dictionary<string, string> SendLoginRequest(string userEmail, string userPassword)
         {
             StringBuilder packetBuilder = new StringBuilder();
 
@@ -223,11 +223,11 @@ namespace ftp_client
                 writer.Write(packetBuilder.ToString());
                 writer.Flush();
                 output = new Dictionary<string, string>();
-                while( (temp = reader.ReadLine()) != "END")
+                while ((temp = reader.ReadLine()) != "END")
                 {
                     string[] tempArr = temp.Split(':');
                     output.Add(tempArr[0], tempArr[1]);
-                    
+
                 }
 
             }
@@ -244,7 +244,7 @@ namespace ftp_client
                     Console.WriteLine("Connection closed");
                 }
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-                
+
                 return null;
             }
             foreach (var item in output)
@@ -252,7 +252,7 @@ namespace ftp_client
                 Console.WriteLine($"{item.Key}: {item.Value}");
             }
             client.Close();
-            
+
             return output;
         }
 
@@ -263,7 +263,7 @@ namespace ftp_client
         /// <param name="userEmail"></param>
         /// <param name="userPassword"></param>
         /// <returns><b>Dictionary with the fields and their values</b> if the user managed to login successfully and <b>null</b> if the login didn't manage to login successfully.</returns>
-        public static Dictionary<string,string> SendRegisterRequest(string userName, string userEmail, string userPassword)
+        public static Dictionary<string, string> SendRegisterRequest(string userName, string userEmail, string userPassword)
         {
             StringBuilder packetBuilder = new StringBuilder();
 
@@ -285,12 +285,12 @@ namespace ftp_client
                 writer.Write(packetBuilder.ToString());
                 writer.Flush();
                 response = new Dictionary<string, string>();
-                while((temp = reader.ReadLine()) != "END") 
+                while ((temp = reader.ReadLine()) != "END")
                 {
                     string[] tempArr = temp.Split(':');
                     response.Add(tempArr[0], tempArr[1]);
                 }
-                   
+
             }
             catch (Exception exception)
             {
@@ -304,7 +304,7 @@ namespace ftp_client
                     Console.WriteLine("Connection closed");
                 }
                 Console.WriteLine($"{exception.Message}\n{exception.Source}");
-                
+
                 return null;
 
             }
@@ -314,7 +314,7 @@ namespace ftp_client
                 Console.WriteLine($"{item.Key}: {item.Value}");
             }
             client.Close();
-            
+
             return response;
 
         }
@@ -322,7 +322,7 @@ namespace ftp_client
         /// <summary>
         /// Will send a userInfo request to the server to destroy the current session.
         /// </summary>
-        public static Dictionary<string,string> SendLogoutRequest(string userId)
+        public static Dictionary<string, string> SendLogoutRequest(string userId)
         {
             StringBuilder packetBuilder = new StringBuilder();
 
@@ -341,7 +341,7 @@ namespace ftp_client
                 writer.Flush();
                 response = new Dictionary<string, string>();
                 string temp = "";
-                while((temp = reader.ReadLine()) != "END") 
+                while ((temp = reader.ReadLine()) != "END")
                 {
                     string[] tempArr = temp.Split(':');
                     response.Add(tempArr[0], tempArr[1]);
@@ -369,13 +369,139 @@ namespace ftp_client
                 Console.WriteLine($"{item.Key}: {item.Value}");
             }
             client.Close();
-            
+
             return response;
         }
 
 
 
-        public static bool SendPicPreviewRequest(string userName, string userId, string fileId, string physicalPathDestination)
+        public static string SendPicPreviewRequest(string userName, string userId, string fileId, string physicalPathDestination)
+        {
+            StringBuilder packetBuilder = new StringBuilder();
+
+            packetBuilder = packetBuilder.Append(headerDownloadRequest);
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Download).ToString());
+            packetBuilder = packetBuilder.Replace("2%", userId);
+            packetBuilder = packetBuilder.Replace("3%", userName);
+            packetBuilder = packetBuilder.Replace("%", $"File:{fileId}");
+            //Console.WriteLine(packetBuilder.ToString());
+            Console.WriteLine(packetBuilder);
+            Console.WriteLine("File id is {0}", fileId);
+            try
+            {
+                client = new TcpClient();
+                client.Connect(server);
+                StreamWriter writer = new StreamWriter(client.GetStream());
+                StreamReader reader = new StreamReader(client.GetStream());
+                writer.Write(packetBuilder.ToString());
+                writer.Flush();
+                string tmp = "";
+
+                //Console.WriteLine(reader.ReadLine() + " here one");
+                string[] tmpArr = null;
+                while ((tmp = reader.ReadLine()) != null)
+                {
+                    Console.WriteLine(tmp);
+                    //tmp = reader.ReadLine();
+                    tmpArr = tmp.Split(':');
+                    if (tmpArr.Length == 2)
+                        break;
+                }
+                if (tmpArr.Length != 2)
+                {
+                    Console.WriteLine("Here");
+                    client.Close();
+
+                    return "Error";
+                }
+                string fileName = "";
+                long fileSz = 0;
+                Console.WriteLine(tmpArr[0] + ":" + tmpArr[1] + " here sec");
+                for (int i = 0; i < tmpArr.Length; i++)
+                {
+                    if (!long.TryParse(tmpArr[i], out fileSz))
+                    {
+                        fileName = tmpArr[i];
+                    }
+                }
+                Console.WriteLine("sz is {0}", fileSz);
+                if (fileSz == 0)
+                {
+                    Console.WriteLine("what here?");
+                    client.Close();
+
+                    return "Error";
+                }
+
+                writer.Write("START\r\nEND\r\n");
+                writer.Flush();
+
+                FileInfo downloadLogger = new FileInfo("download.log");
+
+
+
+                MemoryStream mem = new MemoryStream();
+
+
+                FileStream loggerStream = downloadLogger.OpenWrite();
+                writer = new StreamWriter(loggerStream);
+                byte[] buffer = new byte[64000];
+
+
+
+                writer.WriteLine($"START DOWNLOAD {fileName} - 0/{fileSz} - {DateTime.Now}");
+                writer.BaseStream.Seek(downloadLogger.Length, SeekOrigin.Begin);
+                long totalRead = 0;
+                int read = 0;
+
+                Console.WriteLine("Reading now");
+
+                while (totalRead < fileSz)
+                {
+                    read = client.GetStream().Read(buffer, 0, buffer.Length);
+                    totalRead += read;
+                    mem.Write(buffer, 0, read);
+
+                    mem.Seek(totalRead, SeekOrigin.Begin);
+                    writer.WriteLine($"COMMIT DOWNLOAD {fileName} - {totalRead}/{fileSz} - {DateTime.Now}");
+                    writer.BaseStream.Seek(downloadLogger.Length, SeekOrigin.Begin);
+
+                }
+                client.Close();
+
+
+
+
+                writer.WriteLine($"END DOWNLOAD {fileName} - {totalRead}/{fileSz} - {DateTime.Now}");
+                writer.Close();
+
+                PicturePreviewForm picView = new PicturePreviewForm(mem, physicalPathDestination, fileName);
+
+                DialogResult res = picView.ShowDialog();
+                if (res == DialogResult.No || res == DialogResult.Cancel)
+                {
+                    mem.Dispose();
+                    return "Dropped";
+                }
+                picView.Dispose();
+                Console.WriteLine("It saved");
+                mem.Dispose();
+
+            }
+            catch (Exception exception)
+            {
+
+                Console.WriteLine($"ERROR AT {exception.Source} - {exception.Message}");
+                Console.WriteLine(exception.StackTrace);
+                return "Error";
+            }
+
+
+
+            return "Saved";
+        }
+
+        public static bool SendDownloadRequest(string userName, string userId, string fileId, string physicalPathDestination)
         {
             StringBuilder packetBuilder = new StringBuilder();
 
@@ -437,12 +563,13 @@ namespace ftp_client
                 writer.Flush();
 
                 FileInfo downloadLogger = new FileInfo("download.log");
+                FileInfo newFile = new FileInfo($"{physicalPathDestination}\\{fileName}");
 
 
 
-                MemoryStream mem = new MemoryStream();
-                
-               
+                FileStream fStream = newFile.Create();
+                fStream.Close();
+                fStream = newFile.OpenWrite();
                 FileStream loggerStream = downloadLogger.OpenWrite();
                 writer = new StreamWriter(loggerStream);
                 byte[] buffer = new byte[64000];
@@ -460,131 +587,8 @@ namespace ftp_client
                 {
                     read = client.GetStream().Read(buffer, 0, buffer.Length);
                     totalRead += read;
-                    mem.Write(buffer, 0, read);
-
-                    mem.Seek(totalRead, SeekOrigin.Begin);
-                    writer.WriteLine($"COMMIT DOWNLOAD {fileName} - {totalRead}/{fileSz} - {DateTime.Now}");
-                    writer.BaseStream.Seek(downloadLogger.Length, SeekOrigin.Begin);
-
-                }
-                client.Close();
-                
-                
-
-
-                writer.WriteLine($"END DOWNLOAD {fileName} - {totalRead}/{fileSz} - {DateTime.Now}");
-                writer.Close();
-                Form picView = new PicturePreviewForm(mem);
-               
-                picView.ShowDialog();
-                picView.Dispose();
-                mem.Close();
-
-
-                
-
-            }
-            catch (Exception exception)
-            {
-
-                Console.WriteLine($"ERROR AT {exception.Source} - {exception.Message}");
-                Console.WriteLine(exception.StackTrace);
-                return false;
-            }
-
-
-
-            return true;
-        }
-
-        public static bool SendDownloadRequest(string userName, string userId, string fileId, string physicalPathDestination)
-        {
-            StringBuilder packetBuilder = new StringBuilder();
-
-            packetBuilder = packetBuilder.Append(headerDownloadRequest);
-            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Download).ToString());
-            packetBuilder = packetBuilder.Replace("2%", userId);
-            packetBuilder = packetBuilder.Replace("3%", userName);
-            packetBuilder = packetBuilder.Replace("%", $"File:{fileId}");
-            //Console.WriteLine(packetBuilder.ToString());
-            Console.WriteLine(packetBuilder);
-            
-            try
-            {
-                client = new TcpClient();
-                client.Connect(server);
-                StreamWriter writer = new StreamWriter(client.GetStream());
-                StreamReader reader = new StreamReader(client.GetStream());
-                writer.Write(packetBuilder.ToString());
-                writer.Flush();
-                string tmp = "";
-
-                //Console.WriteLine(reader.ReadLine() + " here one");
-                string[] tmpArr = null;
-                while ((tmp = reader.ReadLine()) != null)
-                {
-                    Console.WriteLine(tmp);
-                    //tmp = reader.ReadLine();
-                    tmpArr = tmp.Split(':');
-                    if (tmpArr.Length == 2)
-                        break;
-                }
-                if(tmpArr.Length != 2)
-                {
-                    Console.WriteLine("Here");
-                    client.Close();
-                    
-                    return false;
-                }
-                string fileName = "";
-                long fileSz = 0;
-                Console.WriteLine(tmpArr[0] + ":" + tmpArr[1]+" here sec");
-                for(int i = 0; i < tmpArr.Length; i++)
-                {
-                    if (!long.TryParse(tmpArr[i], out fileSz))
-                    {
-                        fileName = tmpArr[i];
-                    }
-                }
-                Console.WriteLine("sz is {0}", fileSz);
-                if(fileSz == 0)
-                {
-                    Console.WriteLine("what here?");
-                    client.Close();
-                    
-                    return false;
-                }
-
-                writer.Write("START\r\nEND\r\n");
-                writer.Flush();
-
-                FileInfo downloadLogger = new FileInfo("download.log");
-                FileInfo newFile = new FileInfo($"{physicalPathDestination}\\{fileName}");
-
-                
-
-                FileStream fStream = newFile.Create();
-                fStream.Close();
-                fStream = newFile.OpenWrite();
-                FileStream loggerStream = downloadLogger.OpenWrite();
-                writer = new StreamWriter(loggerStream);
-                byte[] buffer = new byte[64000];
-
-               
-
-                writer.WriteLine($"START DOWNLOAD {fileName} - 0/{fileSz} - {DateTime.Now}");
-                writer.BaseStream.Seek(downloadLogger.Length, SeekOrigin.Begin);
-                long totalRead = 0;
-                int read = 0;
-
-                Console.WriteLine("Reading now");
-
-                while(totalRead < fileSz)
-                {
-                    read = client.GetStream().Read(buffer, 0, buffer.Length);
-                    totalRead += read;
                     fStream.Write(buffer, 0, read);
-                    
+
                     fStream.Seek(totalRead, SeekOrigin.Begin);
                     writer.WriteLine($"COMMIT DOWNLOAD {fileName} - {totalRead}/{fileSz} - {DateTime.Now}");
                     writer.BaseStream.Seek(downloadLogger.Length, SeekOrigin.Begin);
@@ -605,9 +609,52 @@ namespace ftp_client
             }
 
 
-            
+
             return true;
 
+        }
+
+        public static bool SendRenameRequest(string userName, string userId, string fileId, string newName)
+        {
+            StringBuilder packetBuilder = new StringBuilder();
+
+            packetBuilder = packetBuilder.Append(headerDownloadRequest);
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Rename).ToString());
+            packetBuilder = packetBuilder.Replace("2%", userId);
+            packetBuilder = packetBuilder.Replace("3%", userName);
+            packetBuilder = packetBuilder.Replace("%", $"File:{fileId}\r\nNewName:{newName}");
+
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return true;
+        }
+        public static bool SendDeleteRequest(string userName, string userId, string fileId)
+        {
+            StringBuilder packetBuilder = new StringBuilder();
+
+            packetBuilder = packetBuilder.Append(headerDownloadRequest);
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Rename).ToString());
+            packetBuilder = packetBuilder.Replace("2%", userId);
+            packetBuilder = packetBuilder.Replace("3%", userName);
+            packetBuilder = packetBuilder.Replace("%", $"File:{fileId}");
+
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return true;
         }
 
         public static Dictionary<string,string> SendUploadRequest(string physicalPath, string virtualPath,string virtualRootPath,string access,string userId, string userName )

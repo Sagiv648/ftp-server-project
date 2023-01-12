@@ -160,11 +160,8 @@ namespace ftp_client
 
                 
 
-                foreach (var item in publicFilesListView.Items)
-                {
-                    Console.WriteLine(item.ToString());
-                }
                 
+                List<string> rejected = new List<string>();
                 foreach (int item in fileIds)
                 {
                     string extension = publicFilesListView.Items[item].SubItems[1].Text.Split('\\').ToList().Last().Split('.').ToList().Last();
@@ -172,17 +169,25 @@ namespace ftp_client
                     //Console.WriteLine(publicFilesListView.Items[item].Text);
                     if(extension == "jpg" || extension == "png")
                     {
-                        Connection.SendPicPreviewRequest(response["UserName"], response["UserId"], publicFilesListView.Items[item].Text, fb.SelectedPath);
+                        Console.WriteLine("pic is " +publicFilesListView.Items[item].Text);
+                        string res = Connection.SendPicPreviewRequest(response["UserName"], response["UserId"], publicFilesListView.Items[item].Text, fb.SelectedPath);
                         publicFilesListView.Items[item].BackColor = Color.White;
+                        if (res == "Dropped")
+                            rejected.Add(publicFilesListView.Items[item].Text);
                         continue;
                     }
 
 
-                    Connection.SendDownloadRequest(response["UserName"], response["UserId"], publicFilesListView.Items[item].Text, fb.SelectedPath);
+                    if(!Connection.SendDownloadRequest(response["UserName"], response["UserId"], publicFilesListView.Items[item].Text, fb.SelectedPath))
+                    {
+                        rejected.Add(publicFilesListView.Items[item].Text);
+                    }
                     publicFilesListView.Items[item].BackColor = Color.White;
                 }
-                
-                Process.Start("explorer.exe", fb.SelectedPath);
+                if(rejected.Count < fileIds.Count)
+                    Process.Start("explorer.exe", fb.SelectedPath);
+
+                fileIds.Clear();
             }
         }
 

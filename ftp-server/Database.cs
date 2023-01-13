@@ -602,6 +602,50 @@ namespace ftp_server
 
         }
 
+        public static void DestroyFileEntry(string fileId, string userId, out string err)
+        {
+            err = "";
+            dbAccess.WaitOne();
+            try
+            {
+                string logicalPath = "";
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = conn.CreateCommand();
+                    cmd.CommandText = $"delete from Files output deleted.File_name where Id = {fileId} and User_Id = {userId}";
 
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            logicalPath = reader["File_name"].ToString();
+                        }
+                    }
+                }
+                DirectoryInfo dir = new DirectoryInfo($"{filesSpace}\\{logicalPath.Substring(0,logicalPath.LastIndexOf('\\'))}");
+                Console.WriteLine(dir.FullName);
+                List<FileSystemInfo> fEntries = dir.GetFileSystemInfos().ToList();
+                fEntries.Find(x => x.FullName == $"{filesSpace}\\{logicalPath}").Delete();
+                fEntries.RemoveAll(x => x.FullName == $"{filesSpace}\\{logicalPath}");
+                if (fEntries.Count == 0)
+                    dir.Delete();
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                if (ex is IOException)
+                    err = "Error occured with server";
+                else
+                    err = ex.Message;
+            }
+            finally
+            {
+                dbAccess.ReleaseMutex();
+            }
+        }
     }
 }

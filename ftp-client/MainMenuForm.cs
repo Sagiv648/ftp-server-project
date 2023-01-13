@@ -532,7 +532,8 @@ namespace ftp_client
                         {
                             if (lvit.Text == item.Text)
                                 q.Enqueue(lvit);
-                        } 
+                        }
+                        MessageBox.Show($"{item.SubItems[1].Text} has been deleted successfully", "",MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
 
                 }

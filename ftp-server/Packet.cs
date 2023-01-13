@@ -101,15 +101,16 @@ namespace ftp_server
 
                         return (int)Code.File_Download;
 
-                    case (int)Code.File_Rename:
-
-
-                        return (int)Code.File_Rename;
-
                     case (int)Code.File_Delete:
 
+                        RecieveDeleteRequest(buffer, client,out responsePacket);
+                        if(responsePacket != "")
+                            return (int)Code.Action_Denied;
+
                         return (int)Code.File_Delete;
+
                     case (int)Code.Public_Files_Refresh:
+
                         Console.WriteLine("enter here?");
                         string errMsg = "";
                         string publicFiles = Database.GetAllPublicFiles(out errMsg);
@@ -237,29 +238,11 @@ namespace ftp_server
         {
             try
             {
-                //string storagePath = filesSpace;
+                
                 StreamReader reader = new StreamReader(client.GetStream());
                 StreamWriter writer = new StreamWriter(client.GetStream());
-                //DirectoryInfo dir = new DirectoryInfo(storagePath);
+                
 
-                //TODO: Query the db to get the file path by the file Id -> storagePath + file path = absolute path to the file.
-                //FileInfo[] allFiles = dir.GetFiles($"*", SearchOption.AllDirectories);
-                //FileInfo file = null;
-                //foreach (var item in allFiles)
-                //{
-
-                //    if (item.FullName.Contains(bufferInput["File"]) && item.Attributes != FileAttributes.Hidden)
-                //    {
-                //        file = item;
-                //        break;
-                //    }
-                //}
-                //if (file == null)
-                //{
-                //    client.Close();
-                //    return false;
-
-                //}
                 string errMsg = "";
                 FileInfo file = Database.GetFileById(bufferInput["File"],out errMsg);
                 if(file == null || errMsg != "")
@@ -306,29 +289,35 @@ namespace ftp_server
             return true;
         }
 
+        public static void RecieveDeleteRequest(Dictionary<string,string> bufferInput, TcpClient cl, out string responsePacket)
+        {
+            responsePacket = "";
+            
+            try
+            {
+                StreamReader reader = new StreamReader(cl.GetStream(), Encoding.ASCII);
+                StreamWriter writer = new StreamWriter(cl.GetStream(), Encoding.ASCII);
+                string fileId = bufferInput["File"];
+                string err = "";
+                Database.DestroyFileEntry(fileId, bufferInput["UserId"],out err);
+                string res = $"Code:{(err == "" ? (int)Code.Action_Confirm : (int)Code.Action_Denied)}\r\nMessage:{err}\r\nEND\r\n";
+                writer.Write(res);
+                writer.Flush();
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                responsePacket = ex.Message;
+            }
+        }
+
         public static int RecieveUserInfo(Dictionary<string,string> bufferInput, TcpClient cl, out string responsePacket)
         {
             responsePacket = "";
             Dictionary<string,string> buffer = new Dictionary<string, string>(bufferInput);
-            //UserInfo Packet request should look like this
-            /* Code:[]\r\n
-             * UserName:[]\r\n
-             * UserEmail:[]\r\n
-             * HashedPassword:[]\r\n
-             * 
-             * 
-             * 
-             */
-            //UserInfo Packet response should look like this
-            /* Code:[]\r\n
-             * UserName:[]\r\n
-             * Your_Files:[]\r\n
-             * PublicFiles:[]|[]|[]|[]...|[]\r\n
-             * 
-             * 
-             * 
-             * 
-             */
+            
             IPAddress clIp = IPAddress.Parse(((IPEndPoint)cl.Client.RemoteEndPoint).Address.ToString());
 
             if (!buffer.ContainsKey("Code"))

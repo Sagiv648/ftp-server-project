@@ -614,45 +614,50 @@ namespace ftp_client
 
         }
 
-        public static bool SendRenameRequest(string userName, string userId, string fileId, string newName)
-        {
-            StringBuilder packetBuilder = new StringBuilder();
-
-            packetBuilder = packetBuilder.Append(headerDownloadRequest);
-            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Rename).ToString());
-            packetBuilder = packetBuilder.Replace("2%", userId);
-            packetBuilder = packetBuilder.Replace("3%", userName);
-            packetBuilder = packetBuilder.Replace("%", $"File:{fileId}\r\nNewName:{newName}");
-
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-            return true;
-        }
         public static bool SendDeleteRequest(string userName, string userId, string fileId)
         {
             StringBuilder packetBuilder = new StringBuilder();
 
             packetBuilder = packetBuilder.Append(headerDownloadRequest);
-            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Rename).ToString());
+            packetBuilder = packetBuilder.Replace("1%", ((int)Code.File_Delete).ToString());
             packetBuilder = packetBuilder.Replace("2%", userId);
             packetBuilder = packetBuilder.Replace("3%", userName);
             packetBuilder = packetBuilder.Replace("%", $"File:{fileId}");
 
             try
             {
-
+                client = new TcpClient();
+                client.Connect(server);
+                StreamReader reader = new StreamReader(client.GetStream(), Encoding.ASCII);
+                StreamWriter writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
+                writer.Write(packetBuilder.ToString());
+                writer.Flush();
+                string tmp = "";
+                Dictionary<string, string> response = new Dictionary<string, string>();
+                while((tmp = reader.ReadLine()) != null)
+                {
+                    string[] tmpArr = tmp.Split(':');
+                    if(tmpArr.Length == 2)
+                    {
+                        response.Add(tmpArr[0], tmpArr[1]);
+                    }
+                }
+                client.Close();
+                if(!response.ContainsKey("Code"))
+                    return false;
+                
+                int codeTest = 0;
+                if (!int.TryParse(response["Code"],out codeTest) || codeTest != (int)Code.Action_Confirm)
+                    return false;
+                
             }
             catch (Exception ex)
             {
+                client.Close();
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
 
-                throw;
+                return false;
             }
             return true;
         }

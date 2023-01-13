@@ -176,10 +176,7 @@ namespace ftp_server
                 StreamReader reader = new StreamReader(client.GetStream());
                 
                 FileStream outputFileStream = outputFile.Create();
-                if (filesMapping["Access"] == "1")
-                    outputFile.Attributes = FileAttributes.Hidden;
-               
-
+                
                 writer.Write("START\r\nEND\r\n");
                 writer.Flush();
                 //TODO: IMPORTANT! File transfering reciever

@@ -54,7 +54,6 @@
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.renameFileBtn = new System.Windows.Forms.Button();
             this.uploadedFilesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,7 +69,6 @@
             this.refreshListBtn.TabIndex = 1;
             this.refreshListBtn.Text = "Refresh List";
             this.refreshListBtn.UseVisualStyleBackColor = true;
-            this.refreshListBtn.Click += refreshListBtn_Click;
             // 
             // publicFilesLbl
             // 
@@ -145,6 +143,7 @@
             this.deleteFileBtn.TabIndex = 10;
             this.deleteFileBtn.Text = "Delete Files";
             this.deleteFileBtn.UseVisualStyleBackColor = true;
+            this.deleteFileBtn.Click += new System.EventHandler(this.deleteFileBtn_Click);
             // 
             // logoutBtn
             // 
@@ -334,19 +333,6 @@
             this.columnHeader3.Text = "File Size";
             this.columnHeader3.Width = 146;
             // 
-            // renameFileBtn
-            // 
-            this.renameFileBtn.BackgroundImage = global::ftp_client.Properties.Resources.background;
-            this.renameFileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.renameFileBtn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.renameFileBtn.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.renameFileBtn.Location = new System.Drawing.Point(978, 348);
-            this.renameFileBtn.Name = "renameFileBtn";
-            this.renameFileBtn.Size = new System.Drawing.Size(118, 42);
-            this.renameFileBtn.TabIndex = 21;
-            this.renameFileBtn.Text = "Rename File";
-            this.renameFileBtn.UseVisualStyleBackColor = true;
-            // 
             // MainMenuForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -355,7 +341,6 @@
             this.BackgroundImage = global::ftp_client.Properties.Resources.background;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1270, 565);
-            this.Controls.Add(this.renameFileBtn);
             this.Controls.Add(this.privateFilesListView);
             this.Controls.Add(this.publicFilesListView);
             this.Controls.Add(this.removeSelectedBtn);
@@ -406,6 +391,5 @@
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.Button renameFileBtn;
     }
 }

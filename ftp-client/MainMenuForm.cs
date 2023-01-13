@@ -28,6 +28,7 @@ namespace ftp_client
         List<string> paths = new List<string>();
         FilesExplorer explorer = null;
         List<int> fileIds = new List<int>();
+        List<int> fileIdsToDelete = new List<int>();
         public MainMenuForm()
         {
             InitializeComponent();
@@ -44,8 +45,8 @@ namespace ftp_client
             }
 
             FormClosing += Program.CloseForm;
-            publicFilesListView.MouseDoubleClick += PublicFilesListView_MouseClick;
-
+            publicFilesListView.MouseDoubleClick += ListView_MouseClick;
+            privateFilesListView.MouseDoubleClick += ListView_MouseClick;
          
 
             if (response == null)
@@ -87,18 +88,31 @@ namespace ftp_client
             
         }
 
-        private void PublicFilesListView_MouseClick(object sender, MouseEventArgs e)
+        private void ListView_MouseClick(object sender, MouseEventArgs e)
         {
             
             if(e.Button == MouseButtons.Left)
             {
                 ListView list = (ListView)sender;
-                
-                list.SelectedItems[0].BackColor = Color.Orange == list.SelectedItems[0].BackColor ? Color.White : Color.Orange;
-                if (list.SelectedItems[0].BackColor == Color.Orange)
-                    fileIds.Add(list.SelectedIndices[0]);
+
+
+                if (list.Name == publicFilesListView.Name)
+                {
+
+                    list.SelectedItems[0].BackColor = Color.Orange == list.SelectedItems[0].BackColor ? Color.White : Color.Orange;
+                    if (list.SelectedItems[0].BackColor == Color.Orange)
+                        fileIds.Add(list.SelectedIndices[0]);
+                    else
+                        fileIds.Remove(list.SelectedIndices[0]); 
+                }
                 else
-                    fileIds.Remove(list.SelectedIndices[0]);
+                {
+                    list.SelectedItems[0].BackColor = Color.Orange == list.SelectedItems[0].BackColor ? Color.White : Color.Orange;
+                    if (list.SelectedItems[0].BackColor == Color.Orange)
+                        fileIdsToDelete.Add(list.SelectedIndices[0]);
+                    else
+                        fileIdsToDelete.Remove(list.SelectedIndices[0]);
+                }
             }
             
         }
@@ -220,7 +234,9 @@ namespace ftp_client
                 for (int i = 0; i < paths.Count; i++)
                 {
                     if (paths[i].Split('\\')[0] != searchUploadedTxtbox.Text)
-                        paths[i] = paths[i].Remove(0, selectedPath.Length).Insert(0, searchUploadedTxtbox.Text);
+                        paths[i] = paths[i].Remove(0, selectedPath.Length).Insert(0, 
+                            paths[i][selectedPath.Length] != '\\' ? '\\'+ searchUploadedTxtbox.Text : searchUploadedTxtbox.Text);
+                    Console.WriteLine(paths[i]);
                 }
                 selectedPath = searchUploadedTxtbox.Text;
                 selectedFiles.Items.AddRange(paths.ToArray());
@@ -450,6 +466,8 @@ namespace ftp_client
                 }
             }
             uploadedFilesPanel.Visible = false;
+            removeSelectedBtn.Visible = false;
+            beginUploadBtn.Visible = false;
             paths.Clear();
             publicFilesContainer.Clear();
             publicFiles.Items.Clear();
@@ -479,8 +497,54 @@ namespace ftp_client
             if(selectedFiles.Items.Count == 0 && publicFiles.Items.Count == 0)
             {
                 uploadedFilesPanel.Visible = false;
+                removeSelectedBtn.Visible = false;
+                beginUploadBtn.Visible = false;
             }
                 
+        }
+
+        private void deleteFileBtn_Click(object sender, EventArgs e)
+        {
+            if(fileIdsToDelete.Count > 0)
+            {
+                Queue<ListViewItem> q = new Queue<ListViewItem>();
+               
+                
+                foreach (var ind in fileIdsToDelete)
+                {
+                    q.Enqueue(privateFilesListView.Items[ind]);
+                }
+                
+                foreach (int ind in fileIdsToDelete)
+                {
+
+                    if (!Connection.SendDeleteRequest(response["UserName"], response["UserId"], privateFilesListView.Items[ind].Text))
+                    {
+
+                        MessageBox.Show($"Couldn't delete entry: {privateFilesListView.Items[ind].Text} | {privateFilesListView.Items[ind].SubItems[1].Text}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
+                    else
+                    {
+                        ListViewItem item = q.Dequeue();
+                        privateFilesListView.Items.Remove(item);
+
+                        foreach (ListViewItem lvit in publicFilesListView.Items)
+                        {
+                            if (lvit.Text == item.Text)
+                                q.Enqueue(lvit);
+                        } 
+                    }
+
+                }
+                while(q.Count > 0)
+                {
+                    
+                    publicFilesListView.Items.Remove(q.Dequeue());
+                }
+               
+
+                fileIdsToDelete.Clear();
+            }
         }
     }
 }

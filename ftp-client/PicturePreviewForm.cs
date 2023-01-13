@@ -32,6 +32,7 @@ namespace ftp_client
         private void PicturePreviewForm_Load(object sender, EventArgs e)
         {
             pictureBoxDisplayPreview.Image = Image.FromStream(picStream);
+            
             pictureBoxDisplayPreview.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
